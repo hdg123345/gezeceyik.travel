@@ -192,14 +192,58 @@ destinationCards.forEach(card => {
     observer.observe(card);
 });
 
-// Add parallax effect to hero
-window.addEventListener('scroll', () => {
-    const scrolled = window.pageYOffset;
-    const hero = document.querySelector('.hero');
-    if (hero && scrolled < window.innerHeight) {
-        hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+// FAQ accordion
+const accordion = document.querySelector('[data-accordion]');
+if (accordion) {
+    const items = Array.from(accordion.querySelectorAll('.faq-item'));
+
+    function closeItem(item) {
+        const btn = item.querySelector('.faq-question');
+        const panel = item.querySelector('.faq-answer');
+        if (!btn || !panel) return;
+
+        item.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+        panel.setAttribute('aria-hidden', 'true');
+        panel.style.maxHeight = '0px';
     }
-});
+
+    function openItem(item) {
+        const btn = item.querySelector('.faq-question');
+        const panel = item.querySelector('.faq-answer');
+        if (!btn || !panel) return;
+
+        item.classList.add('is-open');
+        btn.setAttribute('aria-expanded', 'true');
+        panel.setAttribute('aria-hidden', 'false');
+        panel.style.maxHeight = `${panel.scrollHeight}px`;
+    }
+
+    items.forEach((item) => {
+        const btn = item.querySelector('.faq-question');
+        const panel = item.querySelector('.faq-answer');
+        if (!btn || !panel) return;
+
+        // initialize closed
+        closeItem(item);
+
+        btn.addEventListener('click', () => {
+            const isOpen = item.classList.contains('is-open');
+            items.forEach(closeItem);
+            if (!isOpen) openItem(item);
+        });
+    });
+
+    // Recompute open panel height on resize
+    window.addEventListener('resize', () => {
+        items.forEach((item) => {
+            if (!item.classList.contains('is-open')) return;
+            const panel = item.querySelector('.faq-answer');
+            if (!panel) return;
+            panel.style.maxHeight = `${panel.scrollHeight}px`;
+        });
+    });
+}
 
 // Logo click to scroll to top
 document.querySelector('.logo').addEventListener('click', () => {
