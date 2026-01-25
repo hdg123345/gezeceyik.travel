@@ -260,6 +260,51 @@ if (accordion) {
     });
 }
 
+// Contact tabs
+const contactTabsRoot = document.querySelector('[data-contact-tabs]');
+if (contactTabsRoot) {
+    const tabs = Array.from(contactTabsRoot.querySelectorAll('[data-contact-tab]'));
+    const panels = Array.from(contactTabsRoot.querySelectorAll('[data-contact-panel]'));
+
+    function setActive(name) {
+        tabs.forEach((t) => {
+            const isActive = t.getAttribute('data-contact-tab') === name;
+            t.classList.toggle('is-active', isActive);
+            t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            t.tabIndex = isActive ? 0 : -1;
+        });
+
+        panels.forEach((p) => {
+            const isActive = p.getAttribute('data-contact-panel') === name;
+            p.classList.toggle('is-active', isActive);
+            if (isActive) p.removeAttribute('hidden');
+            else p.setAttribute('hidden', '');
+        });
+    }
+
+    tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+            const name = tab.getAttribute('data-contact-tab');
+            if (!name) return;
+            setActive(name);
+        });
+
+        tab.addEventListener('keydown', (e) => {
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+            e.preventDefault();
+            const currentIndex = tabs.indexOf(tab);
+            const dir = e.key === 'ArrowRight' ? 1 : -1;
+            const nextIndex = (currentIndex + dir + tabs.length) % tabs.length;
+            tabs[nextIndex]?.focus();
+            const nextName = tabs[nextIndex]?.getAttribute('data-contact-tab');
+            if (nextName) setActive(nextName);
+        });
+    });
+
+    // init
+    setActive('instagram');
+}
+
 // Logo click to scroll to top
 document.querySelector('.logo').addEventListener('click', () => {
     window.scrollTo({
