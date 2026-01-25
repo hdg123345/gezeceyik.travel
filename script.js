@@ -5,14 +5,14 @@ const countryData = {
         location: 'Barcelona',
         badge: 'Nisan - Mayıs',
         image: 'barcelona.jpg',
-        description: 'Barcelona, İspanya\'nın en büyüleyici şehirlerinden biri. Akdeniz\'in kıyısında yer alan bu şehir, mimarisi, kültürü ve yaşam tarzıyla ziyaretçilerini büyülüyor. Antoni Gaudí\'nin eserlerinden, güzel plajlarına, lezzetli mutfağından canlı gece hayatına kadar her şeyi keşfedeceğiz.',
+        description: 'İspanya, Akdeniz’in enerjisi, tarihi dokusu ve zengin kültürüyle keşfedilmeyi bekleyen bir ülke. Madrid’in tarihi sarayları ve kültürel merkezleri, Barselona’nın modernist mimarisi ve canlı plajları, Sevilla’nın Endülüs havası ve Granada’nın Alhambra’sı gibi şehirler, her köşede unutulmaz deneyimler sunuyor. Valencia’nın renkli festivalleri ve sahilleri, Toledo’nun tarihi sokakları ve Bilbao’nun modern sanat müzeleri, İspanya’yı hem kültürel hem de doğal güzellikleriyle dolu bir keşif rotasına dönüştürüyor.',
         highlights: [
-            { icon: '🏛️', text: 'Sagrada Familia ve Park Güell ziyareti' },
-            { icon: '🏖️', text: 'Akdeniz kıyısında plaj aktiviteleri' },
-            { icon: '🍷', text: 'Yerel şaraplar ve tapas deneyimi' },
-            { icon: '🎨', text: 'Picasso Müzesi ve sanat galerileri' },
-            { icon: '⚽', text: 'Camp Nou stadyum turu' },
-            { icon: '🌃', text: 'Canlı gece hayatı ve eğlence' }
+            { icon: '🏛️', text: 'Tarihi yapılar, kaleler ve modernist mimari' },
+            { icon: '🌊', text: 'Akdeniz ve Atlantik sahillerinde plaj keyfi' },
+            { icon: '🍷', text: 'Tapas, paella ve bölgesel İspanyol mutfağı' },
+            { icon: '🎨', text: 'Sanat galerileri ve kültürel etkinlikler' },
+            { icon: '⛪', text: 'Gotik mahalleler ve etkileyici katedraller' },
+            { icon: '🚴', text: 'Şehir ve kırsal turları, bisikletle keşif' }
         ]
     },
     vietnam: {
@@ -20,14 +20,14 @@ const countryData = {
         location: 'Güneydoğu Asya',
         badge: 'Haziran',
         image: 'vietnam.jpg',
-        description: 'Vietnam, zengin tarihi, muhteşem doğası ve lezzetli mutfağıyla Güneydoğu Asya\'nın en çekici destinasyonlarından biri. Hanoi\'den Ho Chi Minh\'e, Ha Long Bay\'den Mekong Deltası\'na kadar bu büyüleyici ülkeyi birlikte keşfedeceğiz.',
+        description: 'Doğu’nun mistik havasını ve canlı kültürünü hissettiren Vietnam, nefes kesen doğal güzellikleri, tarihi şehirleri ve zengin mutfağıyla keşfedilmeyi bekliyor. Hanoi’nin tarihi sokaklarından Ha Long Körfezi’nin büyüleyici manzaralarına, Hoi An’ın renkli evlerinden tropikal sahillere kadar unutulmaz bir yolculuk sizi bekliyor.',
         highlights: [
-            { icon: '🚣', text: 'Ha Long Bay tekne turu' },
-            { icon: '🏮', text: 'Geleneksel pagodalar ve tapınaklar' },
-            { icon: '🍜', text: 'Pho ve diğer yerel lezzetler' },
-            { icon: '🏍️', text: 'Motorsiklet turları' },
-            { icon: '🌾', text: 'Pirinç tarlaları ve kırsal yaşam' },
-            { icon: '🛍️', text: 'Geleneksel pazarlar ve alışveriş' }
+            { icon: '🌊', text: 'Ha Long Körfezi tekne turları ve doğal güzellikler' },
+            { icon: '🏯', text: 'Hanoi ve Ho Chi Minh şehir turu' },
+            { icon: '🍲', text: 'Vietnam sokak yemekleri ve pho deneyimi' },
+            { icon: '🏝️', text: 'Tropikal plajlar ve ada keşifleri' },
+            { icon: '🎨', text: 'Hoi An’ın renkli tarihi sokakları ve el sanatları' },
+            { icon: '🚲', text: 'Bisiklet turları ve kırsal köy gezileri' }
         ]
     },
     cambodia: {
@@ -35,29 +35,44 @@ const countryData = {
         location: 'Güneydoğu Asya',
         badge: 'Temmuz',
         image: 'cambodia.jpg',
-        description: 'Kamboçya, antik tapınakları ve zengin kültürel mirasıyla büyüleyici bir ülke. Angkor Wat\'ın görkemli yapılarından, başkent Phnom Penh\'in canlı sokaklarına, Tonlé Sap Gölü\'nün yüzen köylerinden geleneksel dans gösterilerine kadar unutulmaz bir deneyim bizi bekliyor.',
+        description: 'Tarihin derin izlerini taşıyan Kamboçya, antik tapınakları, mistik kültürü ve tropikal doğasıyla benzersiz bir yolculuk sunuyor. Angkor Wat’ın görkeminden Phnom Penh’in canlı şehir yaşamına, Tonle Sap Gölü’nün huzurundan kırsal köylerin samimiyetine kadar keşfedilecek çok şey var.',
         highlights: [
-            { icon: '🏛️', text: 'Angkor Wat kompleksi ziyareti' },
-            { icon: '🌅', text: 'Gün doğumu ve gün batımı manzaraları' },
-            { icon: '🛶', text: 'Tonlé Sap Gölü tekne turu' },
-            { icon: '🕉️', text: 'Budist tapınakları ve manastırlar' },
-            { icon: '💃', text: 'Geleneksel Apsara dans gösterileri' },
-            { icon: '🍛', text: 'Kamboçya mutfağı ve yerel lezzetler' }
+            { icon: '🛕', text: 'Angkor Wat ve antik tapınaklar keşfi' },
+            { icon: '🌿', text: 'Tropikal ormanlar ve doğa yürüyüşleri' },
+            { icon: '🏞️', text: 'Tonle Sap Gölü ve su köyleri turu' },
+            { icon: '🍲', text: 'Kamboçya mutfağı ve sokak lezzetleri' },
+            { icon: '🏘️', text: 'Kırsal köyler ve yerel yaşam deneyimi' },
+            { icon: '🎨', text: 'Phnom Penh kültürel turu ve sanat keşfi' }
         ]
     },
     thailand: {
         title: 'Tayland',
         location: 'Güneydoğu Asya',
-        badge: 'Ağustos',
+        badge: 'Ağustos - Eylül',
         image: 'thailand.png',
-        description: 'Tayland, tropikal cenneti, egzotik kültürü ve sıcakkanlı insanlarıyla dünyanın en popüler turizm destinasyonlarından biri. Bangkok\'un canlı sokaklarından, Phuket\'in muhteşem plajlarına, Chiang Mai\'nin mistik atmosferinden geleneksel masaj ve spa deneyimlerine kadar her şeyi keşfedeceğiz.',
+        description: 'Tropikal cenneti, egzotik kültürü ve sıcakkanlı insanlarıyla Tayland, unutulmaz bir keşif rotası sunuyor. Bangkok’un canlı sokaklarından, Phuket’in bembeyaz plajlarına; Chiang Mai’nin mistik atmosferinden geleneksel masaj ve spa deneyimlerine kadar her adımda farklı bir deneyim yaşayacaksınız.',
         highlights: [
             { icon: '🏖️', text: 'Tropikal plajlar ve ada turları' },
             { icon: '🐘', text: 'Fil bakım merkezleri ziyareti' },
             { icon: '🍲', text: 'Tay mutfağı ve sokak yemekleri' },
             { icon: '🛕', text: 'Altın tapınaklar ve Budist manastırlar' },
-            { icon: '💆', text: 'Geleneksel Thai masajı' },
+            { icon: '💆', text: 'Geleneksel Thai masajı ve spa deneyimi' },
             { icon: '🌴', text: 'Tropikal ormanlar ve doğa yürüyüşleri' }
+        ]
+    },
+    indonesia: {
+        title: 'Endonezya',
+        location: 'Bali',
+        badge: 'Ekim',
+        image: 'bali.jpg',
+        description: 'Endonezya, binlerce adası, tropikal plajları, ormanları ve zengin kültürüyle keşfedilmeyi bekleyen bir cennet. Bali’nin huzurlu sahilleri ve Ubud’un pirinç tarlaları, Cakarta’nın canlı şehir hayatı, Yogyakarta’nın tarihi tapınakları ve Sumatra ile Sulawesi’nin doğal güzellikleri, her adımda unutulmaz deneyimler sunuyor.',
+        highlights: [
+            { icon: '🏖️', text: 'Tropikal plajlar ve su sporları' },
+            { icon: '🌴', text: 'Tropikal ormanlar ve doğa yürüyüşleri' },
+            { icon: '🛕', text: 'Tapınaklar ve kültürel ritüeller' },
+            { icon: '💆', text: 'Yoga, spa ve wellness deneyimleri' },
+            { icon: '🍲', text: 'Endonezya mutfağı ve sokak lezzetleri' },
+            { icon: '🏄', text: 'Sörf ve macera aktiviteleri' }
         ]
     }
 };
