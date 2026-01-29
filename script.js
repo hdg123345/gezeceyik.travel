@@ -165,7 +165,55 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 behavior: 'smooth'
             });
         }
+        closeNavMenu();
     });
+});
+
+// Mobil menü (hamburger)
+const navToggle = document.querySelector('.nav-toggle');
+const navBackdrop = document.querySelector('.nav-backdrop');
+const navLinks = document.querySelector('.nav-links');
+
+function openNavMenu() {
+    document.body.classList.add('nav-open');
+    if (navToggle) {
+        navToggle.classList.add('is-open');
+        navToggle.setAttribute('aria-expanded', 'true');
+        navToggle.setAttribute('aria-label', 'Menüyü kapat');
+    }
+    if (navBackdrop) navBackdrop.classList.add('is-visible');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeNavMenu() {
+    document.body.classList.remove('nav-open');
+    if (navToggle) {
+        navToggle.classList.remove('is-open');
+        navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.setAttribute('aria-label', 'Menüyü aç/kapat');
+    }
+    if (navBackdrop) navBackdrop.classList.remove('is-visible');
+    document.body.style.overflow = '';
+}
+
+if (navToggle) {
+    navToggle.addEventListener('click', () => {
+        if (document.body.classList.contains('nav-open')) {
+            closeNavMenu();
+        } else {
+            openNavMenu();
+        }
+    });
+}
+
+if (navBackdrop) {
+    navBackdrop.addEventListener('click', closeNavMenu);
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.body.classList.contains('nav-open')) {
+        closeNavMenu();
+    }
 });
 
 // Navbar scroll effect
@@ -302,7 +350,7 @@ if (contactTabsRoot) {
     });
 
     // init
-    setActive('instagram');
+    setActive('whatsapp');
 }
 
 // Logo click to scroll to top
