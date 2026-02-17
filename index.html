@@ -347,6 +347,22 @@
             <p class="section-subtitle">Dilerseniz WhatsApp’tan yazın, dilerseniz mail atın.</p>
 
             <div class="contact-card" data-contact-tabs>
+                <div class="reach-card">
+                    <div class="reach-title">Size ulaşalım</div>
+                    <p class="reach-text">Mail adresinizi ve kısaca ne hakkında bilgi almak istediğinizi bırakın; size dönüş yapalım.</p>
+                    <form class="reach-form" novalidate>
+                        <div class="reach-row">
+                            <input type="email" name="email" placeholder="Mail adresiniz" required>
+                        </div>
+                        <div class="reach-row">
+                            <textarea name="message" rows="3" placeholder="Kısaca ne hakkında bilgi almak istiyorsunuz?" required></textarea>
+                        </div>
+                        <button type="submit" class="contact-button reach-submit">Gönder</button>
+                    </form>
+                    <p class="reach-hint">Formu gönderdiğinizde, size en kısa sürede mail ile dönüş yapacağız.</p>
+                    <div class="reach-status" aria-live="polite"></div>
+                </div>
+
                 <div class="contact-tabs" role="tablist" aria-label="İletişim seçenekleri">
                     <button class="contact-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="contact-panel-whatsapp" id="contact-tab-whatsapp" data-contact-tab="whatsapp">
                         <svg class="wa-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">

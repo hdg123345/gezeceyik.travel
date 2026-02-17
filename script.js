@@ -353,6 +353,72 @@ if (contactTabsRoot) {
     setActive('whatsapp');
 }
 
+// Reach form (Formspree)
+const reachForm = document.querySelector('.reach-form');
+if (reachForm) {
+    const reachStatus = document.querySelector('.reach-status');
+    const reachSubmit = reachForm.querySelector('.reach-submit');
+    const reachFormEndpoint = 'https://formspree.io/f/mojnwrjy';
+
+    reachForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!reachFormEndpoint || reachFormEndpoint.includes('YOUR_FORMSPREE_ENDPOINT_HERE')) {
+            if (reachStatus) {
+                reachStatus.textContent = 'Formspree endpoint henüz ayarlanmadı.';
+                reachStatus.classList.remove('is-success');
+                reachStatus.classList.add('is-error');
+            }
+            return;
+        }
+
+        const formData = new FormData(reachForm);
+
+        if (reachSubmit) {
+            reachSubmit.disabled = true;
+            reachSubmit.textContent = 'Gönderiliyor...';
+        }
+        if (reachStatus) {
+            reachStatus.textContent = '';
+            reachStatus.classList.remove('is-success', 'is-error');
+        }
+
+        try {
+            const res = await fetch(reachFormEndpoint, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' },
+                body: formData,
+            });
+
+            if (res.ok) {
+                reachForm.reset();
+                if (reachStatus) {
+                    reachStatus.textContent = 'Teşekkürler! Mail adresini aldık, en kısa sürede dönüş yapacağız.';
+                    reachStatus.classList.add('is-success');
+                    reachStatus.classList.remove('is-error');
+                }
+            } else {
+                if (reachStatus) {
+                    reachStatus.textContent = 'Bir hata oluştu, lütfen daha sonra tekrar deneyin.';
+                    reachStatus.classList.add('is-error');
+                    reachStatus.classList.remove('is-success');
+                }
+            }
+        } catch (error) {
+            if (reachStatus) {
+                reachStatus.textContent = 'Bağlantı hatası. İnternetinizi kontrol edip tekrar deneyin.';
+                reachStatus.classList.add('is-error');
+                reachStatus.classList.remove('is-success');
+            }
+        } finally {
+            if (reachSubmit) {
+                reachSubmit.disabled = false;
+                reachSubmit.textContent = 'Gönder';
+            }
+        }
+    });
+}
+
 // Logo click to scroll to top
 document.querySelector('.logo').addEventListener('click', () => {
     window.scrollTo({
