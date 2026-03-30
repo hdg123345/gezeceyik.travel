@@ -1272,3 +1272,110 @@ html {
     background: var(--primary-color);
 }
 
+/* Coming soon mode */
+body.coming-soon-mode > *:not(.coming-soon-overlay):not(script) {
+    display: none !important;
+}
+
+.coming-soon-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at 20% 20%, #2c3e86 0%, #181b3a 45%, #0f1126 100%);
+}
+
+.coming-soon-bg {
+    position: absolute;
+    inset: 0;
+    filter: blur(8px);
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: drift 14s ease-in-out infinite alternate;
+}
+
+.blob-1 {
+    width: 320px;
+    height: 320px;
+    background: #ff6b6b;
+    top: 10%;
+    left: 8%;
+}
+
+.blob-2 {
+    width: 420px;
+    height: 420px;
+    background: #667eea;
+    right: 10%;
+    top: 18%;
+    animation-duration: 18s;
+}
+
+.blob-3 {
+    width: 360px;
+    height: 360px;
+    background: #9b59b6;
+    left: 35%;
+    bottom: -8%;
+    animation-duration: 16s;
+}
+
+@keyframes drift {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(24px, -28px) scale(1.08); }
+    100% { transform: translate(-22px, 26px) scale(0.94); }
+}
+
+.coming-soon-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: #fff;
+    padding: 24px;
+}
+
+.coming-soon-kicker {
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-size: 12px;
+    opacity: 0.75;
+    margin-bottom: 14px;
+}
+
+.coming-soon-content h1 {
+    font-size: clamp(42px, 10vw, 96px);
+    line-height: 1;
+    margin-bottom: 26px;
+    letter-spacing: -1.5px;
+}
+
+.coming-soon-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.coming-soon-actions a {
+    text-decoration: none;
+    color: #fff;
+    padding: 12px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    font-weight: 700;
+    transition: var(--transition);
+}
+
+.coming-soon-actions a:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.18);
+}
+
