@@ -682,12 +682,18 @@
     }
     .landing-preview__price {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
       gap: 0.75rem;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       padding-top: 0.65rem;
       border-top: 1px solid var(--border);
+    }
+    .landing-preview__price-eur {
+      font-size: 0.95rem;
+      line-height: 1.2;
+      flex: 1 1 auto;
+      min-width: 0;
     }
     @keyframes shimmer {
       0%,
@@ -717,6 +723,9 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
+      flex: 0 0 auto;
+      margin-left: auto;
+      white-space: nowrap;
       transition: color 0.3s ease, gap 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .landing-preview__hint.tour-link::after {
@@ -742,6 +751,9 @@
         max-width: 640px;
         align-items: stretch;
       }
+      .tour-cards-grid .landing-preview {
+        align-items: stretch;
+      }
       .landing-preview__media {
         height: auto;
         min-height: 0;
@@ -761,6 +773,15 @@
     .tour-cards-grid .landing-preview {
       max-width: 100%;
     }
+    .tour-cards-grid .landing-preview__body {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+    .tour-cards-grid .landing-preview__price {
+      margin-top: auto;
+    }
     @media (min-width: 960px) {
       .tour-cards-grid { grid-template-columns: 1fr 1fr; gap: 1.75rem; }
     }
@@ -773,19 +794,8 @@
       background-size: cover;
       background-position: center;
     }
-    .tour-card--festival {
-      border: 1px solid rgba(120, 40, 140, 0.20);
-    }
     .tour-card--festival:hover {
-      box-shadow: var(--shadow-lg), 0 0 36px rgba(231, 111, 81, 0.18);
-    }
-    .landing-preview__badge--festival {
-      color: #c84088;
-      background: linear-gradient(90deg, rgba(231, 111, 81, 0.10), rgba(200, 64, 136, 0.10));
-      padding: 0.18rem 0.6rem;
-      border-radius: 999px;
-      display: inline-block;
-      letter-spacing: 0.05em;
+      box-shadow: var(--shadow-lg), var(--shadow-glow);
     }
 
     /* Tomorrowland modal */
@@ -2741,7 +2751,7 @@
         <div class="landing-preview__media" role="img" aria-label="Phuket plajı"></div>
         <div class="landing-preview__body">
           <div class="landing-preview__badge" data-tr="Aralık 2026" data-en="December 2026">Aralık 2026</div>
-          <h3 class="landing-preview__title" data-tr="Phuket &amp; Bangkok 7 Gece 8 Gün" data-en="Phuket &amp; Bangkok 7 Nights 8 Days">Phuket &amp; Bangkok 7 Gece 8 Gün</h3>
+          <h3 class="landing-preview__title" data-tr="Phuket &amp; Bangkok" data-en="Phuket &amp; Bangkok">Phuket &amp; Bangkok</h3>
           <p class="landing-preview__meta">
             <strong data-tr="İstanbul → Phuket, Bangkok" data-en="Istanbul → Phuket, Bangkok">İstanbul → Phuket, Bangkok</strong><br />
             <span data-tr="04 – 10 Aralık 2026 · 7 gece 8 gün" data-en="04 – 10 December 2026 · 7 nights 8 days">04 – 10 Aralık 2026 · 7 gece 8 gün</span>
@@ -2762,15 +2772,15 @@
       >
         <div class="landing-preview__media festival-media" role="img" aria-label="Tomorrowland festival"></div>
         <div class="landing-preview__body">
-          <div class="landing-preview__badge landing-preview__badge--festival" data-tr="Aralık 2026 · Festival" data-en="December 2026 · Festival">Aralık 2026 · Festival</div>
-          <h3 class="landing-preview__title" data-tr="Phuket, Bangkok &amp; Tomorrowland Pattaya 10 Gece 11 Gün" data-en="Phuket, Bangkok &amp; Tomorrowland Pattaya 10 Nights 11 Days">Phuket, Bangkok &amp; Tomorrowland Pattaya 10 Gece 11 Gün</h3>
+          <div class="landing-preview__badge" data-tr="Aralık 2026 · Festival" data-en="December 2026 · Festival">Aralık 2026 · Festival</div>
+          <h3 class="landing-preview__title" data-tr="Phuket, Bangkok &amp; Tomorrowland Pattaya" data-en="Phuket, Bangkok &amp; Tomorrowland Pattaya">Phuket, Bangkok &amp; Tomorrowland Pattaya</h3>
           <p class="landing-preview__meta">
             <strong data-tr="İstanbul → Phuket, Bangkok → Pattaya" data-en="Istanbul → Phuket, Bangkok → Pattaya">İstanbul → Phuket, Bangkok → Pattaya</strong><br />
             <span data-tr="04 – 14 Aralık 2026 · 10 gece 11 gün" data-en="04 – 14 December 2026 · 10 nights 11 days">04 – 14 Aralık 2026 · 10 gece 11 gün</span>
           </p>
           <div class="landing-preview__price">
-            <span class="landing-preview__price-eur" data-tr="€ 2.290 kişi başı" data-en="€2,290 per person">€ 2.290 kişi başı</span>
-            <span class="landing-preview__hint tour-link" data-tr="Paketi incele →" data-en="View package →">Paketi incele →</span>
+            <span class="landing-preview__price-eur" data-tr="2.290 € ’dan itibaren" data-en="from €2,290">2.290 € ’dan itibaren</span>
+            <span class="landing-preview__hint tour-link" data-tr="Tur sayfasını aç →" data-en="Open tour page →">Tur sayfasını aç →</span>
           </div>
         </div>
       </button>
