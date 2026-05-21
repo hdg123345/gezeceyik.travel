@@ -223,7 +223,7 @@ const chatFlow = {
   },
   price: {
     message:
-      "💰 Tur fiyatı kişi başı 1.210 € veya 64.500 TL'den başlıyor. Detaylı bilgi ister misiniz?",
+      "💰 Tur fiyatı kişi başı 1.290 € veya 68.800 TL'den başlıyor. Detaylı bilgi ister misiniz?",
     options: [
       { text: "Fiyata neler dahil?", next: "priceIncludes" },
       { text: "Ödeme seçenekleri", next: "paymentOptions" },

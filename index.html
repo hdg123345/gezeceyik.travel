@@ -1947,6 +1947,71 @@
       border-color: var(--primary-glow);
       box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
     }
+    .form-input-phone {
+      display: flex;
+      align-items: stretch;
+      min-width: 0;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(15, 76, 92, 0.15);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+    .form-input-phone:focus-within {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: var(--primary-glow);
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+    }
+    .form-input-phone__code {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      gap: 0;
+      width: 3.1rem;
+      padding: 0 6px 0 8px;
+      background: rgba(15, 76, 92, 0.06);
+      border-right: 1px solid rgba(15, 76, 92, 0.12);
+    }
+    .form-input-phone__plus {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 1;
+      user-select: none;
+    }
+    .form-input--code {
+      width: 100%;
+      min-width: 0;
+      padding: 14px 0 14px 1px;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+      text-align: left;
+    }
+    .form-input--code:focus {
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+    }
+    .form-input--phone {
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      flex: 1;
+      min-width: 0;
+      padding: 14px 12px;
+      font-size: 15px;
+    }
+    .form-input--phone:focus {
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+    }
     .form-textarea {
       resize: vertical;
       min-height: 100px;
@@ -2757,7 +2822,7 @@
             <span data-tr="04 – 10 Aralık 2026 · 7 gece 8 gün" data-en="04 – 10 December 2026 · 7 nights 8 days">04 – 10 Aralık 2026 · 7 gece 8 gün</span>
           </p>
           <div class="landing-preview__price">
-            <span class="landing-preview__price-eur" data-tr="1.210 € ’dan itibaren" data-en="from €1,210">1.210 € ’dan itibaren</span>
+            <span class="landing-preview__price-eur" data-tr="1.290 € ’dan itibaren" data-en="from €1,290">1.290 € ’dan itibaren</span>
             <span class="landing-preview__hint tour-link" data-tr="Tur sayfasını aç →" data-en="Open tour page →">Tur sayfasını aç →</span>
           </div>
         </div>
@@ -2896,8 +2961,8 @@
             </div>
             <div class="price-card__section">
               <div class="price-card__per" data-tr="Kişi başı" data-en="Per person">Kişi başı</div>
-              <div class="price-card__eur" id="price-card-eur">€ 1.210</div>
-              <div class="price-card__try" id="price-card-try">₺ 64.500</div>
+              <div class="price-card__eur" id="price-card-eur">€ 1.290</div>
+              <div class="price-card__try" id="price-card-try">₺ 68.800</div>
               <div class="price-card__from" data-tr="’dan itibaren" data-en="starting from">’dan itibaren</div>
               <button type="button" class="btn-reserve book-button" id="open-reserve" data-tr="Rezervasyon Yap" data-en="Book Now">Rezervasyon Yap</button>
               <a class="price-card__link" href="#tour-bottom-inclusions" id="hotel-price-link" data-tr="Otellere göre fiyat tablosu →" data-en="Price table by hotel →">Otellere göre fiyat tablosu →</a>
@@ -2972,7 +3037,27 @@
         <form id="contactForm" class="contact-form" onsubmit="handleSubmit(event)">
           <div class="form-row">
             <input type="text" name="name"  required class="form-input" placeholder="Adınız Soyadınız"     data-i18n-attr="placeholder" data-tr-placeholder="Adınız Soyadınız"     data-en-placeholder="Your Full Name" />
-            <input type="tel"  name="phone" required class="form-input" placeholder="Telefon Numaranız"    data-i18n-attr="placeholder" data-tr-placeholder="Telefon Numaranız"   data-en-placeholder="Your Phone Number" />
+            <div class="form-input-phone">
+              <div class="form-input-phone__code">
+                <span class="form-input-phone__plus" aria-hidden="true">+</span>
+                <input
+                  type="tel"
+                  name="country_code"
+                  required
+                  class="form-input form-input--code"
+                  value="90"
+                  size="2"
+                  inputmode="numeric"
+                  maxlength="4"
+                  autocomplete="tel-country-code"
+                  aria-label="Ülke kodu"
+                  data-i18n-attr="aria-label"
+                  data-tr-aria-label="Ülke kodu"
+                  data-en-aria-label="Country code"
+                />
+              </div>
+              <input type="tel" name="phone" required class="form-input form-input--phone" placeholder="5xx xxx xx xx" data-i18n-attr="placeholder" data-tr-placeholder="5xx xxx xx xx" data-en-placeholder="5xx xxx xx xx" autocomplete="tel-national" />
+            </div>
           </div>
           <input type="email" name="email" required class="form-input" placeholder="E-posta Adresiniz" data-i18n-attr="placeholder" data-tr-placeholder="E-posta Adresiniz" data-en-placeholder="Your Email Address" />
           <textarea name="message" rows="4" required class="form-textarea" placeholder="Mesajınız" data-i18n-attr="placeholder" data-tr-placeholder="Mesajınız" data-en-placeholder="Your Message"></textarea>
@@ -3470,6 +3555,13 @@
         });
       }
 
+      var countryCodeInput = document.querySelector('input[name="country_code"]');
+      if (countryCodeInput) {
+        countryCodeInput.addEventListener("input", function () {
+          this.value = this.value.replace(/\D/g, "").slice(0, 4);
+        });
+      }
+
       document.addEventListener("gezeceyik-view", function (e) {
         if (e.detail && e.detail.tour) {
           document.querySelectorAll("#tour-full section, section.tour-bottom").forEach(function (el) {
@@ -3517,9 +3609,12 @@
       }
 
       const formData = new FormData(form);
+      const countryCode = String(formData.get("country_code") || "").replace(/\D/g, "");
+      const phoneLocal = String(formData.get("phone") || "").trim();
+      const phoneFull = countryCode ? "+" + countryCode + " " + phoneLocal : phoneLocal;
       const data = {
         name: formData.get("name") || "",
-        phone: formData.get("phone") || "",
+        phone: phoneFull,
         email: formData.get("email") || "",
         message: formData.get("message") || ""
       };
@@ -4395,8 +4490,8 @@
                     en: '1 tour between 04 December 2026 – 10 December 2026' },
         breadcrumb: { tr: 'Phuket & Bangkok 7 Gece 8 Gün', en: 'Phuket & Bangkok 7 Nights 8 Days' },
         dateOptions: { tr: ['4 Aralık 2026'], en: ['4 December 2026'] },
-        priceEur: '€ 1.210',
-        priceTry: '₺ 64.500',
+        priceEur: '€ 1.290',
+        priceTry: '₺ 68.800',
         emailSubject: 'Phuket%20%26%20Bangkok%20Tur%20Rezervasyonu',
         flights: [
           { titleTr: 'Gidiş uçuşu 1', titleEn: 'Outbound flight 1',
@@ -5247,7 +5342,7 @@
         options: [ { text: "Yer ayırt", next: "reservation" }, { text: "← Geri dön", next: "tour" } ] },
       tourProgram: { message: "Detaylı 8 günlük program tur sayfasında bulunuyor. Tur kartına tıklayarak inceleyebilirsiniz.",
         options: [ { text: "Daha fazla soru sor", next: "contact" }, { text: "← Geri dön", next: "tour" } ] },
-      price: { message: "💰 Tur fiyatı kişi başı 1.210 € veya 64.500 TL'den başlıyor. Detaylı bilgi ister misiniz?",
+      price: { message: "💰 Tur fiyatı kişi başı 1.290 € veya 68.800 TL'den başlıyor. Detaylı bilgi ister misiniz?",
         options: [ { text: "Fiyata neler dahil?", next: "priceIncludes" }, { text: "Ödeme seçenekleri", next: "paymentOptions" }, { text: "← Ana menü", next: "start" } ] },
       priceIncludes: { message: "✅ Fiyata dahil: Uçak biletleri (gidiş-dönüş), 6 gece otel konaklaması, kahvaltılar, tüm transferler, rehberlik ve aktiviteler.",
         options: [ { text: "Detayları konuş", next: "contact" }, { text: "← Geri dön", next: "price" } ] },
@@ -5291,7 +5386,7 @@
         options: [ { text: "Reserve a spot", next: "reservation" }, { text: "← Back", next: "tour" } ] },
       tourProgram: { message: "The detailed 8-day program is on the tour page. Click the tour card to view it.",
         options: [ { text: "Ask more", next: "contact" }, { text: "← Back", next: "tour" } ] },
-      price: { message: "💰 Tour price starts from €1,210 or 64,500 TL per person. Want more details?",
+      price: { message: "💰 Tour price starts from €1,290 or 68,800 TL per person. Want more details?",
         options: [ { text: "What's included?", next: "priceIncludes" }, { text: "Payment options", next: "paymentOptions" }, { text: "← Main menu", next: "start" } ] },
       priceIncludes: { message: "✅ Included: Round-trip flights, 6 nights hotel accommodation, breakfasts, all transfers, guiding and activities.",
         options: [ { text: "Discuss details", next: "contact" }, { text: "← Back", next: "price" } ] },
