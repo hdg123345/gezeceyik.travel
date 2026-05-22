@@ -223,7 +223,7 @@ const chatFlow = {
   },
   price: {
     message:
-      "💰 Phuket & Bangkok: İstanbul kalkış 1.700 €, Ercan kalkış 1.850 € (TL karşılığı tur sayfasında). Tomorrowland: 2.300 € / 2.450 €. Detaylı bilgi ister misiniz?",
+      "💰 Backpacking style 1.290 €, Comfort 1.890 €, Luxury (Tomorrowland) 2.490 € kişi başı ’dan itibaren. Detaylı bilgi ister misiniz?",
     options: [
       { text: "Fiyata neler dahil?", next: "priceIncludes" },
       { text: "Ödeme seçenekleri", next: "paymentOptions" },
