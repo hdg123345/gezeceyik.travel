@@ -201,7 +201,7 @@ const chatFlow = {
     ]
   },
   tourDates: {
-    message: "🗓️ Tur tarihleri: 4 - 10 Aralık 2026 (7 gece 8 gün) - Aralık ara tatili döneminde.",
+    message: "🗓️ Tur tarihleri: 2 - 10 Aralık 2026 (7 gece 8 gün) - Aralık ara tatili döneminde.",
     options: [
       { text: "Rezervasyon yap", next: "reservation" },
       { text: "← Geri dön", next: "tour" }
@@ -223,7 +223,7 @@ const chatFlow = {
   },
   price: {
     message:
-      "💰 Tur fiyatı kişi başı 1.290 € veya 68.800 TL'den başlıyor. Detaylı bilgi ister misiniz?",
+      "💰 Phuket & Bangkok: İstanbul kalkış 1.700 €, Ercan kalkış 1.850 € (TL karşılığı tur sayfasında). Tomorrowland: 2.300 € / 2.450 €. Detaylı bilgi ister misiniz?",
     options: [
       { text: "Fiyata neler dahil?", next: "priceIncludes" },
       { text: "Ödeme seçenekleri", next: "paymentOptions" },
