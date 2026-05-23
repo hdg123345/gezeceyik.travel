@@ -1,0 +1,7 @@
+{
+  "name": "gezeceyik-travel",
+  "private": true,
+  "dependencies": {
+    "nodemailer": "^6.9.16"
+  }
+}

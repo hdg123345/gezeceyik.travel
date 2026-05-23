@@ -27,7 +27,7 @@ function handleContactSubmit(event) {
     `İsim: ${name}\nTelefon: ${phone}\nE-posta: ${email}\n\nMesaj:\n${message}`
   );
   
-  window.location.href = `mailto:gezeceyik@gmail.com?subject=${subject}&body=${body}`;
+  window.location.href = `mailto:gezeceyik1travel@gmail.com?subject=${subject}&body=${body}`;
   
   form.style.display = 'none';
   document.getElementById('formSuccess').style.display = 'block';
@@ -361,7 +361,7 @@ function handleOptionClick(option) {
   if (option.action === "email") {
     setTimeout(() => {
       window.location.href =
-        "mailto:gezeceyik@gmail.com?subject=Tayland%20Turu%20Hakkinda&body=Merhaba%2C%20Tayland%20turu%20hakkinda%20bilgi%20almak%20istiyorum.";
+        "mailto:gezeceyik1travel@gmail.com?subject=Tayland%20Turu%20Hakkinda&body=Merhaba%2C%20Tayland%20turu%20hakkinda%20bilgi%20almak%20istiyorum.";
     }, 400);
   } else if (option.action === "instagram") {
     setTimeout(() => {

@@ -2481,6 +2481,22 @@
       text-align: center;
     }
     .modal__success.is-visible { display: block; }
+    .modal__error {
+      display: none;
+      margin: 0 0 1rem;
+      padding: 0.65rem 0.75rem;
+      font-size: 0.85rem;
+      line-height: 1.45;
+      color: #9a2818;
+      background: rgba(220, 80, 70, 0.1);
+      border-radius: var(--radius-sm);
+    }
+    .modal__error.is-visible { display: block; }
+    .form-submit:disabled,
+    .modal__submit:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
 
     body.modal-open,
     body.day-modal-open {
@@ -3364,6 +3380,7 @@
           <textarea name="message" rows="4" required class="form-textarea" placeholder="Mesajınız" data-i18n-attr="placeholder" data-tr-placeholder="Mesajınız" data-en-placeholder="Your Message"></textarea>
           <button type="submit" class="form-submit" data-tr="Mesaj Gönder" data-en="Send Message">Mesaj Gönder</button>
         </form>
+        <div id="contact-form-error" class="modal__error" role="alert" style="margin-top:0.75rem"></div>
         <div id="successMessage" class="success-message" style="display: none;">
           <div class="success-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
@@ -3380,11 +3397,11 @@
             </svg>
             @gezeceyik1
           </a>
-          <a href="mailto:gezeceyik@gmail.com">
+          <a href="mailto:gezeceyik1travel@gmail.com">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
             </svg>
-            gezeceyik@gmail.com
+            gezeceyik1travel@gmail.com
           </a>
         </div>
       </div>
@@ -3486,7 +3503,7 @@
             <div class="tml-price-label" data-tr="Kişi başı paket fiyatı" data-en="Per person package price">Kişi başı paket fiyatı</div>
             <div class="tml-price-amount" id="tml-price-amount">€ 2.490</div>
           </div>
-          <a class="tml-reserve" href="mailto:gezeceyik@gmail.com?subject=Tomorrowland%20Thailand%20Paketi&amp;body=Merhaba%2C%20Tomorrowland%20Thailand%20paketi%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." data-tr="Rezervasyon talebi" data-en="Booking request">Rezervasyon talebi</a>
+          <a class="tml-reserve" href="mailto:gezeceyik1travel@gmail.com?subject=Tomorrowland%20Thailand%20Paketi&amp;body=Merhaba%2C%20Tomorrowland%20Thailand%20paketi%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." data-tr="Rezervasyon talebi" data-en="Booking request">Rezervasyon talebi</a>
         </div>
       </div>
     </div>
@@ -3496,19 +3513,13 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
       <button type="button" class="modal__close" id="modal-close" aria-label="Kapat" data-i18n-attr="aria-label" data-tr-aria-label="Kapat" data-en-aria-label="Close">&times;</button>
       <h2 id="modal-heading" data-tr="Rezervasyon talebi" data-en="Booking request">Rezervasyon talebi</h2>
-      <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 1rem">
-        <span data-tr="Phuket &amp; Bangkok turu için aşağıdan e-posta bırakabilir veya" data-en="For the Phuket &amp; Bangkok tour, leave your email below or click">Phuket &amp; Bangkok turu için aşağıdan e-posta bırakabilir veya</span>
-        <a
-          class="email-link"
-          href="mailto:gezeceyik@gmail.com?subject=Tayland%20Tur%20Rezervasyonu&amp;body=Merhaba%2C%20Tayland%20turu%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum."
-        >gezeceyik@gmail.com</a>
-        <span data-tr="adresine tıklayarak kendi e-posta uygulamanızdan yazabilirsiniz." data-en="to write from your own email app.">adresine tıklayarak kendi e-posta uygulamanızdan yazabilirsiniz.</span>
-      </p>
-      <div class="modal__success" id="modal-success" role="status" data-tr="Teşekkürler! En kısa sürede sizinle iletişime geçeceğiz." data-en="Thank you! We'll get in touch with you shortly.">Teşekkürler! En kısa sürede sizinle iletişime geçeceğiz.</div>
+      <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 1rem" data-tr="E-postanızı bırakın; rezervasyon talebiniz doğrudan bize iletilir." data-en="Leave your email — your booking request is sent to us directly.">E-postanızı bırakın; rezervasyon talebiniz doğrudan bize iletilir.</p>
+      <div class="modal__error" id="modal-error" role="alert"></div>
+      <div class="modal__success" id="modal-success" role="status" data-tr="Teşekkürler! Talebiniz alındı, en kısa sürede dönüş yapacağız." data-en="Thank you! Your request was received — we'll reply shortly.">Teşekkürler! Talebiniz alındı, en kısa sürede dönüş yapacağız.</div>
       <form id="reserve-form">
         <label class="modal__field-label" for="reserve-email" data-tr="E-posta" data-en="Email">E-posta</label>
         <input type="email" id="reserve-email" name="email" required placeholder="ornek@eposta.com" autocomplete="email" data-i18n-attr="placeholder" data-tr-placeholder="ornek@eposta.com" data-en-placeholder="name@example.com" />
-        <button type="submit" class="modal__submit" data-tr="Gönder" data-en="Send">Gönder</button>
+        <button type="submit" class="modal__submit" id="reserve-submit-btn" data-tr="Gönder" data-en="Send">Gönder</button>
       </form>
     </div>
   </div>
@@ -3896,13 +3907,66 @@
       else hydrateImages();
     })();
 
-    function handleSubmit(event) {
+    const INQUIRY_EMAIL = "gezeceyik1travel@gmail.com";
+
+    async function sendInquiryEmail(fields) {
+      const payload = {
+        subject: fields.subject || "gezeceyik — Yeni talep",
+        name: fields.name || "—",
+        email: fields.email || "",
+        phone: fields.phone || "",
+        message: fields.message || ""
+      };
+      const res = await fetch("/api/booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json().catch(function () {
+        return {};
+      });
+      if (res.ok && data.ok) return data;
+      const lang = document.documentElement.getAttribute("data-lang") === "en" ? "en" : "tr";
+      const fallback =
+        lang === "en"
+          ? "Could not send. Please email " + INQUIRY_EMAIL
+          : "Gönderilemedi. Lütfen " + INQUIRY_EMAIL + " adresine yazın.";
+      throw new Error(data.error || fallback);
+    }
+
+    function getBookingContextLines() {
+      const lang = L();
+      const tourLabel =
+        currentTour === "backpacking"
+          ? "Backpacking style"
+          : currentTour === "tomorrowland"
+            ? "Luxury (Tomorrowland)"
+            : "Comfort";
+      const port =
+        currentDeparturePort === "ercan"
+          ? lang === "en"
+            ? "Ercan (ECN)"
+            : "Ercan (ECN)"
+          : lang === "en"
+            ? "Istanbul (SAW)"
+            : "İstanbul (SAW)";
+      return (
+        (lang === "en" ? "Package: " : "Paket: ") +
+        tourLabel +
+        "\n" +
+        (lang === "en" ? "Departure: " : "Kalkış: ") +
+        port
+      );
+    }
+
+    async function handleSubmit(event) {
       event.preventDefault();
       const form = document.getElementById("contactForm");
       const successMsg = document.getElementById("successMessage");
       const quickContact = document.querySelector(".quick-contact");
       const contactSection = document.getElementById("contactFormSection");
       const contactContainer = document.querySelector(".contact-form-container");
+      const submitBtn = form && form.querySelector('button[type="submit"]');
       if (!form || !successMsg) return;
       if (!form.checkValidity()) {
         form.reportValidity();
@@ -3920,22 +3984,29 @@
         message: formData.get("message") || ""
       };
 
-      const subject = encodeURIComponent("gezeceyik İletişim - " + data.name);
-      const body = encodeURIComponent(
-        "Ad Soyad: " +
-          data.name +
-          "\n" +
-          "Telefon: " +
-          data.phone +
-          "\n" +
-          "E-posta: " +
-          data.email +
-          "\n\n" +
-          "Mesaj:\n" +
-          data.message
-      );
-
-      window.location.href = "mailto:gezeceyik@gmail.com?subject=" + subject + "&body=" + body;
+      const contactErr = document.getElementById("contact-form-error");
+      if (contactErr) {
+        contactErr.classList.remove("is-visible");
+        contactErr.textContent = "";
+      }
+      if (submitBtn) submitBtn.disabled = true;
+      try {
+        await sendInquiryEmail({
+          subject: "gezeceyik İletişim — " + data.name,
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          message: data.message
+        });
+      } catch (err) {
+        if (contactErr) {
+          contactErr.textContent = err.message || "";
+          contactErr.classList.add("is-visible");
+        }
+        if (submitBtn) submitBtn.disabled = false;
+        return;
+      }
+      if (submitBtn) submitBtn.disabled = false;
 
       form.style.display = "none";
       if (quickContact) quickContact.style.display = "none";
@@ -6153,12 +6224,17 @@
     const modalClose = document.getElementById("modal-close");
     const reserveForm = document.getElementById("reserve-form");
     const modalSuccess = document.getElementById("modal-success");
+    const modalError = document.getElementById("modal-error");
 
     function openModal() {
       overlay.hidden = false;
       overlay.classList.add("is-open");
       document.body.classList.add("modal-open");
       modalSuccess.classList.remove("is-visible");
+      if (modalError) {
+        modalError.classList.remove("is-visible");
+        modalError.textContent = "";
+      }
       reserveForm.style.display = "block";
       reserveForm.reset();
     }
@@ -6176,14 +6252,44 @@
       if (e.target === overlay) closeModal();
     });
 
-    reserveForm.addEventListener("submit", (e) => {
+    reserveForm.addEventListener("submit", async function (e) {
       e.preventDefault();
       if (!reserveForm.checkValidity()) {
         document.getElementById("reserve-email").reportValidity();
         return;
       }
-      reserveForm.style.display = "none";
-      modalSuccess.classList.add("is-visible");
+      const email = document.getElementById("reserve-email").value.trim();
+      const submitBtn = document.getElementById("reserve-submit-btn");
+      const lang = L();
+      if (submitBtn) submitBtn.disabled = true;
+      if (modalError) {
+        modalError.classList.remove("is-visible");
+        modalError.textContent = "";
+      }
+      try {
+        await sendInquiryEmail({
+          subject: "gezeceyik Rezervasyon talebi",
+          name: email,
+          email: email,
+          message:
+            (lang === "en" ? "Booking request\n\n" : "Rezervasyon talebi\n\n") +
+            getBookingContextLines() +
+            "\n\n" +
+            (lang === "en" ? "Customer email: " : "Müşteri e-postası: ") +
+            email
+        });
+        reserveForm.style.display = "none";
+        modalSuccess.classList.add("is-visible");
+      } catch (err) {
+        if (modalError) {
+          modalError.textContent =
+            lang === "en"
+              ? "Could not send. Please try again or email " + INQUIRY_EMAIL
+              : "Gönderilemedi. Tekrar deneyin veya " + INQUIRY_EMAIL + " adresine yazın.";
+          modalError.classList.add("is-visible");
+        }
+      }
+      if (submitBtn) submitBtn.disabled = false;
     });
 
     document.getElementById("hotel-price-link").addEventListener("click", (e) => {
@@ -6672,7 +6778,7 @@
       if (option.action === "email") {
         setTimeout(function () {
           window.location.href =
-            "mailto:gezeceyik@gmail.com?subject=Tayland%20Turu%20Hakkinda&body=Merhaba%2C%20Tayland%20turu%20hakkinda%20bilgi%20almak%20istiyorum.";
+            "mailto:gezeceyik1travel@gmail.com?subject=Tayland%20Turu%20Hakkinda&body=Merhaba%2C%20Tayland%20turu%20hakkinda%20bilgi%20almak%20istiyorum.";
         }, 400);
       } else if (option.action === "instagram") {
         setTimeout(function () {
