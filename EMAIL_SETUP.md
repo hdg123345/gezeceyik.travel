@@ -1,31 +1,47 @@
-# E-posta kurulumu (rezervasyon & iletişim formları)
+# E-posta kurulumu (rezervasyon & iletişim)
 
-Formlar **gezeceyik1travel@gmail.com** adresine gönderilir. Vercel’de aşağıdakilerden **birini** yapılandırmanız gerekir.
+Tüm formlar **gezeceyik1travel@gmail.com** adresine gider (veya `INQUIRY_TO` ile değiştirdiğiniz adres).
 
-## Seçenek A — Gmail (önerilen)
+## 1. Gmail ile bağlama (önerilen)
 
-1. **gezeceyik1travel@gmail.com** ile [Google Hesabı](https://myaccount.google.com) → **Güvenlik** → **2 Adımlı Doğrulama** açık olsun.
-2. **Uygulama şifreleri** → Uygulama: Posta, Cihaz: Diğer → “gezeceyik” → Oluştur.
-3. 16 haneli şifreyi kopyalayın.
-4. [Vercel](https://vercel.com) → projeniz → **Settings** → **Environment Variables**:
+1. [Google Hesabı](https://myaccount.google.com) → **Güvenlik** → **2 Adımlı Doğrulama** açık olsun.
+2. **Uygulama şifreleri** → Uygulama: **Posta**, Cihaz: **Diğer** → “gezeceyik” → **Oluştur**.
+3. 16 haneli şifreyi kopyalayın (boşluksuz yazın).
 
-| Ad | Değer |
-|----|--------|
+### Yerelde test
+
+```bash
+cd gezeceyik
+cp .env.example .env
+# .env dosyasını düzenleyin: GMAIL_USER ve GMAIL_APP_PASSWORD
+npm install
+npm run dev
+```
+
+Tarayıcıda açın: **http://localhost:3000/index.html**  
+(Live Server / port 5500 ile formlar çalışmaz — `npm run dev` kullanın.)
+
+### Canlı site (Vercel)
+
+1. [vercel.com](https://vercel.com) → projeniz → **Settings** → **Environment Variables**
+2. Ekleyin:
+
+| Name | Value |
+|------|--------|
 | `GMAIL_USER` | `gezeceyik1travel@gmail.com` |
-| `GMAIL_APP_PASSWORD` | (16 haneli uygulama şifresi, boşluksuz) |
-| `INQUIRY_TO` | `gezeceyik1travel@gmail.com` (isteğe bağlı) |
+| `GMAIL_APP_PASSWORD` | (16 haneli uygulama şifresi) |
+| `INQUIRY_TO` | `gezeceyik1travel@gmail.com` |
 
-5. **Redeploy** yapın (Deployments → son deploy → Redeploy).
+3. **Deployments** → son deploy → **Redeploy**
 
-## Seçenek B — Web3Forms
+## 2. Alternatif: Web3Forms
 
-1. [web3forms.com](https://web3forms.com) → kayıt → alıcı e-posta: **gezeceyik1travel@gmail.com**
-2. **Access Key** kopyalayın.
-3. Vercel’de `WEB3FORMS_ACCESS_KEY` = (anahtarınız)
-4. Redeploy.
+1. [web3forms.com](https://web3forms.com) → kayıt → alıcı: **gezeceyik1travel@gmail.com**
+2. Access Key alın.
+3. Vercel’de veya `.env` içinde: `WEB3FORMS_ACCESS_KEY=...`
 
 ## Test
 
-Deploy sonrası sitede iletişim veya rezervasyon formunu doldurun. Gelen kutusu + spam klasörünü kontrol edin.
+Rezervasyon formunu doldurup gönderin. Gelen kutusu ve **spam** klasörünü kontrol edin.
 
-Yerel `index.html` dosyası açıldığında `/api/booking` çalışmaz; test için `npx vercel dev` veya canlı site kullanın.
+Hata alırsanız tarayıcıda F12 → **Network** → `booking` isteğine bakın; sunucu “E-posta servisi yapılandırılmamış” diyorsa `.env` veya Vercel değişkenleri eksiktir.

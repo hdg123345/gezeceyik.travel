@@ -855,7 +855,7 @@
 
     .tml-panel {
       width: min(720px, 100%);
-      max-height: 92vh;
+      max-height: calc(100dvh - 1.5rem);
       overflow-y: auto;
       background: #fff;
       border-radius: 20px;
@@ -1117,6 +1117,9 @@
       border-radius: 999px;
       font-size: 0.9rem;
       font-weight: 600;
+      font-family: inherit;
+      border: none;
+      cursor: pointer;
       text-decoration: none;
       transition: transform 0.25s, box-shadow 0.25s;
     }
@@ -1412,14 +1415,13 @@
     }
     .day-modal__optional-notice {
       display: flex;
-      gap: 0.85rem;
+      gap: 0.75rem;
       align-items: flex-start;
       background: linear-gradient(135deg, rgba(231, 111, 81, 0.10), rgba(244, 162, 97, 0.10));
       border: 1px solid rgba(231, 111, 81, 0.25);
       border-radius: 12px;
-      padding: 0.9rem 1.05rem;
-      margin-top: 1.1rem;
-      margin-bottom: 0;
+      padding: 0.8rem 1rem;
+      margin: 0;
     }
     .day-modal__optional-notice svg {
       flex-shrink: 0;
@@ -1718,6 +1720,8 @@
     .departure-overlay.is-open { opacity: 1; }
     .departure-panel {
       width: min(420px, 100%);
+      max-height: calc(100dvh - 1.5rem);
+      overflow-y: auto;
       background: #fff;
       border-radius: 20px;
       padding: 1.5rem 1.35rem 1.35rem;
@@ -2483,10 +2487,115 @@
       background: var(--surface);
       border-radius: var(--radius);
       width: min(100%, 480px);
+      max-height: calc(100dvh - 2rem);
+      overflow-y: auto;
       padding: 1.75rem;
       box-shadow: var(--shadow-lg);
       transform: scale(0.96);
       transition: transform 0.3s;
+    }
+    .modal.modal--booking {
+      width: min(100%, 540px);
+      padding: 1.5rem 1.65rem 1.4rem;
+    }
+    .modal__intro {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin: 0 0 1rem;
+      line-height: 1.45;
+    }
+    .modal__field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+  @media (max-width: 520px) {
+      .modal__field-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    .modal__field {
+      margin-bottom: 0.85rem;
+    }
+    .modal__field-row .modal__field {
+      margin-bottom: 0;
+    }
+    .modal input[type="email"],
+    .modal input[type="tel"],
+    .modal input[type="text"],
+    .modal input[type="number"],
+    .modal select,
+    .modal textarea {
+      width: 100%;
+      padding: 0.7rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font: inherit;
+      font-size: 0.875rem;
+      background: #fff;
+    }
+    .modal textarea {
+      min-height: 4.5rem;
+      resize: vertical;
+      line-height: 1.45;
+    }
+    .modal input[type="email"] {
+      margin-bottom: 0;
+    }
+    .modal__addons {
+      margin: 0 0 0.85rem;
+      padding: 0;
+      border: none;
+    }
+    .modal__addons legend {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      padding: 0;
+    }
+    .modal__addons-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin: 0 0 0.5rem;
+      line-height: 1.4;
+    }
+    #reserve-addons-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      max-height: 11rem;
+      overflow-y: auto;
+      padding: 0.55rem 0.65rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: rgba(15, 76, 92, 0.03);
+    }
+    .modal__addon-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.55rem;
+      font-size: 0.8125rem;
+      line-height: 1.4;
+      color: var(--text);
+      cursor: pointer;
+      padding: 0.2rem 0;
+    }
+    .modal__addon-option input {
+      margin-top: 0.2rem;
+      flex-shrink: 0;
+      accent-color: var(--primary);
+    }
+    .modal__addon-option span strong {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .modal__addons-empty {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin: 0;
+      padding: 0.5rem 0;
     }
     .modal-overlay.is-open .modal { transform: scale(1); }
     .modal__close {
@@ -2513,21 +2622,16 @@
       display: block;
       margin-bottom: 0.35rem;
     }
-    .modal input[type="email"] {
-      width: 100%;
-      padding: 0.75rem;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      margin-bottom: 1rem;
-    }
     .modal__submit {
       width: 100%;
       padding: 0.9rem;
+      margin-top: 0.25rem;
       background: var(--accent);
       color: #fff;
       border: none;
       border-radius: var(--radius-sm);
       font-weight: 600;
+      cursor: pointer;
     }
     .modal__submit:hover { background: var(--accent-hover); }
     .modal__success {
@@ -2587,16 +2691,18 @@
     .day-modal__container {
       background: #fff;
       border-radius: 20px;
-      padding: 2.25rem 2.5rem;
+      padding: 1.65rem 2rem 1.5rem;
       max-width: 700px;
       width: min(95vw, 700px);
-      max-height: 85vh;
-      overflow-y: auto;
+      max-height: calc(100dvh - 1.5rem);
+      overflow: hidden;
       position: relative;
       box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
       transform: translateY(24px) scale(0.96);
       opacity: 0;
       transition: transform 0.4s ease, opacity 0.4s ease;
+      display: flex;
+      flex-direction: column;
     }
     #dayModal.day-modal-overlay.is-open .day-modal__container {
       transform: translateY(0) scale(1);
@@ -2627,59 +2733,102 @@
       display: inline-block;
       background: var(--primary);
       color: #fff;
-      padding: 0.35rem 1rem;
+      padding: 0.32rem 0.9rem;
       border-radius: 999px;
       font-size: 0.6875rem;
       font-weight: 700;
       letter-spacing: 0.08em;
-      margin-bottom: 0.85rem;
+      margin-bottom: 0.65rem;
+      flex-shrink: 0;
     }
     .day-modal__container .day-modal__title {
       font-family: var(--font-display);
-      font-size: 1.65rem;
+      font-size: 1.5rem;
       font-weight: 600;
-      margin: 0 0 0.35rem;
+      margin: 0 0 0.3rem;
       color: #1a1a1a;
       line-height: 1.2;
       padding-right: 2.5rem;
+      flex-shrink: 0;
     }
     .day-modal__date {
       color: #888;
       font-size: 0.875rem;
-      margin: 0 0 1rem;
+      margin: 0 0 0.65rem;
+      flex-shrink: 0;
     }
     .day-modal__divider {
       height: 1px;
       background: #eee;
-      margin: 1rem 0 1.25rem;
+      margin: 0.65rem 0 0.85rem;
+      flex-shrink: 0;
     }
     .day-modal__body {
-      font-size: 0.9375rem;
-      line-height: 1.7;
+      font-size: 0.9rem;
+      line-height: 1.55;
       color: #444;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
     }
     .day-modal__body p {
-      margin: 0 0 0.85rem;
+      margin: 0 0 0.65rem;
+    }
+    .day-modal__body p:last-child {
+      margin-bottom: 0;
     }
     .day-modal__body ul {
-      margin: 0 0 0.85rem;
-      padding-left: 1.2rem;
+      margin: 0 0 0.65rem;
+      padding-left: 1.15rem;
+    }
+    .day-modal__body ul:last-child {
+      margin-bottom: 0;
     }
     .day-modal__body strong {
       color: #333;
     }
     .day-modal__figure {
-      margin: 1.25rem 0 0;
+      margin: 0.85rem 0 0;
       border-radius: 12px;
       overflow: hidden;
-      max-height: 220px;
+      max-height: min(32vh, 200px);
+      flex-shrink: 0;
     }
     .day-modal__figure img {
       width: 100%;
       height: 100%;
-      max-height: 220px;
+      max-height: min(32vh, 200px);
       object-fit: cover;
       display: block;
+    }
+    .day-modal__optional-slot {
+      flex-shrink: 0;
+      margin-top: 0.85rem;
+    }
+    .day-modal__optional-slot[hidden] {
+      display: none;
+    }
+
+    @media (max-height: 720px) {
+      .day-modal__container {
+        padding: 1.15rem 1.35rem 1rem;
+      }
+      .day-modal__container .day-modal__title {
+        font-size: 1.3rem;
+      }
+      .day-modal__figure,
+      .day-modal__figure img {
+        max-height: min(26vh, 150px);
+      }
+      .day-modal__optional-notice {
+        padding: 0.6rem 0.8rem;
+      }
+      .day-modal__optional-notice p {
+        font-size: 0.8rem;
+        line-height: 1.45;
+      }
     }
 
     /* Interactive chat widget */
@@ -3612,7 +3761,7 @@
             <div class="tml-price-label" data-tr="Kişi başı paket fiyatı" data-en="Per person package price">Kişi başı paket fiyatı</div>
             <div class="tml-price-amount" id="tml-price-amount">€ 2.590</div>
           </div>
-          <a class="tml-reserve" href="mailto:gezeceyik1travel@gmail.com?subject=Tomorrowland%20Thailand%20Paketi&amp;body=Merhaba%2C%20Tomorrowland%20Thailand%20paketi%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." data-tr="Rezervasyon talebi" data-en="Booking request">Rezervasyon talebi</a>
+          <button type="button" class="tml-reserve book-button" id="open-reserve-tml" data-tr="Rezervasyon Yap" data-en="Book Now">Rezervasyon Yap</button>
         </div>
         <p class="tml-price-notice" data-tr="Gösterilen fiyatlar değişebilir. Kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir." data-en="Prices shown are indicative and may change. Exact accommodation and flight details are shared upon booking / tour confirmation; minor add-ons such as extra baggage or airport taxes may apply.">Gösterilen fiyatlar değişebilir. Kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir.</p>
       </div>
@@ -3620,16 +3769,51 @@
   </div>
 
   <div class="modal-overlay" id="modal-overlay" hidden>
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
+    <div class="modal modal--booking" role="dialog" aria-modal="true" aria-labelledby="modal-heading">
       <button type="button" class="modal__close" id="modal-close" aria-label="Kapat" data-i18n-attr="aria-label" data-tr-aria-label="Kapat" data-en-aria-label="Close">&times;</button>
       <h2 id="modal-heading" data-tr="Rezervasyon talebi" data-en="Booking request">Rezervasyon talebi</h2>
-      <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 1rem" data-tr="E-postanızı bırakın; rezervasyon talebiniz doğrudan bize iletilir." data-en="Leave your email — your booking request is sent to us directly.">E-postanızı bırakın; rezervasyon talebiniz doğrudan bize iletilir.</p>
+      <p class="modal__intro" id="reserve-intro" data-tr="Talebinizi doldurun; size en kısa sürede dönüş yapalım." data-en="Fill in your request — we'll get back to you shortly.">Talebinizi doldurun; size en kısa sürede dönüş yapalım.</p>
       <div class="modal__error" id="modal-error" role="alert"></div>
       <div class="modal__success" id="modal-success" role="status" data-tr="Teşekkürler! Talebiniz alındı, en kısa sürede dönüş yapacağız." data-en="Thank you! Your request was received — we'll reply shortly.">Teşekkürler! Talebiniz alındı, en kısa sürede dönüş yapacağız.</div>
       <form id="reserve-form">
-        <label class="modal__field-label" for="reserve-email" data-tr="E-posta" data-en="Email">E-posta</label>
-        <input type="email" id="reserve-email" name="email" required placeholder="ornek@eposta.com" autocomplete="email" data-i18n-attr="placeholder" data-tr-placeholder="ornek@eposta.com" data-en-placeholder="name@example.com" />
-        <button type="submit" class="modal__submit" id="reserve-submit-btn" data-tr="Gönder" data-en="Send">Gönder</button>
+        <div class="modal__field-row">
+          <div class="modal__field">
+            <label class="modal__field-label" for="reserve-name" data-tr="Ad Soyad" data-en="Full name">Ad Soyad</label>
+            <input type="text" id="reserve-name" name="name" required autocomplete="name" data-i18n-attr="placeholder" data-tr-placeholder="Adınız Soyadınız" data-en-placeholder="Your full name" placeholder="Adınız Soyadınız" />
+          </div>
+          <div class="modal__field">
+            <label class="modal__field-label" for="reserve-email" data-tr="E-posta" data-en="Email">E-posta</label>
+            <input type="email" id="reserve-email" name="email" required placeholder="ornek@eposta.com" autocomplete="email" data-i18n-attr="placeholder" data-tr-placeholder="ornek@eposta.com" data-en-placeholder="name@example.com" />
+          </div>
+        </div>
+        <div class="modal__field-row">
+          <div class="modal__field">
+            <label class="modal__field-label" for="reserve-phone" data-tr="Telefon" data-en="Phone">Telefon</label>
+            <input type="tel" id="reserve-phone" name="phone" autocomplete="tel" data-i18n-attr="placeholder" data-tr-placeholder="+90 5xx xxx xx xx" data-en-placeholder="+90 5xx xxx xx xx" placeholder="+90 5xx xxx xx xx" />
+          </div>
+          <div class="modal__field">
+            <label class="modal__field-label" for="reserve-guests" data-tr="Kişi sayısı" data-en="Number of guests">Kişi sayısı</label>
+            <input type="number" id="reserve-guests" name="guests" min="1" max="30" value="1" required />
+          </div>
+        </div>
+        <div class="modal__field">
+          <label class="modal__field-label" for="reserve-tour" data-tr="Tur paketi" data-en="Tour package">Tur paketi</label>
+          <select id="reserve-tour" name="tour" required></select>
+        </div>
+        <div class="modal__field">
+          <label class="modal__field-label" for="reserve-payment" data-tr="Tercih edilen ödeme" data-en="Preferred payment">Tercih edilen ödeme</label>
+          <select id="reserve-payment" name="payment" required></select>
+        </div>
+        <fieldset class="modal__addons">
+          <legend data-tr="Opsiyonel ek turlar" data-en="Optional add-on tours">Opsiyonel ek turlar</legend>
+          <p class="modal__addons-hint" data-tr="Ek ücretlidir; seçtikleriniz talebinize eklenir." data-en="Extra cost; your selections are included in the request.">Ek ücretlidir; seçtikleriniz talebinize eklenir.</p>
+          <div id="reserve-addons-list" role="group" aria-labelledby="reserve-addons-label"></div>
+        </fieldset>
+        <div class="modal__field">
+          <label class="modal__field-label" for="reserve-message" data-tr="Mesajınız" data-en="Your message">Mesajınız</label>
+          <textarea id="reserve-message" name="message" data-i18n-attr="placeholder" data-tr-placeholder="Ek notlarınız, sorularınız…" data-en-placeholder="Notes, questions…" placeholder="Ek notlarınız, sorularınız…"></textarea>
+        </div>
+        <button type="submit" class="modal__submit" id="reserve-submit-btn" data-tr="Talebi gönder" data-en="Submit request">Talebi gönder</button>
       </form>
     </div>
   </div>
@@ -3650,8 +3834,9 @@
       <div class="day-modal__divider" aria-hidden="true"></div>
       <div class="day-modal__body" id="modalContent"></div>
       <div class="day-modal__figure" id="modalFigure" hidden>
-        <img id="modalImage" src="" alt="" width="700" height="280" />
+        <img id="modalImage" src="" alt="" width="700" height="240" />
       </div>
+      <div class="day-modal__optional-slot" id="modalOptionalNotice" hidden></div>
     </div>
   </div>
 
@@ -4044,32 +4229,210 @@
       throw new Error(data.error || fallback);
     }
 
-    function getBookingContextLines() {
+    const TOUR_BOOKING_LABELS = {
+      backpacking: { tr: "Phuket & Bangkok · Backpacking", en: "Phuket & Bangkok · Backpacking" },
+      phuket: { tr: "Phuket & Bangkok · Comfort", en: "Phuket & Bangkok · Comfort" },
+      tomorrowland: {
+        tr: "Phuket, Bangkok & Tomorrowland · Luxury",
+        en: "Phuket, Bangkok & Tomorrowland · Luxury"
+      }
+    };
+
+    const PAYMENT_OPTIONS = [
+      { value: "transfer", tr: "Havale / EFT", en: "Bank transfer / EFT" },
+      { value: "card", tr: "Kredi kartı / taksit", en: "Credit card / installments" },
+      { value: "cash", tr: "Nakit", en: "Cash" },
+      { value: "other", tr: "Diğer (mesajda belirtin)", en: "Other (specify in message)" }
+    ];
+
+    function getProgramDaysForTour(tourKey) {
       const lang = L();
-      const tourLabel =
-        currentTour === "backpacking"
-          ? "Backpacking style"
-          : currentTour === "tomorrowland"
-            ? "Luxury (Tomorrowland)"
-            : "Comfort";
+      if (tourKey === "tomorrowland") {
+        return applyTmlHotelNames(
+          withDeparturePort(
+            lang === "en" ? programDays_tml_en : programDays_tml,
+            lang,
+            "tomorrowland"
+          )
+        );
+      }
+      if (tourKey === "backpacking") {
+        return withDeparturePort(lang === "en" ? programDays_en : programDays, lang, "backpacking");
+      }
+      return withDeparturePort(lang === "en" ? programDays_en : programDays, lang, "phuket");
+    }
+
+    function getOptionalAddonsForTour(tourKey) {
+      return getProgramDaysForTour(tourKey).filter(function (d) {
+        return d.optional;
+      });
+    }
+
+    function getTourBookingLabel(tourKey) {
+      const lang = L();
+      const labels = TOUR_BOOKING_LABELS[tourKey] || TOUR_BOOKING_LABELS.phuket;
+      return labels[lang === "en" ? "en" : "tr"];
+    }
+
+    function getPaymentLabel(value) {
+      const lang = L();
+      const opt = PAYMENT_OPTIONS.find(function (o) {
+        return o.value === value;
+      });
+      if (!opt) return value;
+      return opt[lang === "en" ? "en" : "tr"];
+    }
+
+    function populateReserveTourSelect() {
+      const sel = document.getElementById("reserve-tour");
+      if (!sel) return;
+      const keys = ["backpacking", "phuket", "tomorrowland"];
+      sel.innerHTML = keys
+        .map(function (key) {
+          return (
+            '<option value="' +
+            key +
+            '"' +
+            (key === currentTour ? " selected" : "") +
+            ">" +
+            escapeHtml(getTourBookingLabel(key)) +
+            "</option>"
+          );
+        })
+        .join("");
+    }
+
+    function populateReservePaymentSelect() {
+      const sel = document.getElementById("reserve-payment");
+      if (!sel) return;
+      const lang = L();
+      sel.innerHTML = PAYMENT_OPTIONS.map(function (o) {
+        return (
+          '<option value="' +
+          o.value +
+          '">' +
+          escapeHtml(o[lang === "en" ? "en" : "tr"]) +
+          "</option>"
+        );
+      }).join("");
+    }
+
+    function renderReserveAddons(tourKey) {
+      const list = document.getElementById("reserve-addons-list");
+      if (!list) return;
+      const lang = L();
+      const addons = getOptionalAddonsForTour(tourKey);
+      if (!addons.length) {
+        list.innerHTML =
+          '<p class="modal__addons-empty">' +
+          escapeHtml(
+            lang === "en"
+              ? "No optional day tours for this package."
+              : "Bu paket için opsiyonel gün turu bulunmuyor."
+          ) +
+          "</p>";
+        return;
+      }
+      const dayWord = lang === "en" ? "Day" : "Gün";
+      list.innerHTML = addons
+        .map(function (d) {
+          const id = "addon-day-" + tourKey + "-" + d.n;
+          return (
+            '<label class="modal__addon-option">' +
+            '<input type="checkbox" name="addon" value="' +
+            escapeHtml(String(d.n)) +
+            '" id="' +
+            id +
+            '" />' +
+            "<span><strong>" +
+            dayWord +
+            " " +
+            d.n +
+            "</strong> — " +
+            escapeHtml(d.route) +
+            "</span></label>"
+          );
+        })
+        .join("");
+    }
+
+    function getSelectedReserveAddons() {
+      const checked = document.querySelectorAll('#reserve-form input[name="addon"]:checked');
+      const tourKey = document.getElementById("reserve-tour")?.value || currentTour;
+      const addons = getOptionalAddonsForTour(tourKey);
+      return Array.from(checked)
+        .map(function (el) {
+          const dayNum = Number(el.value);
+          const day = addons.find(function (d) {
+            return d.n === dayNum;
+          });
+          return day ? { n: day.n, route: day.route } : null;
+        })
+        .filter(Boolean);
+    }
+
+    function getBookingContextLines(tourKey) {
+      const lang = L();
+      const key = tourKey || currentTour;
+      const tourLabel = getTourBookingLabel(key);
       const portKey = normalizeDeparturePort(currentDeparturePort);
       const port = DEPARTURE_PORT_LABELS[portKey][lang === "en" ? "en" : "tr"];
       const modeLabel =
-        PRICING_MODE_LABELS[getEffectivePricingMode(currentTour)][lang === "en" ? "en" : "tr"];
-      const displayed = getDisplayedPriceEur(currentTour, portKey);
-      return (
+        PRICING_MODE_LABELS[getEffectivePricingMode(key)][lang === "en" ? "en" : "tr"];
+      const displayed = getDisplayedPriceEur(key, portKey);
+      const dateSel = document.getElementById("tour-date-select");
+      const tourDates = dateSel ? dateSel.options[dateSel.selectedIndex]?.textContent?.trim() : "";
+      let lines =
         (lang === "en" ? "Package: " : "Paket: ") +
         tourLabel +
         "\n" +
         (lang === "en" ? "Departure: " : "Kalkış: ") +
-        port +
+        port;
+      if (tourDates) {
+        lines += "\n" + (lang === "en" ? "Tour dates: " : "Tur tarihi: ") + tourDates;
+      }
+      lines +=
         "\n" +
         (lang === "en" ? "Pricing: " : "Fiyatlandırma: ") +
         modeLabel +
         "\n" +
         (lang === "en" ? "Package price (per person): " : "Paket fiyatı (kişi başı): ") +
-        formatEurDisplay(displayed)
+        formatEurDisplay(displayed);
+      return lines;
+    }
+
+    function buildReserveMessage(data) {
+      const lang = L();
+      const lines = [];
+      lines.push(lang === "en" ? "Booking request" : "Rezervasyon talebi");
+      lines.push("");
+      lines.push(getBookingContextLines(data.tour));
+      lines.push("");
+      lines.push((lang === "en" ? "Name: " : "Ad Soyad: ") + data.name);
+      lines.push((lang === "en" ? "Email: " : "E-posta: ") + data.email);
+      if (data.phone) lines.push((lang === "en" ? "Phone: " : "Telefon: ") + data.phone);
+      lines.push((lang === "en" ? "Guests: " : "Kişi sayısı: ") + data.guests);
+      lines.push(
+        (lang === "en" ? "Preferred payment: " : "Tercih edilen ödeme: ") + data.paymentLabel
       );
+      lines.push("");
+      if (data.addons.length) {
+        lines.push(lang === "en" ? "Optional add-ons selected:" : "Seçilen opsiyonel turlar:");
+        data.addons.forEach(function (a) {
+          const dayWord = lang === "en" ? "Day" : "Gün";
+          lines.push("  • " + dayWord + " " + a.n + " — " + a.route);
+        });
+      } else {
+        lines.push(
+          lang === "en" ? "Optional add-ons: none selected" : "Opsiyonel turlar: seçilmedi"
+        );
+      }
+      if (data.message) {
+        lines.push("");
+        lines.push(lang === "en" ? "Message:" : "Mesaj:");
+        lines.push(data.message);
+      }
+      return lines.join("\n");
     }
 
     async function handleSubmit(event) {
@@ -4922,7 +5285,7 @@
         route: "Pattaya serbest gün",
         summary: "Plaj, dinlenme, isteğe bağlı tekne turları veya Pattaya keşfi.",
         date: "12 Aralık 2026 — Cumartesi",
-        image: { src: "https://images.unsplash.com/photo-1568659585074-2c11ce05a05a?w=800&q=80", alt: "Pattaya plajı" },
+        image: { src: "https://images.unsplash.com/photo-1625276413000-12c38e7b7d0a?w=800&q=80", alt: "Pattaya plajı" },
         content: `
       <p>Festival arası dinlenme günü. Otelde kahvaltı sonrası serbest zaman.</p>
       <p><strong>Önerilen aktiviteler:</strong></p>
@@ -5130,7 +5493,7 @@
         route: "Pattaya free day",
         summary: "Beach, rest, optional boat tours or Pattaya exploration.",
         date: "12 December 2026 — Saturday",
-        image: { src: "https://images.unsplash.com/photo-1568659585074-2c11ce05a05a?w=800&q=80", alt: "Pattaya beach" },
+        image: { src: "https://images.unsplash.com/photo-1625276413000-12c38e7b7d0a?w=800&q=80", alt: "Pattaya beach" },
         content: `
       <p>Rest day between festival days. Free time after breakfast at the hotel.</p>
       <p><strong>Recommended activities:</strong></p>
@@ -6625,7 +6988,7 @@
       { href: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=80", src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80", alt: "Tomorrowland sahne" },
       { href: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1600&q=80", src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&q=80", alt: "Festival kalabalık" },
       { href: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=1600&q=80", src: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=600&q=80", alt: "Phuket plajı" },
-      { href: "https://images.unsplash.com/photo-1568659585074-2c11ce05a05a?w=1600&q=80", src: "https://images.unsplash.com/photo-1568659585074-2c11ce05a05a?w=600&q=80", alt: "Pattaya plajı" },
+      { href: "https://images.unsplash.com/photo-1625276413000-12c38e7b7d0a?w=1600&q=80", src: "https://images.unsplash.com/photo-1625276413000-12c38e7b7d0a?w=600&q=80", alt: "Pattaya plajı" },
       { href: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1600&q=80", src: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=600&q=80", alt: "Bangkok tapınağı" },
       { href: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=1600&q=80", src: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=600&q=80", alt: "Bangkok gece hayatı" }
     ];
@@ -8118,6 +8481,7 @@
     const dayModalCloseBtn = document.getElementById("day-modal-close");
     const modalFigureEl = document.getElementById("modalFigure");
     const modalImageEl = document.getElementById("modalImage");
+    const modalOptionalEl = document.getElementById("modalOptionalNotice");
 
     function openDayModal(dayNumber) {
       const day = progData().find((d) => d.n === dayNumber);
@@ -8127,17 +8491,17 @@
       document.getElementById("modalTitle").textContent = day.route;
       document.getElementById("modalDate").textContent = day.date;
 
-      // Add an "optional tour" notice for days with paid tours
-      let noticeHtml = '';
+      document.getElementById("modalContent").innerHTML = day.content.trim();
+
       if (day.optional) {
         const isEn = L() === 'en';
         const title   = isEn ? 'Optional tour — extra cost' : 'Opsiyonel tur — ek ücretli';
         const message = isEn
           ? "This day's tour is optional. Guests who'd like to join can attend for an additional cost. Those who prefer free time can stay at the hotel or explore on their own."
           : 'Bu günün turu opsiyoneldir. Katılmak isteyen misafirler ek ücretle katılabilir. Serbest zaman tercih edenler otelde kalabilir veya kendi başlarına şehri keşfedebilir.';
-        noticeHtml = `
+        modalOptionalEl.innerHTML = `
           <div class="day-modal__optional-notice">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
               <circle cx="12" cy="12" r="10"/>
               <line x1="12" y1="8" x2="12" y2="12"/>
               <line x1="12" y1="16" x2="12.01" y2="16"/>
@@ -8147,9 +8511,11 @@
               <p>${message}</p>
             </div>
           </div>`;
+        modalOptionalEl.hidden = false;
+      } else {
+        modalOptionalEl.innerHTML = '';
+        modalOptionalEl.hidden = true;
       }
-      document.getElementById("modalContent").innerHTML =
-        day.content.trim() + noticeHtml;
 
       if (day.image && day.image.src) {
         modalImageEl.src = day.image.src;
@@ -8279,6 +8645,11 @@
       }
       reserveForm.style.display = "block";
       reserveForm.reset();
+      document.getElementById("reserve-guests").value = "1";
+      populateReserveTourSelect();
+      populateReservePaymentSelect();
+      const tourSel = document.getElementById("reserve-tour");
+      renderReserveAddons(tourSel ? tourSel.value : currentTour);
     }
     function closeModal() {
       overlay.classList.remove("is-open");
@@ -8289,6 +8660,14 @@
     }
 
     document.getElementById("open-reserve").addEventListener("click", openModal);
+    const openReserveTml = document.getElementById("open-reserve-tml");
+    if (openReserveTml) openReserveTml.addEventListener("click", openModal);
+    const reserveTourSel = document.getElementById("reserve-tour");
+    if (reserveTourSel) {
+      reserveTourSel.addEventListener("change", function () {
+        renderReserveAddons(reserveTourSel.value);
+      });
+    }
     modalClose.addEventListener("click", closeModal);
     overlay.addEventListener("click", (e) => {
       if (e.target === overlay) closeModal();
@@ -8297,10 +8676,18 @@
     reserveForm.addEventListener("submit", async function (e) {
       e.preventDefault();
       if (!reserveForm.checkValidity()) {
-        document.getElementById("reserve-email").reportValidity();
+        reserveForm.reportValidity();
         return;
       }
+      const name = document.getElementById("reserve-name").value.trim();
       const email = document.getElementById("reserve-email").value.trim();
+      const phone = document.getElementById("reserve-phone").value.trim();
+      const guests = document.getElementById("reserve-guests").value;
+      const tour = document.getElementById("reserve-tour").value;
+      const payment = document.getElementById("reserve-payment").value;
+      const paymentLabel = getPaymentLabel(payment);
+      const message = document.getElementById("reserve-message").value.trim();
+      const addons = getSelectedReserveAddons();
       const submitBtn = document.getElementById("reserve-submit-btn");
       const lang = L();
       if (submitBtn) submitBtn.disabled = true;
@@ -8310,24 +8697,31 @@
       }
       try {
         await sendInquiryEmail({
-          subject: "gezeceyik Rezervasyon talebi",
-          name: email,
+          subject:
+            (lang === "en" ? "gezeceyik Booking — " : "gezeceyik Rezervasyon — ") + name,
+          name: name,
           email: email,
-          message:
-            (lang === "en" ? "Booking request\n\n" : "Rezervasyon talebi\n\n") +
-            getBookingContextLines() +
-            "\n\n" +
-            (lang === "en" ? "Customer email: " : "Müşteri e-postası: ") +
-            email
+          phone: phone,
+          message: buildReserveMessage({
+            name: name,
+            email: email,
+            phone: phone,
+            guests: guests,
+            tour: tour,
+            paymentLabel: paymentLabel,
+            addons: addons,
+            message: message
+          })
         });
         reserveForm.style.display = "none";
         modalSuccess.classList.add("is-visible");
       } catch (err) {
         if (modalError) {
           modalError.textContent =
-            lang === "en"
+            err.message ||
+            (lang === "en"
               ? "Could not send. Please try again or email " + INQUIRY_EMAIL
-              : "Gönderilemedi. Tekrar deneyin veya " + INQUIRY_EMAIL + " adresine yazın.";
+              : "Gönderilemedi. Tekrar deneyin veya " + INQUIRY_EMAIL + " adresine yazın.");
           modalError.classList.add("is-visible");
         }
       }
@@ -8563,6 +8957,12 @@
       if (typeof refreshChatPriceSummary === 'function') refreshChatPriceSummary();
       if (typeof renderTimeline === 'function') renderTimeline();
       if (typeof fillLists === 'function') fillLists();
+      if (document.getElementById("reserve-tour")) {
+        populateReserveTourSelect();
+        populateReservePaymentSelect();
+        const rTour = document.getElementById("reserve-tour");
+        renderReserveAddons(rTour ? rTour.value : currentTour);
+      }
       // Notify scripts that render dynamic content
       document.dispatchEvent(new CustomEvent('gezeceyik-lang', { detail: { lang } }));
     }

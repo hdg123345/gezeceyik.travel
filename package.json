@@ -1,7 +1,14 @@
 {
   "name": "gezeceyik-travel",
   "private": true,
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
   "dependencies": {
     "nodemailer": "^6.9.16"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7"
   }
 }
