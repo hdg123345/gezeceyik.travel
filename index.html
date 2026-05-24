@@ -127,10 +127,6 @@
     body.view-tour .timeline__card:hover {
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     }
-    body.view-tour .tour-bottom {
-      background: #fafaf8;
-      border-top: 1px solid var(--border);
-    }
     body.view-tour .price-card select {
       background: var(--bg);
     }
@@ -1422,7 +1418,8 @@
       border: 1px solid rgba(231, 111, 81, 0.25);
       border-radius: 12px;
       padding: 0.9rem 1.05rem;
-      margin-bottom: 1.1rem;
+      margin-top: 1.1rem;
+      margin-bottom: 0;
     }
     .day-modal__optional-notice svg {
       flex-shrink: 0;
@@ -1787,11 +1784,6 @@
       font-size: 0.95rem;
       color: var(--primary);
     }
-    .departure-option span {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      line-height: 1.35;
-    }
     .price-mode {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1845,43 +1837,6 @@
       opacity: 0.2;
       transform: translateY(4px);
     }
-    .price-matrix {
-      margin-top: 0.85rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid rgba(15, 76, 92, 0.1);
-    }
-    .price-matrix__title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin: 0 0 0.45rem;
-    }
-    .price-matrix__table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.72rem;
-    }
-    .price-matrix__table th,
-    .price-matrix__table td {
-      padding: 0.35rem 0.25rem;
-      text-align: left;
-      border-bottom: 1px solid rgba(15, 76, 92, 0.08);
-    }
-    .price-matrix__table th {
-      font-weight: 600;
-      color: var(--text-muted);
-      font-size: 0.65rem;
-    }
-    .price-matrix__table td:last-child,
-    .price-matrix__table th:last-child {
-      text-align: right;
-    }
-    .price-matrix__table tr.is-current td {
-      color: var(--accent);
-      font-weight: 700;
-    }
     .price-card__per {
       font-size: 0.8125rem;
       color: var(--text-muted);
@@ -1897,13 +1852,6 @@
       line-height: 1.45;
       color: var(--text-muted);
       margin: 0.5rem 0 0;
-    }
-    .tour-bottom__price-notice {
-      font-size: 0.85rem;
-      line-height: 1.5;
-      color: var(--text-muted);
-      margin: 0 0 1rem;
-      max-width: 42rem;
     }
     .tml-price-notice {
       font-size: 0.75rem;
@@ -2082,6 +2030,55 @@
       border-bottom: 1px solid var(--border);
     }
     .included-list li:last-child { border-bottom: none; }
+    .price-inclusion {
+      margin-bottom: 0.45rem;
+      border: 1px solid rgba(15, 76, 92, 0.12);
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.5);
+    }
+    .price-inclusion:last-child {
+      margin-bottom: 0;
+    }
+    .price-inclusion__toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.65rem 0.75rem;
+      border: none;
+      background: transparent;
+      font: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .price-inclusion__toggle:hover {
+      background: rgba(15, 76, 92, 0.05);
+    }
+    .price-inclusion__chevron {
+      flex-shrink: 0;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      transition: transform 0.25s ease;
+    }
+    .price-inclusion__toggle[aria-expanded="true"] .price-inclusion__chevron {
+      transform: rotate(180deg);
+    }
+    .price-inclusion__panel {
+      padding: 0 0.75rem 0.65rem;
+      border-top: 1px solid rgba(15, 76, 92, 0.08);
+    }
+    .price-inclusion__panel[hidden] {
+      display: none;
+    }
+    .price-card__section--inclusions {
+      padding-top: 0.5rem;
+    }
     .included-list li::before {
       content: "";
       position: absolute;
@@ -2092,37 +2089,6 @@
       border-radius: 50%;
       background: var(--accent);
     }
-
-    /* Bottom inclusion columns */
-    .tour-bottom {
-      padding: 2.5rem 0 4rem;
-      border-top: 1px solid rgba(15, 23, 42, 0.1);
-      background: transparent;
-      box-shadow: none;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-    }
-    .tour-bottom__grid {
-      display: grid;
-      gap: 2rem;
-    }
-    @media (min-width: 720px) {
-      .tour-bottom__grid { grid-template-columns: 1fr 1fr; gap: 3rem; }
-    }
-    .tour-bottom h2 {
-      font-family: var(--font-display);
-      font-size: 1.35rem;
-      margin: 0 0 1rem;
-      color: var(--text);
-    }
-    .tour-bottom ul {
-      margin: 0;
-      padding-left: 1.15rem;
-      font-size: 0.9375rem;
-      color: var(--text-muted);
-      line-height: 1.65;
-    }
-    .tour-bottom ul li { margin-bottom: 0.5rem; }
 
     /* Footer / İletişim */
     .contact {
@@ -2434,8 +2400,10 @@
     }
     .quick-contact {
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
-      gap: 24px;
+      align-items: center;
+      gap: 14px 22px;
       margin-top: 24px;
       padding-top: 24px;
       border-top: 1px solid rgba(15, 76, 92, 0.1);
@@ -2461,6 +2429,8 @@
       opacity: 0.7 !important;
       transition: all 0.3s ease !important;
       border-bottom: none !important;
+      white-space: nowrap;
+      max-width: 100%;
     }
 
     .contact-form-inner .contact-links a svg {
@@ -3156,31 +3126,24 @@
       <div class="departure-options">
         <button type="button" class="departure-option" data-port="istanbul">
           <strong data-tr="İstanbul (SAW)" data-en="Istanbul (SAW)">İstanbul (SAW)</strong>
-          <span data-tr="Qatar Airways aktarmalı · Doha üzerinden" data-en="Qatar Airways via Doha">Qatar Airways aktarmalı · Doha üzerinden</span>
         </button>
         <button type="button" class="departure-option" data-port="ercan">
           <strong data-tr="Ercan (ECN) — Kuzey Kıbrıs" data-en="Ercan (ECN) — Northern Cyprus">Ercan (ECN) — Kuzey Kıbrıs</strong>
-          <span data-tr="Gidiş Turkish (İstanbul) · dönüş Turkish / Pegasus (İstanbul)" data-en="Outbound Turkish (Istanbul) · return Turkish / Pegasus (Istanbul)">Gidiş Turkish (İstanbul) · dönüş Turkish / Pegasus (İstanbul)</span>
         </button>
         <button type="button" class="departure-option" data-port="larnaca">
           <strong data-tr="Larnaca (LCA) — Kıbrıs" data-en="Larnaca (LCA) — Cyprus">Larnaca (LCA) — Kıbrıs</strong>
-          <span data-tr="Gidiş Emirates (Dubai) · dönüş Qatar (Doha)" data-en="Outbound Emirates (Dubai) · return Qatar (Doha)">Gidiş Emirates (Dubai) · dönüş Qatar (Doha)</span>
         </button>
         <button type="button" class="departure-option" data-port="helsinki">
           <strong data-tr="Helsinki (HEL) — Finlandiya" data-en="Helsinki (HEL) — Finland">Helsinki (HEL) — Finlandiya</strong>
-          <span data-tr="Gidiş Finnair direkt · dönüş Finnair direkt" data-en="Outbound Finnair direct · return Finnair direct">Gidiş Finnair direkt · dönüş Finnair direkt</span>
         </button>
         <button type="button" class="departure-option" data-port="london">
           <strong data-tr="Londra (LHR) — İngiltere" data-en="London (LHR) — UK">Londra (LHR) — İngiltere</strong>
-          <span data-tr="Gidiş Qatar (Doha) · dönüş EVA direkt" data-en="Outbound Qatar (Doha) · return EVA direct">Gidiş Qatar (Doha) · dönüş EVA direkt</span>
         </button>
         <button type="button" class="departure-option" data-port="berlin">
           <strong data-tr="Berlin (BER) — Almanya" data-en="Berlin (BER) — Germany">Berlin (BER) — Almanya</strong>
-          <span data-tr="Gidiş Turkish (İstanbul) · dönüş Qatar (Doha)" data-en="Outbound Turkish (Istanbul) · return Qatar (Doha)">Gidiş Turkish (İstanbul) · dönüş Qatar (Doha)</span>
         </button>
         <button type="button" class="departure-option" data-port="amsterdam">
           <strong data-tr="Amsterdam (AMS) — Hollanda" data-en="Amsterdam (AMS) — Netherlands">Amsterdam (AMS) — Hollanda</strong>
-          <span data-tr="Gidiş Air India (Delhi) · dönüş Thai direkt" data-en="Outbound Air India (Delhi) · return Thai direct">Gidiş Air India (Delhi) · dönüş Thai direkt</span>
         </button>
       </div>
     </div>
@@ -3201,11 +3164,11 @@
       >
         <div class="landing-preview__media backpacking-media" role="img" aria-label="Hostel konaklama"></div>
         <div class="landing-preview__body">
-          <div class="landing-preview__badge" data-tr="Aralık 2026" data-en="December 2026">Aralık 2026</div>
+          <div class="landing-preview__badge" data-tr="02 – 11 Aralık" data-en="02 – 11 December">02 – 11 Aralık</div>
           <p class="landing-preview__tier" data-tr="Backpacking style" data-en="Backpacking style">Backpacking style</p>
           <h3 class="landing-preview__title" data-tr="Phuket &amp; Bangkok" data-en="Phuket &amp; Bangkok">Phuket &amp; Bangkok</h3>
           <div class="landing-preview__meta">
-            <span class="landing-preview__meta-line" data-tr="02 – 10 Aralık 2026" data-en="02 – 10 December 2026">02 – 10 Aralık 2026</span>
+            <span class="landing-preview__meta-line" data-tr="02 – 11 Aralık 2026" data-en="02 – 11 December 2026">02 – 11 Aralık 2026</span>
             <span class="landing-preview__meta-line" data-tr="7 gece 8 gün" data-en="7 nights 8 days">7 gece 8 gün</span>
             <span class="landing-preview__meta-line" data-tr="Hostel konaklama" data-en="Hostel stay">Hostel konaklama</span>
           </div>
@@ -3224,11 +3187,11 @@
       >
         <div class="landing-preview__media comfort-media" role="img" aria-label="Phuket plajı"></div>
         <div class="landing-preview__body">
-          <div class="landing-preview__badge" data-tr="Aralık 2026" data-en="December 2026">Aralık 2026</div>
+          <div class="landing-preview__badge" data-tr="02 – 11 Aralık" data-en="02 – 11 December">02 – 11 Aralık</div>
           <p class="landing-preview__tier" data-tr="Comfort" data-en="Comfort">Comfort</p>
           <h3 class="landing-preview__title" data-tr="Phuket &amp; Bangkok" data-en="Phuket &amp; Bangkok">Phuket &amp; Bangkok</h3>
           <div class="landing-preview__meta">
-            <span class="landing-preview__meta-line" data-tr="02 – 12 Aralık 2026" data-en="02 – 12 December 2026">02 – 12 Aralık 2026</span>
+            <span class="landing-preview__meta-line" data-tr="02 – 11 Aralık 2026" data-en="02 – 11 December 2026">02 – 11 Aralık 2026</span>
             <span class="landing-preview__meta-line" data-tr="9 gece 10 gün" data-en="9 nights 10 days">9 gece 10 gün</span>
             <span class="landing-preview__meta-line" data-tr="4★ otel" data-en="4★ hotels">4★ otel</span>
           </div>
@@ -3247,7 +3210,7 @@
       >
         <div class="landing-preview__media festival-media" role="img" aria-label="Tomorrowland festival"></div>
         <div class="landing-preview__body">
-          <div class="landing-preview__badge" data-tr="Aralık 2026 · Festival" data-en="December 2026 · Festival">Aralık 2026 · Festival</div>
+          <div class="landing-preview__badge" data-tr="02 – 14 Aralık" data-en="02 – 14 December">02 – 14 Aralık</div>
           <p class="landing-preview__tier" data-tr="Luxury" data-en="Luxury">Luxury</p>
           <h3 class="landing-preview__title" data-tr="Phuket, Bangkok &amp; Tomorrowland" data-en="Phuket, Bangkok &amp; Tomorrowland">Phuket, Bangkok &amp; Tomorrowland</h3>
           <div class="landing-preview__meta">
@@ -3297,7 +3260,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
           </svg>
-          <span id="tour-hero-dates">02 Aralık 2026 – 12 Aralık 2026</span>
+          <span id="tour-hero-dates">02 Aralık 2026 – 11 Aralık 2026</span>
         </div>
       </div>
     </div>
@@ -3319,7 +3282,6 @@
           <button type="button" role="tab" id="tab-general" aria-selected="false" aria-controls="panel-general" data-tr="Genel bilgiler" data-en="General info">Genel bilgiler</button>
           <button type="button" role="tab" id="tab-hotels"  aria-selected="false" aria-controls="panel-hotels"  data-tr="Konaklama"   data-en="Accommodation">Konaklama</button>
           <button type="button" role="tab" id="tab-flights" aria-selected="false" aria-controls="panel-flights" data-tr="Uçuşlar"     data-en="Flights">Uçuşlar</button>
-          <button type="button" role="tab" id="tab-dest"    aria-selected="false" aria-controls="panel-dest"    data-tr="Destinasyonlar" data-en="Destinations">Destinasyonlar</button>
           <button type="button" role="tab" id="tab-photos"  aria-selected="false" aria-controls="panel-photos"  data-tr="Fotoğraflar"    data-en="Photos">Fotoğraflar</button>
           <button type="button" role="tab" id="tab-important" aria-selected="false" aria-controls="panel-important" data-tr="Önemli bilgiler" data-en="Important info">Önemli bilgiler</button>
         </div>
@@ -3354,10 +3316,6 @@
           <div class="prose" id="flights-prose"></div>
         </div>
 
-        <div id="panel-dest" class="tab-panel" role="tabpanel" aria-labelledby="tab-dest">
-          <div class="prose" id="dest-prose"></div>
-        </div>
-
         <div id="panel-photos" class="tab-panel" role="tabpanel" aria-labelledby="tab-photos">
           <div class="photo-grid" id="photo-grid-root"></div>
         </div>
@@ -3385,7 +3343,7 @@
             </div>
             <div class="price-card__section">
               <div class="price-card__label" data-tr="Turun tarihi" data-en="Tour date">Turun tarihi</div>
-              <label class="visually-hidden" for="tour-date-select" data-tr="Kalkış tarihi seçin" data-en="Choose departure date">Kalkış tarihi seçin</label>
+              <label class="visually-hidden" for="tour-date-select" data-tr="Tur tarihi seçin" data-en="Choose tour dates">Tur tarihi seçin</label>
               <select id="tour-date-select"></select>
             </div>
             <div class="price-card__section">
@@ -3403,8 +3361,35 @@
               <div class="price-card__from" data-tr="’dan itibaren" data-en="starting from">’dan itibaren</div>
               <p class="price-card__notice" data-tr="Gösterilen fiyatlar değişebilir. Kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir." data-en="Prices shown are indicative and may change. Exact accommodation and flight details are shared upon booking / tour confirmation; minor add-ons such as extra baggage or airport taxes may apply.">Gösterilen fiyatlar değişebilir. Kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir.</p>
               <button type="button" class="btn-reserve book-button" id="open-reserve" data-tr="Rezervasyon Yap" data-en="Book Now">Rezervasyon Yap</button>
-              <div class="price-matrix" id="price-matrix">
-                <div class="price-matrix__title" data-tr="Kalkış limanına göre fiyat" data-en="Price by departure airport">Kalkış limanına göre fiyat</div>
+            </div>
+            <div class="price-card__section price-card__section--inclusions">
+              <div class="price-inclusion">
+                <button
+                  type="button"
+                  class="price-inclusion__toggle"
+                  aria-expanded="false"
+                  aria-controls="panel-included"
+                >
+                  <span data-tr="Fiyata dahil olanlar" data-en="What's included">Fiyata dahil olanlar</span>
+                  <span class="price-inclusion__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="price-inclusion__panel" id="panel-included" hidden>
+                  <ul class="included-list" id="list-included-bottom"></ul>
+                </div>
+              </div>
+              <div class="price-inclusion">
+                <button
+                  type="button"
+                  class="price-inclusion__toggle"
+                  aria-expanded="false"
+                  aria-controls="panel-excluded"
+                >
+                  <span data-tr="Fiyata dahil olmayanlar" data-en="Not included">Fiyata dahil olmayanlar</span>
+                  <span class="price-inclusion__chevron" aria-hidden="true">▼</span>
+                </button>
+                <div class="price-inclusion__panel" id="panel-excluded" hidden>
+                  <ul class="included-list" id="list-excluded-bottom"></ul>
+                </div>
               </div>
             </div>
             <div class="price-card__section">
@@ -3444,29 +3429,11 @@
                 </div>
               </div>
             </div>
-            <div class="price-card__section">
-              <div class="price-card__label" data-tr="Fiyata dahil olanlar" data-en="What's included">Fiyata dahil olanlar</div>
-              <ul class="included-list" id="sidebar-included"></ul>
-            </div>
           </div>
         </div>
       </aside>
     </div>
   </div>
-
-  <section class="tour-bottom" id="tour-bottom-inclusions" aria-labelledby="bottom-incl-heading">
-    <div class="wrap tour-bottom__grid">
-      <div>
-        <h2 id="bottom-incl-heading" data-tr="Ücrete dahil olan hizmetler" data-en="Services included in the price">Ücrete dahil olan hizmetler</h2>
-        <p class="tour-bottom__price-notice" data-tr="Paket fiyatları önceden haber verilmeksizin değişebilir. Kesin otel, uçuş saatleri ve konaklama detayları rezervasyon sonrası / tur teyidinde paylaşılır. Bagaj ücreti, havalimanı vergileri ve benzeri küçük ek kalemler paket dışında kalabilir." data-en="Package prices may change without prior notice. Exact hotels, flight times and stay details are confirmed upon booking / tour confirmation. Extra baggage, airport taxes and similar minor charges may apply on top of the package price.">Paket fiyatları önceden haber verilmeksizin değişebilir. Kesin otel, uçuş saatleri ve konaklama detayları rezervasyon sonrası / tur teyidinde paylaşılır. Bagaj ücreti, havalimanı vergileri ve benzeri küçük ek kalemler paket dışında kalabilir.</p>
-        <ul id="list-included-bottom"></ul>
-      </div>
-      <div>
-        <h2 data-tr="Ücrete dahil olmayan hizmetler" data-en="Services not included">Ücrete dahil olmayan hizmetler</h2>
-        <ul id="list-excluded-bottom"></ul>
-      </div>
-    </div>
-  </section>
   </div>
 
   <footer class="contact">
@@ -3519,6 +3486,12 @@
               <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4c0 3.2-2.6 5.8-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8C2 4.6 4.6 2 7.8 2m-.5 2c-1.7 0-3 1.3-3 3v8.4c0 1.7 1.3 3 3 3h8.4c1.7 0 3-1.3 3-3V7.3c0-1.7-1.3-3-3-3H7.3m9.4 1.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3m-5.2 1.5c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5 2.2-5 5-5m0 2c-1.7 0-3 1.3-3 3s1.3 3 3 3 3-1.3 3-3-1.3-3-3-3z"/>
             </svg>
             @gezeceyik1
+          </a>
+          <a href="https://wa.me/905338386102" target="_blank" rel="noopener noreferrer" data-i18n-attr="aria-label" data-tr-aria-label="WhatsApp: +90 533 838 61 02" data-en-aria-label="WhatsApp: +90 533 838 61 02" aria-label="WhatsApp: +90 533 838 61 02">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+            </svg>
+            +90 533 838 61 02
           </a>
           <a href="mailto:gezeceyik1travel@gmail.com">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -3976,7 +3949,7 @@
           },
           { threshold: 0.12, rootMargin: "0px 0px -5% 0px" }
         );
-        document.querySelectorAll("#tour-full section, section.tour-bottom").forEach(function (el) {
+        document.querySelectorAll("#tour-full section").forEach(function (el) {
           el.classList.add("fade-in-section");
           io.observe(el);
         });
@@ -4013,7 +3986,7 @@
 
       document.addEventListener("gezeceyik-view", function (e) {
         if (e.detail && e.detail.tour) {
-          document.querySelectorAll("#tour-full section, section.tour-bottom").forEach(function (el) {
+          document.querySelectorAll("#tour-full section").forEach(function (el) {
             el.classList.add("is-visible");
           });
         }
@@ -4181,7 +4154,7 @@
         content: `
       <p><strong>Tur başlangıç tarihinden bir takvim günü önce</strong> İstanbul Sabiha Gökçen Havalimanı dış hatlar gidiş terminalinde uçuştan 3 saat önce buluşma.</p>
       <p>Bilet, bagaj ve pasaport işlemlerinin ardından Qatar Airways <strong>QR242</strong> ile Doha'ya hareket. Aktarma sonrası <strong>QR850</strong> ile Phuket'e hareket.</p>
-      <p><strong>Örnek uçuş saatleri</strong> (teyit tur dokümanında):</p>
+      <p><strong>Uçuş saatleri</strong> (teyit tur dokümanında):</p>
       <ul>
         <li>QR242: İstanbul (SAW) 18:15 → Doha 05:35</li>
         <li>QR850: Doha 07:35 → Phuket 15:40</li>
@@ -4222,7 +4195,7 @@
         },
         content: `
       <p>Kahvaltı sonrası <strong>tam günlük öğle yemekli Phi Phi Adaları hızlı tekne turu</strong> için hareket.</p>
-      <p><strong>Ziyaret noktaları:</strong></p>
+      <p><strong>Program:</strong></p>
       <ul>
         <li>Maya Bay (<em>The Beach</em> filmi)</li>
         <li>Pileh Lagoon</li>
@@ -4232,7 +4205,7 @@
         <li>Khai Island (snorkel)</li>
       </ul>
       <p><strong>Dahil olanlar:</strong> Snorkel ekipmanı, yaşam yeleği, tekne üzerinde Tayland büfesi öğle yemeği, ulusal park ücretleri, İngilizce rehber.</p>
-      <p><strong>Saatler:</strong> yaklaşık 08:30–17:30</p>
+      <p><strong>Saatler:</strong> 08:30–17:30</p>
       <p>Akşam Patong'da serbest zaman. Geceleme otelimizde.</p>`
       },
       {
@@ -4243,8 +4216,9 @@
           "Phang Nga Körfezi: kano, James Bond Adası, yüzen köy ve öğle yemekli tam gün tekne turu.",
         date: "5 Aralık 2026 — Cumartesi",
         image: {
-          src: "https://images.unsplash.com/photo-1528181304800-259b08848528?w=800&q=80",
-          alt: "Tropikal koy"
+          src: "https://images.unsplash.com/photo-1578406024474-81f6eb54b23d?auto=format&fit=crop&fm=jpg&q=85&w=800&h=600",
+          alt: "James Bond Adası — Phang Nga körfezi",
+          altEn: "James Bond Island — Phang Nga Bay"
         },
         content: `
       <p>Kahvaltı sonrası <strong>tam günlük öğle yemekli James Bond Adası ve Phang Nga Körfezi</strong> turu.</p>
@@ -4257,7 +4231,7 @@
         <li>Naka Yai plajında yüzme</li>
       </ul>
       <p><strong>Dahil olanlar:</strong> Kano, yaşam yeleği, kask, öğle yemeği, ulusal park ücretleri, rehber.</p>
-      <p><strong>Saatler:</strong> yaklaşık 08:30–17:30</p>
+      <p><strong>Saatler:</strong> 08:30–17:30</p>
       <p>Geceleme Phuket'teki otelimizde.</p>`
       },
       {
@@ -4273,7 +4247,7 @@
         content: `
       <p>Kahvaltı sonrası serbest zaman: Patong'da yüzme, alışveriş, spa veya <strong>Jungceylon AVM</strong>.</p>
       <p>Öğleden sonra Phuket Havalimanı'na transfer. <strong>Thai AirAsia FD3014</strong> ile Bangkok'a hareket.</p>
-      <p><strong>Örnek uçuş:</strong> 07.12.2026 Phuket 14:00 → Bangkok 15:25 (teyit edilir).</p>
+      <p><strong>Uçuş:</strong> 07.12.2026 Phuket 14:00 → Bangkok 15:25.</p>
       <p>Suvarnabhumi'ye varışta özel van ile <strong>Solitaire Bangkok Sukhumvit 11</strong>'e transfer (7–11 Aralık konaklama).</p>
       <p>Akşam Soi 11 çevresinde hoş geldin yemeği önerisi. Geceleme Bangkok'taki otelimizde.</p>`
       },
@@ -4290,48 +4264,45 @@
         },
         content: `
       <p>Büfe kahvaltı sonrası <strong>tam günlük Bangkok şehir turu</strong>.</p>
-      <p><strong>Program özeti:</strong></p>
+      <p><strong>Program:</strong></p>
       <ul>
-        <li><strong>Grand Palace &amp; Wat Phra Kaew</strong> — yaklaşık 08:30–10:30</li>
-        <li><strong>Wat Pho</strong> — 46 m uzanmış Buda — 10:45–12:15</li>
-        <li>Yerel restoranda öğle yemeği (Tom Yum, Pad Thai) — ~12:30</li>
-        <li><strong>Chao Phraya</strong> uzun kuyruklu tekne ile kanal turu — ~13:45</li>
-        <li><strong>Wat Arun</strong> — ~15:00</li>
-        <li>ICONSIAM serbest alışveriş — ~16:15</li>
-        <li><strong>Yaowarat</strong> sokak yemeği — ~19:00</li>
+        <li><strong>Grand Palace &amp; Wat Phra Kaew</strong></li>
+        <li><strong>Wat Pho</strong> — 46 m uzanmış Buda</li>
+        <li>Yerel restoranda öğle yemeği (Tom Yum, Pad Thai)</li>
+        <li><strong>Chao Phraya</strong> uzun kuyruklu tekne ile kanal turu</li>
+        <li><strong>Wat Arun</strong></li>
+        <li>ICONSIAM serbest alışveriş</li>
+        <li><strong>Yaowarat</strong> sokak yemeği</li>
       </ul>
-      <p><strong>Dahil:</strong> Giriş ücretleri, öğle yemeği, özel van, lisanslı Türkçe rehber.</p>
-      <p><strong>Giyim:</strong> Grand Palace için omuz ve diz kapalı olmalıdır.</p>`
+      <p><strong>Dahil olanlar:</strong> Giriş ücretleri, öğle yemeği, özel van, lisanslı Türkçe rehber.</p>
+      <p><strong>Giyim:</strong> Grand Palace için omuz ve diz kapalı olmalıdır.</p>
+      <p><strong>Saatler:</strong> 08:30–19:00</p>
+      <p>Geceleme Bangkok'taki otelimizde.</p>`
       },
       {
         n: 7,
         optional: true,
         route: "Bangkok · Muay Thai günü",
         summary:
-          "Serbest gün; isteğe bağlı Muay Thai dersleri (grup veya özel, gym / ring). Katılmayanlar için BTS, AVM veya masaj. Akşam veda yemeği imkânı.",
+          "Tam gün Muay Thai deneyimi: ice bath, spa, antrenman spor masajı, teori ve akşam canlı dövüş izleme (ek ücretli).",
         date: "9 Aralık 2026 — Çarşamba",
         image: {
-          src: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=800&q=80",
-          alt: "Bangkok gece hayatı"
+          src: "https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&q=80",
+          alt: "Muay Thai antrenmanı"
         },
         content: `
-      <p>Sabah otelde geç kahvaltı imkânı. Bu gün <strong>opsiyonel Muay Thai programı</strong> sunulur (tur fiyatına dahil değildir).</p>
-      <p><strong>Muay Thai (isteğe bağlı — ek ücret):</strong></p>
+      <p>Sabah otelde geç kahvaltı sonrası <strong>Bangkok'ta tam gün Muay Thai programı</strong> (tur fiyatına dahil değildir; ek ücretli).</p>
+      <p><strong>Program:</strong></p>
       <ul>
-        <li>Başlangıç veya orta seviye grup / özel ders</li>
-        <li>Gym veya ring seçenekleri — yaklaşık 1–2 saat</li>
-        <li>Ücret ve saat yerinde veya rehberle teyit edilir</li>
+        <li>Ice bath (buz banyosu)</li>
+        <li>Spa</li>
+        <li>Antrenman spor masajı</li>
+        <li>Muay Thai teorisi</li>
+        <li>Akşam gerçek Muay Thai müsabakası izleme</li>
       </ul>
-      <p>Randevu rehberiniz veya otel resepsiyonu aracılığıyla ayarlanabilir.</p>
-      <p><strong>Katılmayan misafirler için serbest zaman önerileri:</strong></p>
-      <ul>
-        <li>Terminal 21 AVM (Asok BTS)</li>
-        <li>BTS Skytrain ile şehir turu</li>
-        <li>Siam Paragon / merkezî alışveriş</li>
-        <li>Geleneksel Tay masajı</li>
-        <li>Sukhumvit Soi 11 yerel restoranlar</li>
-      </ul>
-      <p>Akşam grup ile son veda yemeği düzenlenebilir (teyit rehberde). Geceleme otelimizde.</p>`
+      <p>Rezervasyon rehberiniz veya otel resepsiyonu aracılığıyla yapılır; ücret ve saatler yerinde teyit edilir.</p>
+      <p><strong>Saatler:</strong> tam gün (öğleden sonra teori ve antrenman; akşam ring)</p>
+      <p>Geceleme otelimizde.</p>`
       },
       {
         n: 8,
@@ -4352,17 +4323,16 @@
 
     const sidebarIncluded = [
       "Gidiş-dönüş uluslararası ekonomi uçuşları + Phuket–Bangkok iç hat (kalkış limanına göre)",
-      "Thai AirAsia ile Phuket → Bangkok iç hat (20 kg bagaj)",
+      "Thai AirAsia ile Phuket → Bangkok iç hat (7 kg kabin dahil)",
       "Phuket — Thanthip Beach Resort Patong (4★), 2–7 Aralık 2026 · kahvaltı dahil",
       "Bangkok — Solitaire Bangkok Sukhumvit 11 (4★), 7–11 Aralık 2026 · kahvaltı dahil",
       "Tüm havalimanı ve şehir transferleri (özel VIP van)",
-      "Profesyonel İngilizce/Türkçe rehberlik hizmeti",
-      "Tur kodu: GZK26TY8"
+      "Profesyonel İngilizce/Türkçe rehberlik hizmeti"
     ];
 
     const sidebarIncluded_backpack = [
       "Ekonomi tarifeli uluslararası uçuşlar (kalkış limanına göre Air Arabia / AirAsia veya çoklu aktarma)",
-      "Thai AirAsia ile Phuket → Bangkok iç hat (20 kg bagaj)",
+      "Thai AirAsia ile Phuket → Bangkok iç hat (7 kg kabin dahil)",
       "Phuket Old Town Hostel — 3–7 Aralık (4 gece)",
       "Do Dee Cafe Hostel — 7–11 Aralık (4 gece)",
       "Havalimanı ve şehir transferleri",
@@ -4370,7 +4340,7 @@
     ];
     const sidebarIncluded_backpack_en = [
       "Economy international flights (Air Arabia / AirAsia or multi-stop per departure airport)",
-      "Thai AirAsia Phuket → Bangkok domestic (20 kg baggage)",
+      "Thai AirAsia Phuket → Bangkok domestic (7 kg cabin included)",
       "Phuket Old Town Hostel — 3–7 Dec (4 nights)",
       "Do Dee Cafe Hostel — 7–11 Dec (4 nights)",
       "Airport and city transfers",
@@ -4379,26 +4349,24 @@
 
     const includedBottom = [
       "Tüm uçuşlar (uluslararası ve Phuket–Bangkok iç hat)",
-      "Phuket: Thanthip Beach Resort (4★), 2–7 Aralık · Bangkok: Solitaire Sukhumvit 11 (4★), 7–11 Aralık — kahvaltı dahil",
+      "Konaklama",
       "VIP van transferleri",
       "İngilizce/Türkçe rehberlik"
     ];
 
     const excludedBottom = [
       "Yemekler (kahvaltı dışında öğle ve akşam yemekleri)",
-      "Kişisel harcamalar",
-      "Bahşişler",
-      "Vize ücretleri (Tayland 60 gün turist vizesi ücretsiz)",
+      "Kişisel harcamalar ve bahşişler",
       "Ekstra aktiviteler (Muay Thai kursu, spa, masaj vs.)",
       "Seyahat sigortası (önerilir, ayrıca alınabilir)"
     ];
 
     const TDAC_ARRIVAL_CARD_URL = "https://tdac.immigration.go.th/arrival-card/#/home";
+    const THAILAND_EVISA_URL = "https://www.thaievisa.go.th/";
 
     const visaInfoHtml = `
       <h2>Vize</h2>
       <ul>
-        <li>Türkiye Cumhuriyeti vatandaşları için vize uygulaması bulunmamaktadır. Ancak Tayland girişlerinde <strong>Digital Arrival Card</strong> formunun doldurulması zorunludur. Formu <a href="${TDAC_ARRIVAL_CARD_URL}" target="_blank" rel="noopener noreferrer">buradan</a> doldurabilirsiniz.</li>
         <li>Pasaportların dönüş tarihinden itibaren minimum <strong>6 ay</strong> geçerlilik süresinin olması gerekmektedir.</li>
         <li>Gümrük geçişlerinde ve sınır kapılarında pasaportunuza giriş-çıkış kaşesi basılabilmesi için pasaportunuzda en az <strong>6 boş sayfa</strong> olması gerekmektedir. Vize alınmış olması veya vize gerektirmeyen pasaporta sahip olunması, ülkeye giriş ve çıkış yapılabileceği anlamına gelmez; pasaport polisinin sizi ülkeye kabul etmeme veya ülkeden çıkarmama yetkisi bulunmaktadır. <strong>Kıbrıslı Gezgin</strong>'in bu konuda herhangi bir sorumluluğu bulunmamaktadır.</li>
         <li>Yırtılmış, yıpranmış veya benzeri tahribata uğramış pasaportlar ile seyahat edilememektedir.</li>
@@ -4411,19 +4379,17 @@
     const visaInfoHtml_en = `
       <h2>Visa</h2>
       <ul>
-        <li>There is no visa requirement for citizens of the Republic of Türkiye. However, completing the Thailand <strong>Digital Arrival Card</strong> is mandatory on entry. You can fill in the form <a href="${TDAC_ARRIVAL_CARD_URL}" target="_blank" rel="noopener noreferrer">here</a>.</li>
         <li>Passports must be valid for at least <strong>6 months</strong> from the return date.</li>
-        <li>For border and customs clearance, your passport must have at least <strong>6 blank pages</strong> for entry/exit stamps. Holding a visa or a visa-exempt passport does not guarantee entry or exit; immigration officers may refuse entry or require departure. <strong>Cypriot Traveler</strong> accepts no liability in this regard.</li>
+        <li>For border and customs clearance, your passport must have at least <strong>6 blank pages</strong> for entry/exit stamps. Holding a visa or a visa-exempt passport does not guarantee entry or exit; immigration officers may refuse entry or require departure. <strong>We</strong> accept no liability in this regard.</li>
         <li>Travel is not permitted with torn, damaged or otherwise defaced passports.</li>
         <li>If the itinerary includes a country that requires a visa for Turkish citizens, a valid visa for that country must be in your valid passport.</li>
-        <li>Guests who are not Turkish citizens, or who hold dual nationality and will join the tour on another country's passport, must consult the relevant consulates about visa requirements for the passport they will use. <strong>Cypriot Traveler</strong> accepts no liability for adverse outcomes arising from this.</li>
+        <li>Guests who are not Turkish citizens, or who hold dual nationality and will join the tour on another country's passport, must consult the relevant consulates about visa requirements for the passport they will use. <strong>We</strong> accept no liability for adverse outcomes arising from this.</li>
         <li>Guests under 18 travelling with only one parent must carry a <strong>notarized consent letter</strong> from the parent who is not travelling.</li>
       </ul>
     `;
 
     const generalHtml = `
       ${visaInfoHtml}
-      <p>Bu tur <strong>2–12 Aralık 2026</strong> tarihleri arasında, <strong>9 gece 10 gün</strong> süreyle planlanmıştır. Günlük sıra ve kesin uçuş saatleri tur teyidinde paylaşılır.</p>
       <h3>Tayland geneli</h3>
       <ul>
         <li><strong>Para birimi:</strong> Thai Baht (THB) — 1€ ≈ 38-40 THB</li>
@@ -4453,7 +4419,7 @@
     const accommodationNotesHtml_en = `
       <h3>Important accommodation notes</h3>
       <ul>
-        <li>Hotels listed in the tour programme are <strong>“or similar”</strong>. The final property will be confirmed by <strong>Cypriot Traveler (tour operator)</strong> and communicated at least <strong>48 hours</strong> before departure.</li>
+        <li>Hotels listed in the tour programme are <strong>“or similar”</strong>. The final property will be confirmed by <strong>us (tour operator)</strong> and communicated at least <strong>48 hours</strong> before departure.</li>
         <li>Star ratings and classifications may differ according to each destination country's standards.</li>
         <li>Standard hotel check-in is from <strong>15:00</strong> and check-out by <strong>11:00 / 12:00</strong> local time.</li>
         <li>Hotels may request a <strong>deposit</strong> on your credit card at check-in for incidental charges.</li>
@@ -4486,26 +4452,26 @@
     const flightNotesHtml_en = `
       <h3>Important flight ticket notes</h3>
       <ul>
-        <li>Tickets are issued according to passport name/surname, date of birth, national ID (where applicable) and passport details. <strong>Cypriot Traveler</strong> accepts no liability for incorrect information provided by guests.</li>
+        <li>Tickets are issued according to passport name/surname, date of birth, national ID (where applicable) and passport details. <strong>We</strong> accept no liability for incorrect information provided by guests.</li>
         <li>Please be at the designated airport at least <strong>3 hours</strong> before departure.</li>
         <li>Guests must complete <strong>online check-in</strong> from 24 hours before departure. You may use the airline-assigned seat or pay extra for seat selection if available. Some airlines do not allow online check-in or seat selection on group tickets; seat requests should be made at the check-in counter when dropping baggage, subject to availability.</li>
-        <li><strong>Cypriot Traveler</strong> is not liable for airline delays or cancellations, schedule or routing changes, or related fare increases.</li>
+        <li><strong>We</strong> are not liable for airline delays or cancellations, schedule or routing changes, or related fare increases.</li>
         <li>For airlines offering domestic connections, please ask us about availability and pricing.</li>
-        <li>Guests who book their own domestic flights are not covered if a delay causes them to miss the international flight. We recommend flexible domestic tickets; otherwise <strong>Cypriot Traveler</strong> accepts no liability.</li>
+        <li>Guests who book their own domestic flights are not covered if a delay causes them to miss the international flight. We recommend flexible domestic tickets; otherwise <strong>We</strong> accept no liability.</li>
         <li>Some airlines apply <strong>sequential ticketing</strong>; if the outbound flight is not used, the return may be cancelled automatically.</li>
         <li>Airlines may change flight dates/times and baggage rules without prior notice to the agency or guests.</li>
         <li>For business class, tickets must be separated from the group booking. Requests at least <strong>20 days</strong> before departure may receive a quote subject to availability; individual fare rules apply and refunds on changes may not be possible.</li>
         <li>Baggage allowances on local carriers may differ on domestic/international sectors and may be chargeable.</li>
         <li>Guests who buy their own flights and join for land services only must match group flight times to use transfers and city tours; airport–hotel transport is their responsibility.</li>
         <li>Pregnant guests may travel up to <strong>week 36</strong> with medical clearance, unless otherwise restricted.</li>
-        <li>This is a regional group tour open to guests from other agencies. <strong>Cypriot Traveler</strong> guests are under <strong>Cypriot Traveler</strong> responsibility. Guiding starts in the destination country.</li>
+        <li>This is a regional group tour open to guests from other agencies. Guests who book with us are under our responsibility. Guiding starts in the destination country.</li>
       </ul>
     `;
 
     const accommodationHtml = `
       <h3>Phuket — Thanthip Beach Resort Patong (4★)</h3>
       <p><strong>2–7 Aralık 2026</strong> (5 gece) · kahvaltı dahil</p>
-      <p>Twin oda; Patong plajına yaklaşık 200 m; açık havuz, restoran ve bar; ücretsiz WiFi.</p>
+      <p>Twin oda; Patong plajına 200 m; açık havuz, restoran ve bar; ücretsiz WiFi.</p>
       <ul>
         <li><strong>Konum:</strong> Patong Beach merkezi</li>
         <li><strong>Oda tipi:</strong> Twin / çift kişilik standart oda — klimalı</li>
@@ -4568,19 +4534,10 @@
       <p><strong>Turkish Airlines TK65 — Bangkok (BKK) → İstanbul (SAW)</strong><br />Kalkış: 10.12.2026 09:25 · Varış: 10.12.2026 15:10</p>
       <h3>Bagaj bilgisi</h3>
       <ul>
-        <li><strong>Uluslararası:</strong> 30 kg bagaj + 7 kg kabin bagajı (Qatar Airways &amp; Turkish Airlines ekonomi)</li>
-        <li><strong>İç hat (Thai AirAsia):</strong> 20 kg bagaj + 7 kg kabin bagajı</li>
+        <li><strong>Uluslararası:</strong> 7 kg kabin bagajı dahil · 30 kg kayıtlı bagaj ek ücretlidir (Qatar Airways &amp; Turkish Airlines ekonomi)</li>
+        <li><strong>İç hat (Thai AirAsia):</strong> 7 kg kabin bagajı dahil · 20 kg kayıtlı bagaj ek ücretlidir</li>
       </ul>
-      <p style="font-size:0.85rem;color:var(--text-muted)">Örnek sefer saatleri; kesin uçuş bilgisi tur teyidinde paylaşılır.</p>
-    `;
-
-    const destinationsHtml = `
-      <h3>Phuket</h3>
-      <p>Patong, Andaman adaları, Phi Phi ve Phang Nga tekne turları; Thanthip Beach Resort ile plaja yakın konaklama.</p>
-      <h3>Bangkok</h3>
-      <p>Grand Palace, Wat Pho, Wat Arun, Chao Phraya kanalları, Yaowarat ve modern alışveriş bölgeleri; Sukhumvit Soi 11 civarında otel.</p>
-      <h3>Doha (aktarma)</h3>
-      <p>Qatar Airways gidiş uçuşlarında bağlantı noktası; kokpit programına göre bekleme süreleri değişebilir.</p>
+      <p style="font-size:0.85rem;color:var(--text-muted)">Kesin uçuş bilgisi tur teyidinde paylaşılır.</p>
     `;
 
     function tourPhoto(unsplashId, alt, altEn) {
@@ -4638,7 +4595,7 @@
         content: `
       <p><strong>One calendar day before the tour start</strong>, meet at Istanbul Sabiha Gökçen International Airport departures terminal 3 hours before the flight.</p>
       <p>After ticket, baggage and passport check-in, depart with Qatar Airways <strong>QR242</strong> to Doha. After layover, continue with <strong>QR850</strong> to Phuket.</p>
-      <p><strong>Sample flight times</strong> (confirmed in tour document):</p>
+      <p><strong>Flight times</strong> (confirmed in tour document):</p>
       <ul>
         <li>QR242: Istanbul (SAW) 18:15 → Doha 05:35</li>
         <li>QR850: Doha 07:35 → Phuket 15:40</li>
@@ -4668,7 +4625,7 @@
         image: { src: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=800&q=80", alt: "Boat tour" },
         content: `
       <p>After breakfast, departure for a <strong>full-day Phi Phi Islands speedboat tour with lunch</strong>.</p>
-      <p><strong>Stops:</strong></p>
+      <p><strong>Program:</strong></p>
       <ul>
         <li>Maya Bay (<em>The Beach</em> film location)</li>
         <li>Pileh Lagoon</li>
@@ -4678,14 +4635,18 @@
         <li>Khai Island (snorkeling)</li>
       </ul>
       <p><strong>Included:</strong> Snorkeling equipment, life vest, Thai buffet lunch on board, national park fees, English-speaking guide.</p>
-      <p><strong>Hours:</strong> approximately 08:30–17:30</p>
+      <p><strong>Hours:</strong> 08:30–17:30</p>
       <p>Evening free time in Patong. Overnight at our hotel.</p>`
       },
       {
         n: 4, optional: true, route: "Phuket / James Bond Island tour",
         summary: "Phang Nga Bay: canoeing, James Bond Island, floating village and full-day boat tour with lunch.",
         date: "5 December 2026 — Saturday",
-        image: { src: "https://images.unsplash.com/photo-1504214208698-ea1916a2195a?w=800&q=80", alt: "Tropical cove" },
+        image: {
+          src: "https://images.unsplash.com/photo-1578406024474-81f6eb54b23d?auto=format&fit=crop&fm=jpg&q=85&w=800&h=600",
+          alt: "James Bond Adası — Phang Nga körfezi",
+          altEn: "James Bond Island — Phang Nga Bay"
+        },
         content: `
       <p>After breakfast, <strong>full-day James Bond Island and Phang Nga Bay</strong> tour with lunch.</p>
       <p><strong>Program:</strong></p>
@@ -4697,7 +4658,7 @@
         <li>Swimming at Naka Yai beach</li>
       </ul>
       <p><strong>Included:</strong> Canoe, life vest, helmet, lunch, national park fees, guide.</p>
-      <p><strong>Hours:</strong> approximately 08:30–17:30</p>
+      <p><strong>Hours:</strong> 08:30–17:30</p>
       <p>Overnight at our Phuket hotel.</p>`
       },
       {
@@ -4708,7 +4669,7 @@
         content: `
       <p>After breakfast, free time: swimming in Patong, shopping, spa or <strong>Jungceylon Mall</strong>.</p>
       <p>Afternoon transfer to Phuket Airport. Departure with <strong>Thai AirAsia FD3014</strong> to Bangkok.</p>
-      <p><strong>Sample flight:</strong> 07.12.2026 Phuket 14:00 → Bangkok 15:25 (to be confirmed).</p>
+      <p><strong>Flight:</strong> 07.12.2026 Phuket 14:00 → Bangkok 15:25.</p>
       <p>On arrival at Suvarnabhumi, private van transfer to <strong>Solitaire Bangkok Sukhumvit 11</strong> (7–11 December).</p>
       <p>Evening welcome dinner suggestion around Soi 11. Overnight at our Bangkok hotel.</p>`
       },
@@ -4719,44 +4680,41 @@
         image: { src: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=800&q=80", alt: "Bangkok temple" },
         content: `
       <p>After buffet breakfast, <strong>full-day Bangkok city tour</strong>.</p>
-      <p><strong>Program overview:</strong></p>
+      <p><strong>Program:</strong></p>
       <ul>
-        <li><strong>Grand Palace &amp; Wat Phra Kaew</strong> — approx. 08:30–10:30</li>
-        <li><strong>Wat Pho</strong> — 46 m reclining Buddha — 10:45–12:15</li>
-        <li>Lunch at local restaurant (Tom Yum, Pad Thai) — ~12:30</li>
-        <li><strong>Chao Phraya</strong> long-tail boat canal tour — ~13:45</li>
-        <li><strong>Wat Arun</strong> — ~15:00</li>
-        <li>ICONSIAM free shopping — ~16:15</li>
-        <li><strong>Yaowarat</strong> street food — ~19:00</li>
+        <li><strong>Grand Palace &amp; Wat Phra Kaew</strong></li>
+        <li><strong>Wat Pho</strong> — 46 m reclining Buddha</li>
+        <li>Lunch at local restaurant (Tom Yum, Pad Thai)</li>
+        <li><strong>Chao Phraya</strong> long-tail boat canal tour</li>
+        <li><strong>Wat Arun</strong></li>
+        <li>ICONSIAM free shopping</li>
+        <li><strong>Yaowarat</strong> street food</li>
       </ul>
       <p><strong>Included:</strong> Entry fees, lunch, private van, licensed Turkish-speaking guide.</p>
-      <p><strong>Dress code:</strong> Shoulders and knees must be covered for Grand Palace.</p>`
+      <p><strong>Dress code:</strong> Shoulders and knees must be covered for Grand Palace.</p>
+      <p><strong>Hours:</strong> 08:30–19:00</p>
+      <p>Overnight at our Bangkok hotel.</p>`
       },
       {
         n: 7,
         optional: true,
         route: "Bangkok · Muay Thai day",
-        summary: "Free day; optional Muay Thai classes (group or private, gym / ring). BTS, malls or massage for non-participants. Farewell dinner option.",
+        summary: "Full-day Muay Thai experience: ice bath, spa, training sports massage, theory and live fight in the evening (extra cost).",
         date: "9 December 2026 — Wednesday",
-        image: { src: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=800&q=80", alt: "Bangkok nightlife" },
+        image: { src: "https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&q=80", alt: "Muay Thai training" },
         content: `
-      <p>Late breakfast at the hotel. An <strong>optional Muay Thai programme</strong> is offered this day (not included in the tour price).</p>
-      <p><strong>Muay Thai (optional — extra cost):</strong></p>
+      <p>After a late breakfast at the hotel, a <strong>full-day Muay Thai program in Bangkok</strong> (not included in the tour price; extra cost).</p>
+      <p><strong>Program:</strong></p>
       <ul>
-        <li>Beginner or intermediate group / private sessions</li>
-        <li>Gym or ring options — approx. 1–2 hours</li>
-        <li>Price and time confirmed on-site or with your guide</li>
+        <li>Ice bath</li>
+        <li>Spa</li>
+        <li>Training sports massage</li>
+        <li>Muay Thai theory</li>
+        <li>Evening — watch a real Muay Thai fight</li>
       </ul>
-      <p>Sessions can be booked via your guide or hotel reception.</p>
-      <p><strong>Free-time suggestions if you do not join:</strong></p>
-      <ul>
-        <li>Terminal 21 Mall (Asok BTS)</li>
-        <li>City tour by BTS Skytrain</li>
-        <li>Siam Paragon / central shopping</li>
-        <li>Traditional Thai massage</li>
-        <li>Local restaurants on Sukhumvit Soi 11</li>
-      </ul>
-      <p>Optional group farewell dinner in the evening (confirmed with guide). Overnight at our hotel.</p>`
+      <p>Book via your guide or hotel reception; price and times confirmed on-site.</p>
+      <p><strong>Hours:</strong> full day (afternoon theory and training; evening at the ring)</p>
+      <p>Overnight at our hotel.</p>`
       },
       {
         n: 8, route: "Bangkok > Istanbul",
@@ -4772,33 +4730,29 @@
 
     const sidebarIncluded_en = [
       "Round-trip international economy flights + Phuket–Bangkok domestic (per departure airport)",
-      "Thai AirAsia Phuket → Bangkok domestic (20 kg baggage)",
+      "Thai AirAsia Phuket → Bangkok domestic (7 kg cabin included)",
       "Phuket — Thanthip Beach Resort Patong (4★), 2–7 Dec 2026 · breakfast included",
       "Bangkok — Solitaire Bangkok Sukhumvit 11 (4★), 7–11 Dec 2026 · breakfast included",
       "All airport and city transfers (private VIP van)",
-      "Professional English/Turkish guiding service",
-      "Tour code: GZK26TY8"
+      "Professional English/Turkish guiding service"
     ];
 
     const includedBottom_en = [
       "All flights (international and Phuket–Bangkok domestic)",
-      "Phuket: Thanthip Beach Resort (4★), 2–7 Dec · Bangkok: Solitaire Sukhumvit 11 (4★), 7–11 Dec — breakfast included",
+      "Accommodation",
       "VIP van transfers",
       "English/Turkish guiding"
     ];
 
     const excludedBottom_en = [
       "Meals (lunch and dinner except breakfast)",
-      "Personal expenses",
-      "Tips",
-      "Visa fees (Thailand 60-day tourist visa is free)",
+      "Personal expenses and tips",
       "Extra activities (Muay Thai class, spa, massage etc.)",
       "Travel insurance (recommended, can be purchased separately)"
     ];
 
     const generalHtml_en = `
       ${visaInfoHtml_en}
-      <p>This tour is planned for <strong>2–12 December 2026</strong>, lasting <strong>9 nights 10 days</strong>. Daily schedule and exact flight times are shared upon tour confirmation.</p>
       <h3>About Thailand</h3>
       <ul>
         <li><strong>Currency:</strong> Thai Baht (THB) — 1€ ≈ 38-40 THB</li>
@@ -4865,7 +4819,7 @@
       <h2>Participation Terms</h2>
       <div class="terms-item">
         <h4>Agency &amp; Liability</h4>
-        <p><strong>Cypriot Traveler</strong> acts as an intermediary between the airline and the passenger and is subject to the Hague Protocol of 28.09.1955. Flight times may change; all times must be reconfirmed 48 hours before departure. Routes may vary depending on the arrival city. Contact us or your sales representative for schedule updates. Cypriot Traveler cannot be held responsible for schedule changes or delays made by airlines.</p>
+        <p><strong>We</strong> act as an intermediary between the airline and the passenger and are subject to the Hague Protocol of 28.09.1955. Flight times may change; all times must be reconfirmed 48 hours before departure. Routes may vary depending on the arrival city. Contact us or your sales representative for schedule updates. We cannot be held responsible for schedule changes or delays made by airlines.</p>
       </div>
       <div class="terms-item">
         <h4>Flight Procedures</h4>
@@ -4873,7 +4827,7 @@
       </div>
       <div class="terms-item">
         <h4>Tour Participation</h4>
-        <p>Cypriot Traveler is not responsible if participants are not at the specified airport at the announced time, fail to complete check-in/boarding on time, or miss the flight. Passengers who miss their flight must cover the cost of new round-trip tickets and local transfers required to join the tour.</p>
+        <p>We are not responsible if participants are not at the specified airport at the announced time, fail to complete check-in/boarding on time, or miss the flight. Passengers who miss their flight must cover the cost of new round-trip tickets and local transfers required to join the tour.</p>
       </div>
       <div class="terms-item">
         <h4>Program &amp; Meals</h4>
@@ -4881,7 +4835,7 @@
       </div>
       <div class="terms-item">
         <h4>Tour Cancellation (Program)</h4>
-        <p>Panoramic and other program tours may not run if local authorities close sites or roads. Cypriot Traveler is not liable if tours cannot run due to weather. Where vehicles cannot enter, tours may continue on foot or by public transport.</p>
+        <p>Panoramic and other program tours may not run if local authorities close sites or roads. We are not liable if tours cannot run due to weather. Where vehicles cannot enter, tours may continue on foot or by public transport.</p>
       </div>
       <div class="terms-item">
         <h4>Optional Tours</h4>
@@ -4893,7 +4847,7 @@
       </div>
       <div class="terms-item">
         <h4>Hotels &amp; Accommodation</h4>
-        <p>Cypriot Traveler reserves the right to change hotel names. Triple rooms may include extra beds (sofa/fold-out/coach beds); crowding and bed type in triple/child bookings are accepted. Child prices apply when the child shares a room with two adults. Continental breakfast typically includes butter, jam or honey, bread, tea or coffee and juice. Group breakfasts may be served in a separate hall.</p>
+        <p>We reserve the right to change hotel names. Triple rooms may include extra beds (sofa/fold-out/coach beds); crowding and bed type in triple/child bookings are accepted. Child prices apply when the child shares a room with two adults. Continental breakfast typically includes butter, jam or honey, bread, tea or coffee and juice. Group breakfasts may be served in a separate hall.</p>
       </div>
       <div class="terms-item">
         <h4>Passport validity</h4>
@@ -4907,7 +4861,7 @@
         <p>If sufficient participation for the trip cannot be secured, the latest cancellation notice date is set as 20 days before the departure date. In such a case, guests will be notified of the cancellation.</p>
       </div>
       <div class="terms-item">
-        <p><strong>Cypriot Traveler</strong> will not accept responsibility for any change or cancellation made by the guest through direct contact with suppliers such as hotels, airlines, etc. In such cases, the cancellation terms set out in Article 7 of the Package Tour contract apply.</p>
+        <p><strong>We</strong> will not accept responsibility for any change or cancellation made by the guest through direct contact with suppliers such as hotels, airlines, etc. In such cases, the cancellation terms set out in Article 7 of the Package Tour contract apply.</p>
       </div>
     `;
 
@@ -4941,19 +4895,10 @@
       <p><strong>Turkish Airlines TK65 — Bangkok (BKK) → Istanbul (SAW)</strong><br />Dep: 10.12.2026 09:25 · Arr: 10.12.2026 15:10</p>
       <h3>Baggage info</h3>
       <ul>
-        <li><strong>International:</strong> 30 kg checked + 7 kg cabin (Qatar Airways &amp; Turkish Airlines economy)</li>
-        <li><strong>Domestic (Thai AirAsia):</strong> 20 kg checked + 7 kg cabin</li>
+        <li><strong>International:</strong> 7 kg cabin baggage included · 30 kg checked baggage extra (Qatar Airways &amp; Turkish Airlines economy)</li>
+        <li><strong>Domestic (Thai AirAsia):</strong> 7 kg cabin baggage included · 20 kg checked baggage extra</li>
       </ul>
-      <p style="font-size:0.85rem;color:var(--text-muted)">Sample schedules; exact flight info is shared upon tour confirmation.</p>
-    `;
-
-    const destinationsHtml_en = `
-      <h3>Phuket</h3>
-      <p>Patong, Andaman islands, Phi Phi and Phang Nga boat tours; beachfront stay at Thanthip Beach Resort.</p>
-      <h3>Bangkok</h3>
-      <p>Grand Palace, Wat Pho, Wat Arun, Chao Phraya canals, Yaowarat and modern shopping districts; hotel near Sukhumvit Soi 11.</p>
-      <h3>Doha (transit)</h3>
-      <p>Connection point on Qatar Airways outbound flight; waiting time varies by schedule.</p>
+      <p style="font-size:0.85rem;color:var(--text-muted)">Exact flight info is shared upon tour confirmation.</p>
     `;
 
     /* ─── TOMORROWLAND PACKAGE — Program Days ─────────────────────────────
@@ -4968,7 +4913,7 @@
         date: "11 Aralık 2026 — Cuma",
         image: { src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80", alt: "Tomorrowland sahne" },
         content: `
-      <p>Otelde kahvaltı ve check-out sonrası <strong>özel transferle Pattaya'ya</strong> geçiş (yaklaşık 1.5-2 saat).</p>
+      <p>Otelde kahvaltı ve check-out sonrası <strong>özel transferle Pattaya'ya</strong> geçiş (1.5-2 saat).</p>
       <p><strong>Royal Cliff Beach Terrace Pattaya</strong> otelinde check-in. Festival hazırlığı, dinlenme.</p>
       <p>Akşam festival shuttle servisi ile <strong>Tomorrowland Thailand Day 1</strong>'e hareket. Açılış gecesi, ana sahne show. Geç saatlerde otele dönüş.</p>`
       },
@@ -5008,8 +4953,8 @@
         date: "14 Aralık 2026 — Pazartesi",
         image: { src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80", alt: "Uçak" },
         content: `
-      <p>Otelde kahvaltı sonrası check-out. Özel transferle Bangkok Suvarnabhumi'ye (yaklaşık 1.5-2 saat).</p>
-      <p><strong>Dönüş uçuşu</strong> kalkış limanınıza göre değişir — örnek İstanbul: <strong>TK8548</strong> 14.12.2026 23:45 → 15.12.2026 06:05 IST.</p>
+      <p>Otelde kahvaltı sonrası check-out. Özel transferle Bangkok Suvarnabhumi'ye (1.5-2 saat).</p>
+      <p><strong>Dönüş uçuşu</strong> kalkış limanınıza göre değişir — İstanbul: <strong>TK8548</strong> 14.12.2026 23:45 → 15.12.2026 06:05 IST.</p>
       <p>Uçuş sekmesinde seçili limanın 14 Aralık dönüş detayları listelenir.</p>`
       }
     ];
@@ -5176,7 +5121,7 @@
         date: "11 December 2026 — Friday",
         image: { src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80", alt: "Tomorrowland stage" },
         content: `
-      <p>After breakfast and check-out, <strong>private transfer to Pattaya</strong> (approximately 1.5-2 hours).</p>
+      <p>After breakfast and check-out, <strong>private transfer to Pattaya</strong> (1.5-2 hours).</p>
       <p>Check-in at <strong>Royal Cliff Beach Terrace Pattaya</strong>. Festival prep and rest.</p>
       <p>Evening: festival shuttle to <strong>Tomorrowland Thailand Day 1</strong>. Opening night, main stage show. Late-night return to hotel.</p>`
       },
@@ -5216,7 +5161,7 @@
         date: "14 December 2026 — Monday",
         image: { src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80", alt: "Airplane" },
         content: `
-      <p>Breakfast and check-out. Private transfer to Bangkok Suvarnabhumi (approximately 1.5-2 hours).</p>
+      <p>Breakfast and check-out. Private transfer to Bangkok Suvarnabhumi (1.5-2 hours).</p>
       <p><strong>Return flight</strong> depends on your departure city — example Istanbul: <strong>TK8548</strong> 14.12.2026 23:45 → 15.12.2026 06:05 IST.</p>
       <p>See the Flights tab for your port's 14 December return details.</p>`
       }
@@ -5250,7 +5195,7 @@
           content: `
       <p>Kahvaltı sonrası serbest zaman: Patong'da yüzme, alışveriş, spa veya <strong>Jungceylon AVM</strong>.</p>
       <p>Öğleden sonra Phuket Havalimanı'na transfer. <strong>Thai AirAsia FD3014</strong> ile Bangkok'a hareket.</p>
-      <p><strong>Örnek uçuş:</strong> 07.12.2026 Phuket 14:00 → Bangkok 15:25 (teyit edilir).</p>
+      <p><strong>Uçuş:</strong> 07.12.2026 Phuket 14:00 → Bangkok 15:25.</p>
       <p>Suvarnabhumi'ye varışta özel van ile <strong>Grande Centre Point Prestige Bangkok</strong>'a transfer (7–11 Aralık, 4 gece).</p>
       <p>Akşam Ratchadamri / Lumpini çevresinde serbest zaman. Geceleme Bangkok'taki otelimizde.</p>`
         }
@@ -5278,7 +5223,7 @@
           content: `
       <p>After breakfast, free time: swimming in Patong, shopping, spa or <strong>Jungceylon Mall</strong>.</p>
       <p>Afternoon transfer to Phuket Airport. Departure with <strong>Thai AirAsia FD3014</strong> to Bangkok.</p>
-      <p><strong>Sample flight:</strong> 07.12.2026 Phuket 14:00 → Bangkok 15:25 (to be confirmed).</p>
+      <p><strong>Flight:</strong> 07.12.2026 Phuket 14:00 → Bangkok 15:25.</p>
       <p>On arrival at Suvarnabhumi, private van transfer to <strong>Grande Centre Point Prestige Bangkok</strong> (7–11 December, 4 nights).</p>
       <p>Evening free time around Ratchadamri / Lumpini. Overnight at our Bangkok hotel.</p>`
         }
@@ -5293,13 +5238,13 @@
             "Larnaca (LCA) akşam kalkışı; Dubai (DXB) aktarmalı Emirates ile Phuket. Aynı gün varış ve Thanthip check-in.",
           content: `
       <p><strong>02 Aralık akşamı</strong> Larnaca (LCA) kalkış. <strong>Emirates</strong> ile Dubai ve Phuket.</p>
-      <p><strong>Örnek gidiş uçuşları</strong> (Comfort · Larnaca kalkışlı):</p>
+      <p><strong>Gidiş uçuşları</strong> (Comfort · Larnaca kalkışlı):</p>
       <ul>
         <li>LCA → DXB: Kalkış 02.12.2026 19:40 · Varış 03.12.2026 00:55 (+1 gün) — 3s 15dk</li>
         <li>DXB aktarma: ~2s 05dk — kendi başına transfer</li>
         <li>DXB → HKT: Kalkış 03.12.2026 03:00 · Varış 03.12.2026 12:05 — 6s 05dk</li>
       </ul>
-      <p>Toplam seyahat süresi yaklaşık 11s 25dk. Varış sonrası <strong>Thanthip Beach Resort</strong> (2–7 Aralık).</p>`
+      <p>Toplam seyahat süresi 11s 25dk. Varış sonrası <strong>Thanthip Beach Resort</strong> (2–7 Aralık).</p>`
         },
         8: {
           route: "Bangkok > Doha > Larnaca",
@@ -5307,7 +5252,7 @@
             "Sabah erken BKK kalkışı; Doha aktarmalı Qatar Airways ile aynı gün Larnaca varışı.",
           content: `
       <p>Kahvaltı sonrası check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 Aralık). Özel van ile Suvarnabhumi'ye transfer.</p>
-      <p><strong>Örnek dönüş</strong> (Comfort · Larnaca kalkışlı):</p>
+      <p><strong>Dönüş</strong> (Comfort · Larnaca kalkışlı):</p>
       <ul>
         <li>BKK → DOH: 11.12.2026 03:00 · 06:25 (7s 25dk)</li>
         <li>DOH aktarma: ~2s — kendi başına transfer</li>
@@ -5323,13 +5268,13 @@
             "Evening departure from Larnaca (LCA); Emirates via Dubai (DXB) to Phuket. Same-day arrival and Thanthip check-in.",
           content: `
       <p><strong>Evening of 2 December</strong>, depart Larnaca (LCA). <strong>Emirates</strong> to Dubai and Phuket.</p>
-      <p><strong>Sample outbound flights</strong> (Comfort · Larnaca departure):</p>
+      <p><strong>Outbound flights</strong> (Comfort · Larnaca departure):</p>
       <ul>
         <li>LCA → DXB: Dep 02.12.2026 19:40 · Arr 03.12.2026 00:55 (+1 day) — 3h 15m</li>
         <li>DXB layover: ~2h 05m — self-transfer</li>
         <li>DXB → HKT: Dep 03.12.2026 03:00 · Arr 03.12.2026 12:05 — 6h 05m</li>
       </ul>
-      <p>Total travel time approx. 11h 25m. After arrival, <strong>Thanthip Beach Resort</strong> (2–7 December).</p>`
+      <p>Total travel time 11h 25m. After arrival, <strong>Thanthip Beach Resort</strong> (2–7 December).</p>`
         },
         8: {
           route: "Bangkok > Doha > Larnaca",
@@ -5337,7 +5282,7 @@
             "Early morning BKK departure; Qatar Airways via Doha, same-day arrival in Larnaca.",
           content: `
       <p>After breakfast, check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 December). Private transfer to Suvarnabhumi.</p>
-      <p><strong>Sample return</strong> (Comfort · Larnaca departure):</p>
+      <p><strong>Return</strong> (Comfort · Larnaca departure):</p>
       <ul>
         <li>BKK → DOH: 11.12.2026 03:00 · 06:25 (7h 25m)</li>
         <li>DOH layover: ~2h — self-transfer</li>
@@ -5356,7 +5301,7 @@
             "Larnaca (LCA) kalkış; Atina ve Sharjah aktarmalı Air Arabia ile Phuket. Tüm stillerde aynı gidiş rotası.",
           content: `
       <p><strong>02 Aralık</strong> Larnaca (LCA) bölgesinden hareket. <strong>Atina (ATH)</strong> aktarması sonrası <strong>Air Arabia</strong> ile Sharjah (SHJ) ve Phuket (HKT).</p>
-      <p><strong>Örnek gidiş uçuşları</strong> (teyit tur dokümanında):</p>
+      <p><strong>Gidiş uçuşları</strong> (teyit tur dokümanında):</p>
       <ul>
         <li>LCA → ATH: Atina aktarması · ~1s 45dk bekleme</li>
         <li>ATH → SHJ: Kalkış 02.12.2026 13:45 · Varış 02.12.2026 20:15</li>
@@ -5373,7 +5318,7 @@
             "Depart Larnaca (LCA); Air Arabia via Athens and Sharjah to Phuket. Same outbound for all styles.",
           content: `
       <p><strong>2 December</strong> travel from the Larnaca (LCA) area. Connection in <strong>Athens (ATH)</strong>, then <strong>Air Arabia</strong> to Sharjah (SHJ) and Phuket (HKT).</p>
-      <p><strong>Sample outbound flights</strong> (confirmed in tour document):</p>
+      <p><strong>Outbound flights</strong> (confirmed in tour document):</p>
       <ul>
         <li>LCA → ATH: Athens connection · ~1h 45m wait</li>
         <li>ATH → SHJ: Dep 02.12.2026 13:45 · Arr 02.12.2026 20:15</li>
@@ -5405,7 +5350,7 @@
           summary:
             "Pattaya'dan BKK'ye transfer; sabah erken uçuşla Doha üzerinden Larnaca dönüşü.",
           content: `
-      <p>Otelde kahvaltı sonrası check-out. Özel transferle Bangkok Suvarnabhumi Havalimanı'na hareket (yaklaşık 1.5-2 saat).</p>
+      <p>Otelde kahvaltı sonrası check-out. Özel transferle Bangkok Suvarnabhumi Havalimanı'na hareket (1.5-2 saat).</p>
       <ul>
         <li>BKK → DOH: Kalkış 14.12.2026 03:00 · Varış 14.12.2026 06:25</li>
         <li>DOH aktarma: ~2s — kendi başına transfer</li>
@@ -5433,7 +5378,7 @@
           summary:
             "Transfer from Pattaya to BKK; early morning return via Doha to Larnaca.",
           content: `
-      <p>Breakfast and check-out at the hotel. Private transfer to Bangkok Suvarnabhumi Airport (approximately 1.5-2 hours).</p>
+      <p>Breakfast and check-out at the hotel. Private transfer to Bangkok Suvarnabhumi Airport (1.5-2 hours).</p>
       <ul>
         <li>BKK → DOH: Dep 14.12.2026 03:00 · Arr 14.12.2026 06:25</li>
         <li>DOH layover: ~2h — self-transfer</li>
@@ -5452,13 +5397,13 @@
             "Ercan (ECN) kalkış; İstanbul (IST) aktarmalı Turkish Airlines ile Phuket'e. Gece uçuşu ve aktarma.",
           content: `
       <p><strong>Tur başlangıç günü akşamı</strong> Ercan Havalimanı'ndan (ECN) hareket. Bilet, bagaj ve pasaport işlemlerinin ardından <strong>Turkish Airlines</strong> ile İstanbul'a uçuş.</p>
-      <p><strong>Örnek gidiş uçuşları</strong> (teyit tur dokümanında):</p>
+      <p><strong>Gidiş uçuşları</strong> (teyit tur dokümanında):</p>
       <ul>
         <li>ECN → IST: Kalkış 02.12.2026 21:20 · Varış 03.12.2026 00:15 (+1 gün)</li>
         <li>IST aktarma: ~1s 45dk bekleme — <strong>kendi başına transfer</strong> (sizin sorumluluğunuzda)</li>
         <li>IST → HKT: Kalkış 03.12.2026 02:00 · Varış 03.12.2026 15:50</li>
       </ul>
-      <p>Toplam seyahat süresi yaklaşık 13s 30dk. Varış sonrası <strong>Thanthip Beach Resort</strong> (2–7 Aralık).</p>`
+      <p>Toplam seyahat süresi 13s 30dk. Varış sonrası <strong>Thanthip Beach Resort</strong> (2–7 Aralık).</p>`
         },
         8: {
           route: "Bangkok > İstanbul > Ercan",
@@ -5466,7 +5411,7 @@
             "Sabah BKK kalkışı; Turkish Airlines + Pegasus ile aynı gün Ercan varışı.",
           content: `
       <p>Kahvaltı sonrası check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 Aralık). Özel van ile Suvarnabhumi'ye transfer.</p>
-      <p><strong>Örnek dönüş</strong> (Comfort · Ercan kalkışlı):</p>
+      <p><strong>Dönüş</strong> (Comfort · Ercan kalkışlı):</p>
       <ul>
         <li>BKK → IST (Turkish Airlines): 11.12.2026 10:20 · 16:45</li>
         <li>IST aktarma: ~2s 05dk — kendi başına transfer</li>
@@ -5479,8 +5424,8 @@
           summary:
             "Pattaya'dan BKK'ye transfer; gece uçuşu ve İstanbul aktarması ile Ercan'a dönüş.",
           content: `
-      <p>Otelde kahvaltı sonrası check-out. Özel transferle Bangkok Suvarnabhumi Havalimanı'na hareket (yaklaşık 1.5-2 saat).</p>
-      <p><strong>Örnek dönüş uçuşları</strong> (teyit tur dokümanında):</p>
+      <p>Otelde kahvaltı sonrası check-out. Özel transferle Bangkok Suvarnabhumi Havalimanı'na hareket (1.5-2 saat).</p>
+      <p><strong>Dönüş uçuşları</strong> (teyit tur dokümanında):</p>
       <ul>
         <li>BKK → IST (TK8548): Kalkış 13.12.2026 23:45 · Varış 14.12.2026 06:05 (+1 gün)</li>
         <li>IST aktarma: ~1s 40dk — kendi başına transfer</li>
@@ -5496,13 +5441,13 @@
             "Depart Ercan (ECN); Turkish Airlines via Istanbul (IST) to Phuket. Overnight flight and layover.",
           content: `
       <p><strong>On the evening of the tour start date</strong>, depart from Ercan Airport (ECN). After check-in, baggage and passport control, fly to Istanbul with <strong>Turkish Airlines</strong>.</p>
-      <p><strong>Sample outbound flights</strong> (confirmed in tour document):</p>
+      <p><strong>Outbound flights</strong> (confirmed in tour document):</p>
       <ul>
         <li>ECN → IST: Dep 02.12.2026 21:20 · Arr 03.12.2026 00:15 (+1 day)</li>
         <li>IST layover: ~1h 45m wait — <strong>self-transfer</strong> (your responsibility)</li>
         <li>IST → HKT: Dep 03.12.2026 02:00 · Arr 03.12.2026 15:50</li>
       </ul>
-      <p>Total travel time approx. 13h 30m. After arrival, <strong>Thanthip Beach Resort</strong> (2–7 December).</p>`
+      <p>Total travel time 13h 30m. After arrival, <strong>Thanthip Beach Resort</strong> (2–7 December).</p>`
         },
         8: {
           route: "Bangkok > Istanbul > Ercan",
@@ -5510,7 +5455,7 @@
             "Morning BKK departure; Turkish Airlines + Pegasus, same-day arrival in Ercan.",
           content: `
       <p>After breakfast, check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 Dec). Private transfer to Suvarnabhumi.</p>
-      <p><strong>Sample return</strong> (Comfort · Ercan departure):</p>
+      <p><strong>Return</strong> (Comfort · Ercan departure):</p>
       <ul>
         <li>BKK → IST (Turkish Airlines): 11.12.2026 10:20 · 16:45</li>
         <li>IST layover: ~2h 05m — self-transfer</li>
@@ -5523,8 +5468,8 @@
           summary:
             "Transfer from Pattaya to BKK; return to Ercan via Istanbul with overnight connection.",
           content: `
-      <p>Breakfast and check-out at the hotel. Private transfer to Bangkok Suvarnabhumi Airport (approximately 1.5-2 hours).</p>
-      <p><strong>Sample return flights</strong> (confirmed in tour document):</p>
+      <p>Breakfast and check-out at the hotel. Private transfer to Bangkok Suvarnabhumi Airport (1.5-2 hours).</p>
+      <p><strong>Return flights</strong> (confirmed in tour document):</p>
       <ul>
         <li>BKK → IST (TK8548): Dep 13.12.2026 23:45 · Arr 14.12.2026 06:05 (+1 day)</li>
         <li>IST layover: ~1h 40m — self-transfer</li>
@@ -5550,7 +5495,7 @@
         <li>KUL aktarma ~1s 40dk</li>
         <li>KUL → HKT: 03.12.2026 10:20 · 10:50 (1s 30dk)</li>
       </ul>
-      <p>Toplam seyahat süresi yaklaşık 18s 20dk.</p>`
+      <p>Toplam seyahat süresi 18s 20dk.</p>`
         },
         2: {
           route: "Phuket varış",
@@ -5567,7 +5512,7 @@
             "Sabah BKK kalkışı; Turkish Airlines ile İstanbul, Pegasus ile Ercan — aynı gün varış.",
           content: `
       <p>Hostelde check-out ve BKK transferi.</p>
-      <p><strong>Örnek dönüş</strong> (Backpacking · Ercan kalkışlı):</p>
+      <p><strong>Dönüş</strong> (Backpacking · Ercan kalkışlı):</p>
       <ul>
         <li>BKK → IST (Turkish Airlines): 11.12.2026 10:20 · 16:45 (10s 25dk)</li>
         <li>IST aktarma ~2s 05dk (kendi başına)</li>
@@ -5590,7 +5535,7 @@
         <li>KUL layover ~1h 40m</li>
         <li>KUL → HKT: 03.12.2026 10:20 · 10:50 (1h 30m)</li>
       </ul>
-      <p>Total travel time approx. 18h 20m.</p>`
+      <p>Total travel time 18h 20m.</p>`
         },
         2: {
           route: "Phuket arrival",
@@ -5607,7 +5552,7 @@
             "Morning BKK departure; Turkish Airlines to Istanbul, Pegasus to Ercan — same-day arrival.",
           content: `
       <p>Hostel check-out and transfer to BKK.</p>
-      <p><strong>Sample return</strong> (Backpacking · Ercan departure):</p>
+      <p><strong>Return</strong> (Backpacking · Ercan departure):</p>
       <ul>
         <li>BKK → IST (Turkish Airlines): 11.12.2026 10:20 · 16:45 (10h 25m)</li>
         <li>IST layover ~2h 05m (self-transfer)</li>
@@ -5633,7 +5578,7 @@
         <li>SHJ aktarma ~4s 40dk</li>
         <li>SHJ → HKT: 03.12.2026 00:55 · 10:10 (6s 15dk)</li>
       </ul>
-      <p>Toplam seyahat süresi yaklaşık 22s 30dk.</p>`
+      <p>Toplam seyahat süresi 22s 30dk.</p>`
         },
         2: {
           route: "Phuket varış",
@@ -5650,7 +5595,7 @@
             "Akşam BKK kalkışı; Doha aktarmalı Qatar Airways ile ertesi gün Larnaca varışı.",
           content: `
       <p>Hostelde check-out ve BKK transferi.</p>
-      <p><strong>Örnek dönüş</strong> (Backpacking · Larnaca kalkışlı):</p>
+      <p><strong>Dönüş</strong> (Backpacking · Larnaca kalkışlı):</p>
       <ul>
         <li>BKK → DOH: 11.12.2026 20:30 · 23:55 (7s 25dk)</li>
         <li>DOH aktarma ~8s 30dk (kendi başına)</li>
@@ -5673,7 +5618,7 @@
         <li>SHJ layover ~4h 40m</li>
         <li>SHJ → HKT: 03.12.2026 00:55 · 10:10 (6h 15m)</li>
       </ul>
-      <p>Total travel time approx. 22h 30m.</p>`
+      <p>Total travel time 22h 30m.</p>`
         },
         2: {
           route: "Phuket arrival",
@@ -5690,7 +5635,7 @@
             "Evening BKK departure; Qatar Airways via Doha, arrival in Larnaca next morning.",
           content: `
       <p>Hostel check-out and transfer to BKK.</p>
-      <p><strong>Sample return</strong> (Backpacking · Larnaca departure):</p>
+      <p><strong>Return</strong> (Backpacking · Larnaca departure):</p>
       <ul>
         <li>BKK → DOH: 11.12.2026 20:30 · 23:55 (7h 25m)</li>
         <li>DOH layover ~8h 30m (self-transfer)</li>
@@ -5714,7 +5659,7 @@
         <li>IST aktarma ~8s 45dk (kendi başına)</li>
         <li>IST → HKT: 03.12.2026 02:00 · 15:50 (9s 50dk)</li>
       </ul>
-      <p>Toplam seyahat süresi yaklaşık 22s 20dk. Geceleme uçakta.</p>`
+      <p>Toplam seyahat süresi 22s 20dk. Geceleme uçakta.</p>`
         },
         2: {
           route: "Phuket varış",
@@ -5731,7 +5676,7 @@
             "Sabah BKK kalkışı; Norse Atlantic + Norwegian ile Stockholm aktarmalı Helsinki dönüşü.",
           content: `
       <p>Hostelde check-out ve BKK transferi.</p>
-      <p><strong>Örnek dönüş</strong> (Backpacking · Helsinki kalkışlı):</p>
+      <p><strong>Dönüş</strong> (Backpacking · Helsinki kalkışlı):</p>
       <ul>
         <li>BKK → ARN (Norse Atlantic): 11.12.2026 06:00 · 12:55 (12s 55dk)</li>
         <li>ARN aktarma ~4s 25dk (kendi başına)</li>
@@ -5752,7 +5697,7 @@
         <li>IST layover ~8h 45m (self-transfer)</li>
         <li>IST → HKT: 03.12.2026 02:00 · 15:50 (9h 50m)</li>
       </ul>
-      <p>Total travel time approx. 22h 20m. Overnight on the plane.</p>`
+      <p>Total travel time 22h 20m. Overnight on the plane.</p>`
         },
         2: {
           route: "Phuket arrival",
@@ -5769,7 +5714,7 @@
             "Morning BKK departure; Norse Atlantic + Norwegian via Stockholm to Helsinki.",
           content: `
       <p>Hostel check-out and transfer to BKK.</p>
-      <p><strong>Sample return</strong> (Backpacking · Helsinki departure):</p>
+      <p><strong>Return</strong> (Backpacking · Helsinki departure):</p>
       <ul>
         <li>BKK → ARN (Norse Atlantic): 11.12.2026 06:00 · 12:55 (12h 55m)</li>
         <li>ARN layover ~4h 25m (self-transfer)</li>
@@ -5808,7 +5753,7 @@
             "Check-out Solitaire; gece BKK kalkışı Turkish Airlines TK8548 ile İstanbul varışı (12 Aralık sabah).",
           content: `
       <p>Kahvaltı sonrası check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 Aralık). VIP van ile Suvarnabhumi'ye transfer.</p>
-      <p><strong>Turkish Airlines TK8548</strong> — örnek dönüş (Comfort · İstanbul kalkışlı):</p>
+      <p><strong>Turkish Airlines TK8548</strong> — dönüş (Comfort · İstanbul kalkışlı):</p>
       <ul>
         <li>BKK → IST: 11.12.2026 23:45 · 12.12.2026 06:05 (10s 20dk)</li>
       </ul>
@@ -5842,7 +5787,7 @@
             "Check-out Solitaire; overnight BKK departure Turkish Airlines TK8548 to Istanbul (morning 12 Dec).",
           content: `
       <p>After breakfast, check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 Dec). VIP van to Suvarnabhumi.</p>
-      <p><strong>Turkish Airlines TK8548</strong> — sample return (Comfort · Istanbul departure):</p>
+      <p><strong>Turkish Airlines TK8548</strong> — return (Comfort · Istanbul departure):</p>
       <ul>
         <li>BKK → IST: 11.12.2026 23:45 · 12.12.2026 06:05 (10h 20m)</li>
       </ul>
@@ -5859,13 +5804,13 @@
             "Amsterdam (AMS) kalkış; Air India ile Delhi aktarmalı Phuket. Varış günü Thanthip check-in.",
           content: `
       <p><strong>02 Aralık</strong> Amsterdam Schiphol (AMS) kalkış. <strong>Air India</strong> ile Delhi (DEL) aktarmalı Phuket (HKT).</p>
-      <p><strong>Örnek gidiş uçuşları</strong> (Comfort · Amsterdam kalkışlı):</p>
+      <p><strong>Gidiş uçuşları</strong> (Comfort · Amsterdam kalkışlı):</p>
       <ul>
         <li>AMS → DEL: 02.12.2026 20:35 · 03.12.2026 10:00 (+1 gün) — 8s 55dk</li>
         <li>DEL aktarma: ~3s 20dk — kendi başına transfer</li>
         <li>DEL → HKT: 03.12.2026 13:20 · 19:30 — 4s 40dk</li>
       </ul>
-      <p>Toplam seyahat süresi yaklaşık 16s 55dk. Varış sonrası <strong>Thanthip Beach Resort</strong> (2–7 Aralık).</p>`
+      <p>Toplam seyahat süresi 16s 55dk. Varış sonrası <strong>Thanthip Beach Resort</strong> (2–7 Aralık).</p>`
         },
         8: {
           route: "Bangkok > Amsterdam",
@@ -5873,7 +5818,7 @@
             "Sabah erken BKK kalkışı; Thai Airways ile direkt Amsterdam varışı — aynı gün.",
           content: `
       <p>Kahvaltı sonrası check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 Aralık). Özel van ile Suvarnabhumi'ye transfer.</p>
-      <p><strong>Örnek dönüş</strong> (Comfort · Amsterdam kalkışlı):</p>
+      <p><strong>Dönüş</strong> (Comfort · Amsterdam kalkışlı):</p>
       <ul>
         <li>BKK → AMS (Thai Airways): 11.12.2026 05:00 · 11:40 (12s 40dk · direkt)</li>
       </ul>
@@ -5887,13 +5832,13 @@
             "Depart Amsterdam (AMS); Air India via Delhi to Phuket. Thanthip check-in on arrival day.",
           content: `
       <p><strong>2 December</strong> depart Amsterdam Schiphol (AMS). <strong>Air India</strong> via Delhi (DEL) to Phuket (HKT).</p>
-      <p><strong>Sample outbound flights</strong> (Comfort · Amsterdam departure):</p>
+      <p><strong>Outbound flights</strong> (Comfort · Amsterdam departure):</p>
       <ul>
         <li>AMS → DEL: Dep 02.12.2026 20:35 · Arr 03.12.2026 10:00 (+1 day) — 8h 55m</li>
         <li>DEL layover: ~3h 20m — self-transfer</li>
         <li>DEL → HKT: Dep 03.12.2026 13:20 · Arr 03.12.2026 19:30 — 4h 40m</li>
       </ul>
-      <p>Total travel time approx. 16h 55m. After arrival, <strong>Thanthip Beach Resort</strong> (2–7 December).</p>`
+      <p>Total travel time 16h 55m. After arrival, <strong>Thanthip Beach Resort</strong> (2–7 December).</p>`
         },
         8: {
           route: "Bangkok > Amsterdam",
@@ -5901,7 +5846,7 @@
             "Early morning BKK departure; direct Thai Airways to Amsterdam — same day.",
           content: `
       <p>After breakfast, check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 December). Private transfer to Suvarnabhumi.</p>
-      <p><strong>Sample return</strong> (Comfort · Amsterdam departure):</p>
+      <p><strong>Return</strong> (Comfort · Amsterdam departure):</p>
       <ul>
         <li>BKK → AMS (Thai Airways): 11.12.2026 05:00 · 11:40 (12h 40m · non-stop)</li>
       </ul>
@@ -5923,7 +5868,7 @@
         <li>DEL aktarma ~3s 20dk (kendi başına)</li>
         <li>DEL → HKT: 03.12.2026 13:20 · 19:30 (4s 40dk)</li>
       </ul>
-      <p>Toplam seyahat süresi yaklaşık 16s 55dk.</p>`
+      <p>Toplam seyahat süresi 16s 55dk.</p>`
         },
         2: {
           route: "Phuket varış",
@@ -5940,7 +5885,7 @@
             "Gece BKK kalkışı; Kuwait Airways ile Kuveyt aktarmalı Amsterdam dönüşü.",
           content: `
       <p>Hostelde check-out ve BKK transferi.</p>
-      <p><strong>Örnek dönüş</strong> (Backpacking · Amsterdam kalkışlı):</p>
+      <p><strong>Dönüş</strong> (Backpacking · Amsterdam kalkışlı):</p>
       <ul>
         <li>BKK → KWI: 11.12.2026 03:00 · 06:35 (7s 35dk)</li>
         <li>KWI aktarma ~1s 55dk (kendi başına)</li>
@@ -5961,7 +5906,7 @@
         <li>DEL layover ~3h 20m (self-transfer)</li>
         <li>DEL → HKT: 03.12.2026 13:20 · 19:30 (4h 40m)</li>
       </ul>
-      <p>Total travel time approx. 16h 55m.</p>`
+      <p>Total travel time 16h 55m.</p>`
         },
         2: {
           route: "Phuket arrival",
@@ -5978,7 +5923,7 @@
             "Overnight BKK departure; Kuwait Airways via Kuwait City to Amsterdam.",
           content: `
       <p>Hostel check-out and transfer to BKK.</p>
-      <p><strong>Sample return</strong> (Backpacking · Amsterdam departure):</p>
+      <p><strong>Return</strong> (Backpacking · Amsterdam departure):</p>
       <ul>
         <li>BKK → KWI: 11.12.2026 03:00 · 06:35 (7h 35m)</li>
         <li>KWI layover ~1h 55m (self-transfer)</li>
@@ -5997,13 +5942,13 @@
             "Berlin (BER) kalkış; İstanbul aktarmalı Turkish Airlines ile Phuket. Varış günü Thanthip check-in.",
           content: `
       <p><strong>02 Aralık</strong> Berlin Brandenburg (BER) kalkış. <strong>Turkish Airlines</strong> ile İstanbul (IST) aktarmalı Phuket (HKT).</p>
-      <p><strong>Örnek gidiş uçuşları</strong> (Comfort · Berlin kalkışlı):</p>
+      <p><strong>Gidiş uçuşları</strong> (Comfort · Berlin kalkışlı):</p>
       <ul>
         <li>BER → IST: 02.12.2026 14:30 · 19:30 (3s)</li>
         <li>IST aktarma: ~6s 30dk — kendi başına transfer</li>
         <li>IST → HKT: 03.12.2026 02:00 · 15:50 (9s 50dk)</li>
       </ul>
-      <p>Toplam seyahat süresi yaklaşık 19s 20dk. Varış sonrası <strong>Thanthip Beach Resort</strong> (2–7 Aralık).</p>`
+      <p>Toplam seyahat süresi 19s 20dk. Varış sonrası <strong>Thanthip Beach Resort</strong> (2–7 Aralık).</p>`
         },
         8: {
           route: "Bangkok > Doha > Berlin",
@@ -6011,7 +5956,7 @@
             "Sabah BKK kalkışı; Qatar Airways ile Doha aktarmalı aynı gün Berlin varışı.",
           content: `
       <p>Kahvaltı sonrası check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 Aralık). Özel van ile Suvarnabhumi'ye transfer.</p>
-      <p><strong>Örnek dönüş</strong> (Comfort · Berlin kalkışlı):</p>
+      <p><strong>Dönüş</strong> (Comfort · Berlin kalkışlı):</p>
       <ul>
         <li>BKK → DOH: 11.12.2026 09:05 · 12:30 (7s 25dk)</li>
         <li>DOH aktarma: ~3s 15dk — kendi başına transfer</li>
@@ -6027,13 +5972,13 @@
             "Depart Berlin (BER); Turkish Airlines via Istanbul to Phuket. Thanthip check-in on arrival day.",
           content: `
       <p><strong>2 December</strong> depart Berlin Brandenburg (BER). <strong>Turkish Airlines</strong> via Istanbul (IST) to Phuket (HKT).</p>
-      <p><strong>Sample outbound flights</strong> (Comfort · Berlin departure):</p>
+      <p><strong>Outbound flights</strong> (Comfort · Berlin departure):</p>
       <ul>
         <li>BER → IST: 02.12.2026 14:30 · 19:30 (3h)</li>
         <li>IST layover: ~6h 30m — self-transfer</li>
         <li>IST → HKT: 03.12.2026 02:00 · 15:50 (9h 50m)</li>
       </ul>
-      <p>Total travel time approx. 19h 20m. After arrival, <strong>Thanthip Beach Resort</strong> (2–7 December).</p>`
+      <p>Total travel time 19h 20m. After arrival, <strong>Thanthip Beach Resort</strong> (2–7 December).</p>`
         },
         8: {
           route: "Bangkok > Doha > Berlin",
@@ -6041,7 +5986,7 @@
             "Morning BKK departure; Qatar Airways via Doha, same-day arrival in Berlin.",
           content: `
       <p>After breakfast, check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 December). Private transfer to Suvarnabhumi.</p>
-      <p><strong>Sample return</strong> (Comfort · Berlin departure):</p>
+      <p><strong>Return</strong> (Comfort · Berlin departure):</p>
       <ul>
         <li>BKK → DOH: 11.12.2026 09:05 · 12:30 (7h 25m)</li>
         <li>DOH layover: ~3h 15m — self-transfer</li>
@@ -6067,7 +6012,7 @@
         <li>DEL aktarma ~3s 20dk</li>
         <li>DEL → HKT: 03.12.2026 13:20 · 19:30 (4s 40dk)</li>
       </ul>
-      <p>Toplam seyahat süresi yaklaşık 21 saat.</p>`
+      <p>Toplam seyahat süresi 21 saat.</p>`
         },
         2: {
           route: "Phuket varış",
@@ -6084,7 +6029,7 @@
             "Akşam BKK kalkışı; Qatar Airways ile Doha aktarmalı Berlin varışı (12 Aralık sabah).",
           content: `
       <p>Hostelde check-out ve BKK transferi.</p>
-      <p><strong>Örnek dönüş</strong> (Backpacking · Berlin kalkışlı):</p>
+      <p><strong>Dönüş</strong> (Backpacking · Berlin kalkışlı):</p>
       <ul>
         <li>BKK → DOH: 11.12.2026 20:30 · 23:55 (7s 25dk)</li>
         <li>DOH aktarma ~2s 45dk (kendi başına)</li>
@@ -6107,7 +6052,7 @@
         <li>DEL layover ~3h 20m</li>
         <li>DEL → HKT: 03.12.2026 13:20 · 19:30 (4h 40m)</li>
       </ul>
-      <p>Total travel time approx. 21 hours.</p>`
+      <p>Total travel time 21 hours.</p>`
         },
         2: {
           route: "Phuket arrival",
@@ -6124,7 +6069,7 @@
             "Evening BKK departure; Qatar Airways via Doha, arrival in Berlin morning of 12 December.",
           content: `
       <p>Hostel check-out and transfer to BKK.</p>
-      <p><strong>Sample return</strong> (Backpacking · Berlin departure):</p>
+      <p><strong>Return</strong> (Backpacking · Berlin departure):</p>
       <ul>
         <li>BKK → DOH: 11.12.2026 20:30 · 23:55 (7h 25m)</li>
         <li>DOH layover ~2h 45m (self-transfer)</li>
@@ -6143,13 +6088,13 @@
             "Gatwick (LGW) kalkış; Qatar Airways ile Doha aktarmalı Phuket. Varış günü Thanthip check-in.",
           content: `
       <p><strong>02 Aralık</strong> Londra Gatwick (LGW) kalkış. <strong>Qatar Airways</strong> ile Doha (DOH) aktarmalı Phuket (HKT).</p>
-      <p><strong>Örnek gidiş uçuşları</strong> (Comfort · Londra kalkışlı):</p>
+      <p><strong>Gidiş uçuşları</strong> (Comfort · Londra kalkışlı):</p>
       <ul>
         <li>LGW → DOH: 02.12.2026 08:40 · 18:15 (6s 35dk)</li>
         <li>DOH aktarma: ~2s 05dk — kendi başına transfer</li>
         <li>DOH → HKT: 02.12.2026 20:20 · 03.12.2026 06:50 (6s 30dk)</li>
       </ul>
-      <p>Toplam seyahat süresi yaklaşık 15s 10dk. Varış sonrası <strong>Thanthip Beach Resort</strong> (2–7 Aralık).</p>`
+      <p>Toplam seyahat süresi 15s 10dk. Varış sonrası <strong>Thanthip Beach Resort</strong> (2–7 Aralık).</p>`
         },
         8: {
           route: "Bangkok > Londra",
@@ -6157,7 +6102,7 @@
             "Öğle BKK kalkışı; EVA Air ile direkt Heathrow varışı — aynı gün.",
           content: `
       <p>Kahvaltı sonrası check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 Aralık). Özel van ile Suvarnabhumi'ye transfer.</p>
-      <p><strong>Örnek dönüş</strong> (Comfort · Londra kalkışlı):</p>
+      <p><strong>Dönüş</strong> (Comfort · Londra kalkışlı):</p>
       <ul>
         <li>BKK → LHR (EVA Air): 11.12.2026 12:40 · 19:05 (13s 25dk · direkt)</li>
       </ul>
@@ -6171,13 +6116,13 @@
             "Depart Gatwick (LGW); Qatar Airways via Doha to Phuket. Thanthip check-in on arrival day.",
           content: `
       <p><strong>2 December</strong> depart London Gatwick (LGW). <strong>Qatar Airways</strong> via Doha (DOH) to Phuket (HKT).</p>
-      <p><strong>Sample outbound flights</strong> (Comfort · London departure):</p>
+      <p><strong>Outbound flights</strong> (Comfort · London departure):</p>
       <ul>
         <li>LGW → DOH: 02.12.2026 08:40 · 18:15 (6h 35m)</li>
         <li>DOH layover: ~2h 05m — self-transfer</li>
         <li>DOH → HKT: 02.12.2026 20:20 · 03.12.2026 06:50 (6h 30m)</li>
       </ul>
-      <p>Total travel time approx. 15h 10m. After arrival, <strong>Thanthip Beach Resort</strong> (2–7 December).</p>`
+      <p>Total travel time 15h 10m. After arrival, <strong>Thanthip Beach Resort</strong> (2–7 December).</p>`
         },
         8: {
           route: "Bangkok > London",
@@ -6185,7 +6130,7 @@
             "Midday BKK departure; direct EVA Air to Heathrow — same day.",
           content: `
       <p>After breakfast, check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 December). Private transfer to Suvarnabhumi.</p>
-      <p><strong>Sample return</strong> (Comfort · London departure):</p>
+      <p><strong>Return</strong> (Comfort · London departure):</p>
       <ul>
         <li>BKK → LHR (EVA Air): 11.12.2026 12:40 · 19:05 (13h 25m · non-stop)</li>
       </ul>
@@ -6207,7 +6152,7 @@
         <li>DOH aktarma ~2 saat</li>
         <li>DOH → HKT: 02.12.2026 20:20 · 03.12.2026 06:50 (6s 30dk)</li>
       </ul>
-      <p>Toplam seyahat süresi yaklaşık 15s 10dk. Geceleme uçakta.</p>`
+      <p>Toplam seyahat süresi 15s 10dk. Geceleme uçakta.</p>`
         },
         2: {
           route: "Phuket varış",
@@ -6224,7 +6169,7 @@
             "Gece BKK kalkışı; Kuwait Airways ile Kuveyt aktarmalı Heathrow dönüşü.",
           content: `
       <p>Hostelde check-out ve BKK transferi.</p>
-      <p><strong>Örnek dönüş</strong> (Backpacking · Londra kalkışlı):</p>
+      <p><strong>Dönüş</strong> (Backpacking · Londra kalkışlı):</p>
       <ul>
         <li>BKK → KWI: 11.12.2026 03:00 · 06:35 (7s 35dk)</li>
         <li>KWI aktarma ~3s 25dk (kendi başına)</li>
@@ -6245,7 +6190,7 @@
         <li>DOH layover ~2 hours</li>
         <li>DOH → HKT: 02.12.2026 20:20 · 03.12.2026 06:50 (6h 30m)</li>
       </ul>
-      <p>Total travel time approx. 15h 10m. Overnight on the plane.</p>`
+      <p>Total travel time 15h 10m. Overnight on the plane.</p>`
         },
         2: {
           route: "Phuket arrival",
@@ -6262,7 +6207,7 @@
             "Overnight BKK departure; Kuwait Airways via Kuwait City to Heathrow.",
           content: `
       <p>Hostel check-out and transfer to BKK.</p>
-      <p><strong>Sample return</strong> (Backpacking · London departure):</p>
+      <p><strong>Return</strong> (Backpacking · London departure):</p>
       <ul>
         <li>BKK → KWI: 11.12.2026 03:00 · 06:35 (7h 35m)</li>
         <li>KWI layover ~3h 25m (self-transfer)</li>
@@ -6281,7 +6226,7 @@
             "Helsinki-Vantaa (HEL) kalkış; Finnair ile direkt Phuket. Varış günü Thanthip check-in.",
           content: `
       <p><strong>02 Aralık</strong> Helsinki-Vantaa (HEL) kalkış. <strong>Finnair</strong> ile direkt Phuket (HKT).</p>
-      <p><strong>Örnek gidiş uçuşu</strong> (Comfort · Helsinki kalkışlı):</p>
+      <p><strong>Gidiş uçuşu</strong> (Comfort · Helsinki kalkışlı):</p>
       <ul>
         <li>HEL → HKT: Kalkış 02.12.2026 16:35 · Varış 03.12.2026 09:00 (+1 gün)</li>
         <li>Uçuş süresi: ~11s 25dk · direkt</li>
@@ -6294,7 +6239,7 @@
             "Öğle BKK kalkışı; Finnair ile direkt Helsinki varışı — aynı gün.",
           content: `
       <p>Kahvaltı sonrası check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 Aralık). Özel van ile Suvarnabhumi'ye transfer.</p>
-      <p><strong>Örnek dönüş</strong> (Comfort · Helsinki kalkışlı):</p>
+      <p><strong>Dönüş</strong> (Comfort · Helsinki kalkışlı):</p>
       <ul>
         <li>BKK → HEL (Finnair): 11.12.2026 11:15 · 18:50 (12s 35dk · direkt)</li>
       </ul>
@@ -6308,7 +6253,7 @@
             "Depart Helsinki-Vantaa (HEL); direct Finnair to Phuket. Thanthip check-in on arrival day.",
           content: `
       <p><strong>2 December</strong> depart Helsinki-Vantaa (HEL). <strong>Finnair</strong> direct to Phuket (HKT).</p>
-      <p><strong>Sample outbound flight</strong> (Comfort · Helsinki departure):</p>
+      <p><strong>Outbound flight</strong> (Comfort · Helsinki departure):</p>
       <ul>
         <li>HEL → HKT: Dep 02.12.2026 16:35 · Arr 03.12.2026 09:00 (+1 day)</li>
         <li>Duration: ~11h 25m · non-stop</li>
@@ -6321,7 +6266,7 @@
             "Midday BKK departure; direct Finnair to Helsinki — same day.",
           content: `
       <p>After breakfast, check-out (<strong>Solitaire Bangkok Sukhumvit 11</strong>, 7–11 December). Private transfer to Suvarnabhumi.</p>
-      <p><strong>Sample return</strong> (Comfort · Helsinki departure):</p>
+      <p><strong>Return</strong> (Comfort · Helsinki departure):</p>
       <ul>
         <li>BKK → HEL (Finnair): 11.12.2026 11:15 · 18:50 (12h 35m · non-stop)</li>
       </ul>
@@ -6338,7 +6283,7 @@
             "Helsinki (HEL) kalkış; Finnair ile direkt Phuket.",
           content: `
       <p><strong>02 Aralık</strong> Helsinki-Vantaa (HEL) kalkış. <strong>Finnair</strong> ile direkt Phuket (HKT).</p>
-      <p><strong>Örnek gidiş uçuşu</strong> (teyit tur dokümanında):</p>
+      <p><strong>Gidiş uçuşu</strong> (teyit tur dokümanında):</p>
       <ul>
         <li>HEL → HKT: Kalkış 02.12.2026 16:35 · Varış 03.12.2026 09:00 (+1 gün)</li>
         <li>Uçuş süresi: ~11s 25dk · direkt</li>
@@ -6353,7 +6298,7 @@
             "Depart Helsinki (HEL); direct Finnair to Phuket.",
           content: `
       <p><strong>2 December</strong> depart Helsinki-Vantaa (HEL). <strong>Finnair</strong> direct to Phuket (HKT).</p>
-      <p><strong>Sample outbound flight</strong> (confirmed in tour document):</p>
+      <p><strong>Outbound flight</strong> (confirmed in tour document):</p>
       <ul>
         <li>HEL → HKT: Dep 02.12.2026 16:35 · Arr 03.12.2026 09:00 (+1 day)</li>
         <li>Duration: ~11h 25m · non-stop</li>
@@ -6403,7 +6348,7 @@
           summary:
             "Finnair ile BKK–Helsinki; gizli şehir bileti (resmi varış Münih).",
           content: `
-      <p>Otelde kahvaltı sonrası check-out. Özel transferle Bangkok Suvarnabhumi Havalimanı'na hareket (yaklaşık 1.5-2 saat).</p>
+      <p>Otelde kahvaltı sonrası check-out. Özel transferle Bangkok Suvarnabhumi Havalimanı'na hareket (1.5-2 saat).</p>
       <ul>
         <li>BKK → HEL: Kalkış 14.12.2026 11:15 · Varış 14.12.2026 18:50 · Finnair</li>
         <li><strong>Gizli şehir:</strong> Bilet resmi olarak Münih (MUC) varışlı; Helsinki aktarmasında iniş planlanır — risk ve kurallar yolcuya aittir.</li>
@@ -6417,7 +6362,7 @@
           summary:
             "Finnair BKK–Helsinki; hidden-city ticket (official destination Munich).",
           content: `
-      <p>Breakfast and check-out at the hotel. Private transfer to Bangkok Suvarnabhumi Airport (approximately 1.5-2 hours).</p>
+      <p>Breakfast and check-out at the hotel. Private transfer to Bangkok Suvarnabhumi Airport (1.5-2 hours).</p>
       <ul>
         <li>BKK → HEL: Dep 14.12.2026 11:15 · Arr 14.12.2026 18:50 · Finnair</li>
         <li><strong>Hidden city:</strong> Ticket officially to Munich (MUC); planned disembarkation in Helsinki — risks and rules are the passenger's responsibility.</li>
@@ -6436,13 +6381,13 @@
           content: `
       <p><strong>02 Aralık</strong> İstanbul Havalimanı (IST) dış hatlar terminalinde uçuştan en az 3 saat önce buluşma.</p>
       <p>Bilet, bagaj ve pasaport işlemlerinden sonra <strong>Air Arabia</strong> ile Sharjah (SHJ) aktarmalı Phuket'e hareket. Sharjah aktarması (~5 saat) kendi başınıza — sizin sorumluluğunuzda.</p>
-      <p><strong>Örnek gidiş</strong> (Backpacking · İstanbul kalkışlı):</p>
+      <p><strong>Gidiş</strong> (Backpacking · İstanbul kalkışlı):</p>
       <ul>
         <li>IST → SHJ: 02.12.2026 14:35 · 19:55 (4s 20dk)</li>
         <li>SHJ aktarma ~5 saat</li>
         <li>SHJ → HKT: 03.12.2026 00:55 · 10:10 (6s 15dk)</li>
       </ul>
-      <p>Toplam seyahat süresi yaklaşık 15s 35dk. Geceleme uçakta.</p>`
+      <p>Toplam seyahat süresi 15s 35dk. Geceleme uçakta.</p>`
         },
         2: {
           route: "Phuket varış",
@@ -6463,7 +6408,7 @@
           summary: "Gece uçuşu; Qatar Airways ile Doha aktarmalı Sabiha Gökçen dönüşü.",
           content: `
       <p>Hostelde check-out. Bangkok Suvarnabhumi Havalimanı'na transfer.</p>
-      <p><strong>Örnek dönüş</strong> (Backpacking · İstanbul kalkışlı):</p>
+      <p><strong>Dönüş</strong> (Backpacking · İstanbul kalkışlı):</p>
       <ul>
         <li>BKK → DOH: 11.12.2026 03:00 · 06:25 (7s 25dk)</li>
         <li>DOH aktarma ~1s 05dk</li>
@@ -6480,13 +6425,13 @@
           content: `
       <p><strong>2 December</strong> meet at Istanbul Airport (IST) international departures at least 3 hours before departure.</p>
       <p>After check-in, <strong>Air Arabia</strong> via Sharjah (SHJ) to Phuket. Sharjah layover (~5 hours) is self-transfer — your responsibility.</p>
-      <p><strong>Sample outbound</strong> (Backpacking · Istanbul departure):</p>
+      <p><strong>Outbound</strong> (Backpacking · Istanbul departure):</p>
       <ul>
         <li>IST → SHJ: 02.12.2026 14:35 · 19:55 (4h 20m)</li>
         <li>SHJ layover ~5 hours</li>
         <li>SHJ → HKT: 03.12.2026 00:55 · 10:10 (6h 15m)</li>
       </ul>
-      <p>Total travel time approx. 15h 35m. Overnight on the plane.</p>`
+      <p>Total travel time 15h 35m. Overnight on the plane.</p>`
         },
         2: {
           route: "Phuket arrival",
@@ -6507,7 +6452,7 @@
           summary: "Overnight return via Doha with Qatar Airways to Sabiha Gökçen.",
           content: `
       <p>Check-out at hostel. Transfer to Bangkok Suvarnabhumi Airport.</p>
-      <p><strong>Sample return</strong> (Backpacking · Istanbul departure):</p>
+      <p><strong>Return</strong> (Backpacking · Istanbul departure):</p>
       <ul>
         <li>BKK → DOH: 11.12.2026 03:00 · 06:25 (7h 25m)</li>
         <li>DOH layover ~1h 05m</li>
@@ -6653,11 +6598,11 @@
       <h3>Karayolu transferi (Bangkok ↔ Pattaya)</h3>
       <p>11 Aralık Bangkok → Pattaya · 14 Aralık Pattaya → Bangkok havalimanı (özel araç, ~1.5-2 saat).</p>
       <h3>Dönüş uçuşları (14 Aralık — festival sonrası)</h3>
-      <p>Kalkış limanına göre değişir (14 Ara); örnek İstanbul: <strong>TK8548</strong> BKK 23:45 → IST 06:05 (+1 gün). Uçuş sekmesinde seçili limanın dönüş detayları listelenir.</p>
+      <p>Kalkış limanına göre değişir (14 Ara); İstanbul: <strong>TK8548</strong> BKK 23:45 → IST 06:05 (+1 gün). Uçuş sekmesinde seçili limanın dönüş detayları listelenir.</p>
       <h3>Bagaj bilgisi</h3>
       <ul>
-        <li><strong>Uluslararası (Qatar / THY ekonomi):</strong> 30 kg bagaj + 7 kg kabin bagajı</li>
-        <li><strong>İç hat (Thai AirAsia):</strong> 20 kg bagaj + 7 kg kabin bagajı</li>
+        <li><strong>Uluslararası (Qatar / THY ekonomi):</strong> 7 kg kabin bagajı dahil · 30 kg kayıtlı bagaj ek ücretlidir</li>
+        <li><strong>İç hat (Thai AirAsia):</strong> 7 kg kabin bagajı dahil · 20 kg kayıtlı bagaj ek ücretlidir</li>
       </ul>
       <p style="font-size:0.85rem;color:var(--text-muted)">Kesin uçuş saatleri tur teyidinde paylaşılır.</p>`;
     const flightsHtml_tml_en = `
@@ -6671,45 +6616,10 @@
       <p>Vary by departure city (14 Dec); example Istanbul: <strong>TK8548</strong> BKK 23:45 → IST 06:05 (+1 day). Full return details appear in the Flights tab for your port.</p>
       <h3>Baggage info</h3>
       <ul>
-        <li><strong>International (Qatar / THY economy):</strong> 30 kg checked + 7 kg cabin</li>
-        <li><strong>Domestic (Thai AirAsia):</strong> 20 kg checked + 7 kg cabin</li>
+        <li><strong>International (Qatar / THY economy):</strong> 7 kg cabin baggage included · 30 kg checked baggage extra</li>
+        <li><strong>Domestic (Thai AirAsia):</strong> 7 kg cabin baggage included · 20 kg checked baggage extra</li>
       </ul>
       <p style="font-size:0.85rem;color:var(--text-muted)">Exact flight times shared upon tour confirmation.</p>`;
-
-    const destinationsHtml_tml = `
-      <h3>Phuket</h3>
-      <p>Tayland'ın en büyük adası; Patong plajı, Phi Phi Adaları ve Phang Nga Körfezi turlarına ev sahipliği yapar.</p>
-      <h3>Bangkok</h3>
-      <p>Başkent — Grand Palace, Wat Pho, Wat Arun ve Yaowarat (Çin Mahallesi). Pattaya'ya yaklaşık 150 km / 1.5-2 saat.</p>
-      <h3>Pattaya</h3>
-      <p>Tayland Körfezi kıyısında, Bangkok'a yaklaşık 150 km uzaklıkta sahil şehri. Tomorrowland Thailand festivalinin ev sahibi.</p>
-      <ul>
-        <li>Pattaya Beach &amp; Jomtien Beach</li>
-        <li>Coral Adası (Koh Larn) tekne turu</li>
-        <li>Sanctuary of Truth — ahşap dev tapınak</li>
-        <li>Walking Street — gece hayatı</li>
-        <li>Floating Market — yüzen pazar</li>
-        <li>Mini Siam — minyatür park</li>
-      </ul>
-      <h3>Tomorrowland Thailand</h3>
-      <p>Belçika kökenli efsanevi elektronik müzik festivalinin Tayland edisyonu. Pattaya yakınlarında özel festival alanında; iki günlük "Full Madness" deneyimi.</p>`;
-    const destinationsHtml_tml_en = `
-      <h3>Phuket</h3>
-      <p>Thailand's largest island; home to Patong Beach and Phi Phi Islands &amp; Phang Nga Bay tours.</p>
-      <h3>Bangkok</h3>
-      <p>The capital — Grand Palace, Wat Pho, Wat Arun and Yaowarat (Chinatown). About 150 km / 1.5-2 hours to Pattaya.</p>
-      <h3>Pattaya</h3>
-      <p>Coastal city on the Gulf of Thailand, ~150 km from Bangkok. Host of Tomorrowland Thailand.</p>
-      <ul>
-        <li>Pattaya Beach &amp; Jomtien Beach</li>
-        <li>Coral Island (Koh Larn) boat tour</li>
-        <li>Sanctuary of Truth — wooden temple</li>
-        <li>Walking Street — nightlife</li>
-        <li>Floating Market</li>
-        <li>Mini Siam — miniature park</li>
-      </ul>
-      <h3>Tomorrowland Thailand</h3>
-      <p>The Thai edition of the legendary Belgian electronic music festival. Held near Pattaya at a dedicated festival ground; two-day "Full Madness" experience.</p>`;
 
     const photos_tml = [
       { href: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=80", src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80", alt: "Tomorrowland sahne" },
@@ -6739,7 +6649,7 @@
 
     const includedBottom_tml = [
       "Gidiş uçuşları Comfort paketi ile aynı; dönüş 14 Aralık (festival sonrası) ekonomi biletleri",
-      "Phuket-Bangkok arası iç hat uçağı (Thai AirAsia, 20 kg bagaj)",
+      "Phuket-Bangkok arası iç hat uçağı (Thai AirAsia, 7 kg kabin dahil)",
       "Phuket — SKYVIEW Resort Patong'da 5 gece kahvaltı dahil (2–7 Aralık)",
       "Bangkok — Grande Centre Point Prestige'da 4 gece kahvaltı dahil (7–11 Aralık)",
       "Pattaya — Royal Cliff Beach Terrace'da 3 gece kahvaltı dahil (11–14 Aralık)",
@@ -6750,7 +6660,7 @@
     ];
     const includedBottom_tml_en = [
       "Outbound flights same as Comfort package; return 14 December (post-festival) economy flights",
-      "Phuket-Bangkok domestic flight (Thai AirAsia, 20 kg baggage)",
+      "Phuket-Bangkok domestic flight (Thai AirAsia, 7 kg cabin included)",
       "Phuket — SKYVIEW Resort Patong — 5 nights with breakfast (2–7 December)",
       "Bangkok — Grande Centre Point Prestige — 4 nights with breakfast (7–11 December)",
       "Pattaya — Royal Cliff Beach Terrace — 3 nights with breakfast (11–14 December)",
@@ -7352,10 +7262,10 @@
           amsterdam: { tr: 'Amsterdam → Phuket, Bangkok', en: 'Amsterdam → Phuket, Bangkok' }
         },
         duration: { tr: '7 gece 8 gün', en: '7 nights 8 days' },
-        dates:    { tr: '02 Aralık 2026 – 10 Aralık 2026 · hostel konaklama',
-                    en: '02 December 2026 – 10 December 2026 · hostel stays' },
+        dates:    { tr: '02 Aralık 2026 – 11 Aralık 2026 · hostel konaklama',
+                    en: '02 December 2026 – 11 December 2026 · hostel stays' },
         breadcrumb: { tr: 'Phuket & Bangkok · Backpacking', en: 'Phuket & Bangkok · Backpacking' },
-        dateOptions: { tr: ['2 Aralık 2026'], en: ['2 December 2026'] },
+        dateOptions: { tr: ['02 – 11 Aralık 2026'], en: ['02 – 11 December 2026'] },
         pricesByPort: {
           istanbul: { eur: 1090 },
           amsterdam: { eur: 1090 },
@@ -7383,10 +7293,10 @@
           amsterdam: { tr: 'Amsterdam → Phuket, Bangkok', en: 'Amsterdam → Phuket, Bangkok' }
         },
         duration: { tr: '9 gece 10 gün', en: '9 nights 10 days' },
-        dates:    { tr: '02 Aralık 2026 – 12 Aralık 2026',
-                    en: '02 December 2026 – 12 December 2026' },
+        dates:    { tr: '02 Aralık 2026 – 11 Aralık 2026',
+                    en: '02 December 2026 – 11 December 2026' },
         breadcrumb: { tr: 'Phuket & Bangkok · Comfort', en: 'Phuket & Bangkok · Comfort' },
-        dateOptions: { tr: ['2 Aralık 2026'], en: ['2 December 2026'] },
+        dateOptions: { tr: ['02 – 11 Aralık 2026'], en: ['02 – 11 December 2026'] },
         pricesByPort: {
           istanbul: { eur: 1690 },
           ercan:    { eur: 1790 },
@@ -7418,13 +7328,13 @@
                     en: '02 December 2026 – 14 December 2026' },
         breadcrumb: { tr: 'Phuket, Bangkok & Tomorrowland',
                       en: 'Phuket, Bangkok & Tomorrowland' },
-        dateOptions: { tr: ['2 Aralık 2026'], en: ['2 December 2026'] },
+        dateOptions: { tr: ['02 – 14 Aralık 2026'], en: ['02 – 14 December 2026'] },
         pricesByPort: {
           istanbul: { eur: 2590 },
           ercan:    { eur: 2690 },
           larnaca:  { eur: 2590 },
           helsinki: { eur: 2790 },
-          london:   { eur: 2390 },
+          london:   { eur: 2490 },
           berlin:   { eur: 2790 },
           amsterdam: { eur: 2690 }
         },
@@ -7471,15 +7381,6 @@
       if (getEffectivePricingMode(tourKey) === "solo") return solo;
       return calculateSharedRoomPrice(normalizePackageType(tourKey), solo);
     }
-    const DEPARTURE_PORTS_ORDER = [
-      "istanbul",
-      "amsterdam",
-      "ercan",
-      "larnaca",
-      "helsinki",
-      "london",
-      "berlin"
-    ];
     const DEPARTURE_PORT_LABELS = {
       istanbul: { tr: "İstanbul (SAW)", en: "Istanbul (SAW)" },
       ercan: { tr: "Ercan (ECN)", en: "Ercan (ECN)" },
@@ -7543,48 +7444,6 @@
       updatePriceDisplays();
       if (typeof refreshChatPriceSummary === "function") refreshChatPriceSummary();
     }
-    function renderPriceMatrix() {
-      const wrap = document.getElementById("price-matrix");
-      if (!wrap) return;
-      const lang = L();
-      const t = T();
-      const ports = t.pricesByPort ? Object.keys(t.pricesByPort) : [];
-      const order = DEPARTURE_PORTS_ORDER.filter(function (p) {
-        return ports.indexOf(p) !== -1;
-      });
-      let table = wrap.querySelector(".price-matrix__table");
-      if (!table) {
-        table = document.createElement("table");
-        table.className = "price-matrix__table";
-        wrap.appendChild(table);
-      }
-      const portCol = lang === "en" ? "Departure" : "Kalkış";
-      const priceCol = lang === "en" ? "Per person" : "Kişi başı";
-      const currentPort = normalizeDeparturePort(currentDeparturePort);
-      let rows = "";
-      order.forEach(function (port) {
-        const label = DEPARTURE_PORT_LABELS[port][lang];
-        const eur = getDisplayedPriceEur(currentTour, port);
-        const rowClass = port === currentPort ? ' class="is-current"' : "";
-        rows +=
-          "<tr" +
-          rowClass +
-          "><td>" +
-          label +
-          "</td><td>" +
-          formatEurDisplay(eur) +
-          "</td></tr>";
-      });
-      table.innerHTML =
-        "<thead><tr><th>" +
-        portCol +
-        "</th><th>" +
-        priceCol +
-        "</th></tr></thead><tbody>" +
-        rows +
-        "</tbody>";
-      wrap.hidden = !document.body.classList.contains("view-tour");
-    }
     function updatePriceDisplays() {
       updatePricingModeVisibility();
       const displayed = getDisplayedPriceEur(currentTour, currentDeparturePort);
@@ -7595,7 +7454,6 @@
         const tmlDisplayed = getDisplayedPriceEur("tomorrowland", currentDeparturePort);
         animatePriceElement(tmlPriceEl, formatEurDisplay(tmlDisplayed));
       }
-      renderPriceMatrix();
     }
     const PRICE_DISCLAIMER = {
       tr: "ℹ️ Gösterilen fiyatlar değişebilir. Kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir.",
@@ -7768,12 +7626,12 @@
       const isEn = lang === "en";
       const groups = renderFlightGroupsHTML(flights, lang);
       const baggage = isEn
-        ? '<h3>Baggage</h3><ul><li><strong>International:</strong> 30 kg checked + 7 kg cabin (economy)</li><li><strong>Domestic (Thai AirAsia):</strong> 20 kg checked + 7 kg cabin</li></ul>'
-        : '<h3>Bagaj bilgisi</h3><ul><li><strong>Uluslararası:</strong> 30 kg bagaj + 7 kg kabin bagajı (ekonomi)</li><li><strong>İç hat (Thai AirAsia):</strong> 20 kg bagaj + 7 kg kabin bagajı</li></ul>';
+        ? '<h3>Baggage</h3><ul><li><strong>International:</strong> 7 kg cabin baggage included · 30 kg checked baggage extra (economy)</li><li><strong>Domestic (Thai AirAsia):</strong> 7 kg cabin baggage included · 20 kg checked baggage extra</li></ul>'
+        : '<h3>Bagaj bilgisi</h3><ul><li><strong>Uluslararası:</strong> 7 kg kabin bagajı dahil · 30 kg kayıtlı bagaj ek ücretlidir (ekonomi)</li><li><strong>İç hat (Thai AirAsia):</strong> 7 kg kabin bagajı dahil · 20 kg kayıtlı bagaj ek ücretlidir</li></ul>';
       const flightNotes = isEn ? flightNotesHtml_en : flightNotesHtml;
       const note = isEn
-        ? '<p style="font-size:0.85rem;color:var(--text-muted)">Sample schedules; exact flight info is shared upon tour confirmation.</p>'
-        : '<p style="font-size:0.85rem;color:var(--text-muted)">Örnek sefer saatleri; kesin uçuş bilgisi tur teyidinde paylaşılır.</p>';
+        ? '<p style="font-size:0.85rem;color:var(--text-muted)">Exact flight info is shared upon tour confirmation.</p>'
+        : '<p style="font-size:0.85rem;color:var(--text-muted)">Kesin uçuş bilgisi tur teyidinde paylaşılır.</p>';
       return (
         (isEn ? "<h3>Flights</h3>" : "<h3>Uçuşlar</h3>") +
         '<p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 0.75rem">' +
@@ -7843,10 +7701,6 @@
     function importantInfoGet() {
       return L() === 'en' ? importantInfoHtml_en : importantInfoHtml;
     }
-    function destHtmlGet() {
-      if (currentTour === 'tomorrowland') return L() === 'en' ? destinationsHtml_tml_en : destinationsHtml_tml;
-      return L() === 'en' ? destinationsHtml_en : destinationsHtml;
-    }
     function hotelsHtmlGet() {
       if (currentTour === "tomorrowland") return L() === "en" ? accommodationHtml_tml_en : accommodationHtml_tml;
       if (currentTour === "backpacking") return L() === "en" ? accommodationHtml_backpack_en : accommodationHtml_backpack;
@@ -7897,8 +7751,8 @@
       if (flightBlock) {
         const html = renderFlightGroupsHTML(getTourFlights(), lang);
         const note = lang === "en"
-          ? "Sample schedules only; exact flights and hotels are confirmed upon booking. Package price may vary; extra baggage, taxes and similar minor charges may apply."
-          : "Örnek sefer saatleri; kesin uçuş ve otel bilgisi rezervasyon / tur teyidinde paylaşılır. Paket fiyatı değişebilir; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir.";
+          ? "Exact flights and hotels are confirmed upon booking. Package price may vary; extra baggage, taxes and similar minor charges may apply."
+          : "Kesin uçuş ve otel bilgisi rezervasyon / tur teyidinde paylaşılır. Paket fiyatı değişebilir; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir.";
         flightBlock.innerHTML =
           html +
           '<p style="font-size:0.7rem;color:var(--text-muted);margin:0.35rem 0 0;line-height:1.4">' +
@@ -8072,8 +7926,37 @@
         passport: isEn ? 'Passport' : 'Pasaport',
         passportReq: isEn ? '6 months validity from entry date'
                           : 'Giriş tarihinden itibaren 6 ay geçerli',
+        entryForm: isEn ? 'Entry form' : 'Giriş formu',
         noResults: isEn ? 'No country found' : 'Ülke bulunamadı'
       };
+    }
+
+    function buildImmigrationFormDetail(nat) {
+      const isEn = L() === "en";
+      const tdac =
+        '<a href="' +
+        TDAC_ARRIVAL_CARD_URL +
+        '" target="_blank" rel="noopener noreferrer"><strong>Digital Arrival Card</strong></a>';
+      const parts = [];
+      if (nat.visa === "evisa") {
+        const evisa =
+          '<a href="' +
+          THAILAND_EVISA_URL +
+          '" target="_blank" rel="noopener noreferrer">' +
+          (isEn ? "Thailand E-Visa" : "Tayland e-Vizesi") +
+          "</a>";
+        parts.push(
+          isEn
+            ? "Apply for " + evisa + " online before travel"
+            : "Seyahat öncesi " + evisa + " başvurusu (online)"
+        );
+      }
+      parts.push(
+        isEn
+          ? "Mandatory " + tdac + " for Thailand entry"
+          : "Tayland girişinde zorunlu " + tdac
+      );
+      return parts.join(" · ");
     }
 
     function renderNatInfo() {
@@ -8085,18 +7968,12 @@
       const dur  = L() === 'en' ? rule.en_dur : rule.tr_dur;
       const lbl  = natLabels();
       info.hidden = false;
-      const tdacRow =
-        nat.code === "TR"
-          ? '<div class="nat-info__row"><strong>TDAC</strong><span>' +
-            (L() === "en"
-              ? 'Mandatory <a href="' +
-                TDAC_ARRIVAL_CARD_URL +
-                '" target="_blank" rel="noopener noreferrer">Digital Arrival Card</a> for Thailand entry'
-              : 'Tayland girişinde zorunlu <a href="' +
-                TDAC_ARRIVAL_CARD_URL +
-                '" target="_blank" rel="noopener noreferrer">Digital Arrival Card</a>') +
-            "</span></div>"
-          : "";
+      const entryFormRow =
+        '<div class="nat-info__row"><strong>' +
+        lbl.entryForm +
+        '</strong><span>' +
+        buildImmigrationFormDetail(nat) +
+        "</span></div>";
       info.innerHTML = `
         <div class="nat-info__head">
           <span class="nat-info__flag">${nat.flag}</span>
@@ -8106,7 +7983,7 @@
         <div class="nat-info__row"><strong>${lbl.visa}</strong><span>${visaText(rule)}</span></div>
         <div class="nat-info__row"><strong>${lbl.duration}</strong><span>${dur}</span></div>
         <div class="nat-info__row"><strong>${lbl.passport}</strong><span>${lbl.passportReq}</span></div>
-        ${tdacRow}
+        ${entryFormRow}
       `;
     }
 
@@ -8271,11 +8148,13 @@
             </div>
           </div>`;
       }
-      document.getElementById("modalContent").innerHTML = noticeHtml + day.content.trim();
+      document.getElementById("modalContent").innerHTML =
+        day.content.trim() + noticeHtml;
 
       if (day.image && day.image.src) {
         modalImageEl.src = day.image.src;
-        modalImageEl.alt = day.image.alt || "";
+        modalImageEl.alt =
+          L() === "en" && day.image.altEn ? day.image.altEn : day.image.alt || "";
         modalFigureEl.hidden = false;
       } else {
         modalFigureEl.hidden = true;
@@ -8301,9 +8180,6 @@
     });
 
     function fillLists() {
-      document.getElementById("sidebar-included").innerHTML = sidebarIncList()
-        .map((t) => `<li>${escapeHtml(t)}</li>`)
-        .join("");
       document.getElementById("list-included-bottom").innerHTML = incBottomList()
         .map((t) => `<li>${escapeHtml(t)}</li>`)
         .join("");
@@ -8313,7 +8189,6 @@
       document.getElementById("general-prose").innerHTML = generalHtmlGet().trim();
       const importantProse = document.getElementById("important-prose");
       if (importantProse) importantProse.innerHTML = importantInfoGet().trim();
-      document.getElementById("dest-prose").innerHTML = destHtmlGet().trim();
       const hotelsProse  = document.getElementById("hotels-prose");
       const flightsProse = document.getElementById("flights-prose");
       if (hotelsProse)  hotelsProse.innerHTML  = hotelsHtmlGet().trim();
@@ -8339,7 +8214,6 @@
       hotels:  document.getElementById("panel-hotels"),
       flights: document.getElementById("panel-flights"),
       general: document.getElementById("panel-general"),
-      dest:    document.getElementById("panel-dest"),
       photos:  document.getElementById("panel-photos"),
       important: document.getElementById("panel-important")
     };
@@ -8350,7 +8224,6 @@
         "tab-hotels":  "hotels",
         "tab-flights": "flights",
         "tab-general": "general",
-        "tab-dest":    "dest",
         "tab-photos":  "photos",
         "tab-important": "important"
       };
@@ -8370,13 +8243,23 @@
     });
 
     document.addEventListener("click", function (e) {
-      const btn = e.target.closest(".flight-group__toggle");
-      if (!btn) return;
+      const flightBtn = e.target.closest(".flight-group__toggle");
+      if (flightBtn) {
+        e.preventDefault();
+        const open = flightBtn.getAttribute("aria-expanded") === "true";
+        flightBtn.setAttribute("aria-expanded", open ? "false" : "true");
+        const det = flightBtn.nextElementSibling;
+        if (det && det.classList.contains("flight-group__details")) det.hidden = open;
+        return;
+      }
+      const inclBtn = e.target.closest(".price-inclusion__toggle");
+      if (!inclBtn) return;
       e.preventDefault();
-      const open = btn.getAttribute("aria-expanded") === "true";
-      btn.setAttribute("aria-expanded", open ? "false" : "true");
-      const det = btn.nextElementSibling;
-      if (det && det.classList.contains("flight-group__details")) det.hidden = open;
+      const inclOpen = inclBtn.getAttribute("aria-expanded") === "true";
+      inclBtn.setAttribute("aria-expanded", inclOpen ? "false" : "true");
+      const panelId = inclBtn.getAttribute("aria-controls");
+      const panel = panelId ? document.getElementById(panelId) : null;
+      if (panel) panel.hidden = inclOpen;
     });
 
     const overlay = document.getElementById("modal-overlay");
@@ -8490,119 +8373,6 @@
     const departureModal = document.getElementById("departure-modal");
     const departureClose = document.getElementById("departure-close");
     const departurePortSelect = document.getElementById("departure-port-select");
-    const departureIstHint = departureModal && departureModal.querySelector('[data-port="istanbul"] span');
-    const departureErcanHint = departureModal && departureModal.querySelector('[data-port="ercan"] span');
-    const departureLarnacaHint = departureModal && departureModal.querySelector('[data-port="larnaca"] span');
-    const departureHelsinkiHint = departureModal && departureModal.querySelector('[data-port="helsinki"] span');
-    const departureLondonHint = departureModal && departureModal.querySelector('[data-port="london"] span');
-    const departureBerlinHint = departureModal && departureModal.querySelector('[data-port="berlin"] span');
-    const departureAmsterdamHint = departureModal && departureModal.querySelector('[data-port="amsterdam"] span');
-
-    const DEPARTURE_HINTS = {
-      "#tur-backpacking": {
-        istanbul: {
-          tr: "Gidiş Air Arabia (Sharjah) · dönüş Qatar (Doha)",
-          en: "Outbound Air Arabia (Sharjah) · return Qatar (Doha)"
-        },
-        ercan: {
-          tr: "Gidiş AJet / AirAsia · dönüş Turkish / Pegasus (İstanbul)",
-          en: "Outbound AJet / AirAsia · return Turkish / Pegasus (Istanbul)"
-        },
-        larnaca: {
-          tr: "Gidiş Wizz Air / Air Arabia (Atina / Sharjah) · dönüş Qatar (Doha)",
-          en: "Outbound Wizz Air / Air Arabia (Athens / Sharjah) · return Qatar (Doha)"
-        },
-        helsinki: {
-          tr: "Gidiş Turkish (İstanbul) · dönüş Norse / Norwegian (Stockholm)",
-          en: "Outbound Turkish (Istanbul) · return Norse / Norwegian (Stockholm)"
-        },
-        london: {
-          tr: "Gidiş Qatar (Doha) · dönüş Kuwait Airways (Kuveyt)",
-          en: "Outbound Qatar (Doha) · return Kuwait Airways (Kuwait)"
-        },
-        berlin: {
-          tr: "Gidiş KLM / Air India · dönüş Qatar (Doha)",
-          en: "Outbound KLM / Air India · return Qatar (Doha)"
-        },
-        amsterdam: {
-          tr: "Gidiş Air India (Delhi) · dönüş Kuwait Airways (Kuveyt)",
-          en: "Outbound Air India (Delhi) · return Kuwait Airways (Kuwait)"
-        }
-      },
-      "#tur": {
-        istanbul: {
-          tr: "Gidiş Turkish direkt · dönüş TK8548 (gece)",
-          en: "Outbound Turkish direct · return TK8548 (overnight)"
-        },
-        ercan: {
-          tr: "Gidiş Turkish (İstanbul) · dönüş Turkish / Pegasus (İstanbul)",
-          en: "Outbound Turkish (Istanbul) · return Turkish / Pegasus (Istanbul)"
-        },
-        larnaca: {
-          tr: "Gidiş Emirates (Dubai) · dönüş Qatar (Doha)",
-          en: "Outbound Emirates (Dubai) · return Qatar (Doha)"
-        },
-        helsinki: {
-          tr: "Gidiş Finnair direkt · dönüş Finnair direkt",
-          en: "Outbound Finnair direct · return Finnair direct"
-        },
-        london: {
-          tr: "Gidiş Qatar (Doha · Gatwick) · dönüş EVA direkt",
-          en: "Outbound Qatar (Doha · Gatwick) · return EVA direct"
-        },
-        berlin: {
-          tr: "Gidiş Turkish (İstanbul) · dönüş Qatar (Doha)",
-          en: "Outbound Turkish (Istanbul) · return Qatar (Doha)"
-        },
-        amsterdam: {
-          tr: "Gidiş Air India (Delhi) · dönüş Thai direkt",
-          en: "Outbound Air India (Delhi) · return Thai direct"
-        }
-      },
-      "#tomorrowland": {
-        istanbul: {
-          tr: "Gidiş Comfort ile aynı · dönüş 14 Ara TK8548",
-          en: "Same outbound as Comfort · return 14 Dec TK8548"
-        },
-        ercan: {
-          tr: "Gidiş Comfort ile aynı · dönüş 14–15 Ara TK8548 + ECN",
-          en: "Same outbound as Comfort · return 14–15 Dec TK8548 + ECN"
-        },
-        larnaca: {
-          tr: "Gidiş Comfort ile aynı · dönüş 14 Ara Qatar (Doha)",
-          en: "Same outbound as Comfort · return 14 Dec Qatar (Doha)"
-        },
-        helsinki: {
-          tr: "Gidiş Comfort ile aynı · dönüş 14 Ara Finnair direkt",
-          en: "Same outbound as Comfort · return 14 Dec Finnair direct"
-        },
-        london: {
-          tr: "Gidiş Comfort ile aynı · dönüş 14 Ara Norse (Gatwick)",
-          en: "Same outbound as Comfort · return 14 Dec Norse (Gatwick)"
-        },
-        berlin: {
-          tr: "Gidiş Comfort ile aynı · dönüş 14–15 Ara Qatar (Doha)",
-          en: "Same outbound as Comfort · return 14–15 Dec Qatar (Doha)"
-        },
-        amsterdam: {
-          tr: "Gidiş Comfort ile aynı · dönüş 14 Ara Thai direkt",
-          en: "Same outbound as Comfort · return 14 Dec Thai direct"
-        }
-      }
-    };
-
-    function updateDepartureModalHints(hash) {
-      const key = hash || "#tur";
-      const hints = DEPARTURE_HINTS[key] || DEPARTURE_HINTS["#tur"];
-      const lang = L();
-      if (departureIstHint) departureIstHint.textContent = hints.istanbul[lang];
-      if (departureErcanHint) departureErcanHint.textContent = hints.ercan[lang];
-      if (departureLarnacaHint) departureLarnacaHint.textContent = hints.larnaca[lang];
-      if (departureHelsinkiHint) departureHelsinkiHint.textContent = hints.helsinki[lang];
-      if (departureLondonHint) departureLondonHint.textContent = hints.london[lang];
-      if (departureBerlinHint) departureBerlinHint.textContent = hints.berlin[lang];
-      if (departureAmsterdamHint) departureAmsterdamHint.textContent = hints.amsterdam[lang];
-    }
 
     try {
       const savedPort = localStorage.getItem('gezeceyik-departure');
@@ -8613,7 +8383,6 @@
 
     function openDepartureModal(hash) {
       pendingTourHash = hash;
-      updateDepartureModalHints(hash);
       if (!departureModal) {
         navigateToTourHash(hash);
         return;
@@ -8794,9 +8563,6 @@
       if (typeof refreshChatPriceSummary === 'function') refreshChatPriceSummary();
       if (typeof renderTimeline === 'function') renderTimeline();
       if (typeof fillLists === 'function') fillLists();
-      if (typeof updateDepartureModalHints === 'function') {
-        updateDepartureModalHints(location.hash || "#tur");
-      }
       // Notify scripts that render dynamic content
       document.dispatchEvent(new CustomEvent('gezeceyik-lang', { detail: { lang } }));
     }
@@ -8864,7 +8630,7 @@
         ] },
       tourCities: { message: "Tur kapsamında Phuket (3 gece) ve Bangkok (3 gece) ziyaret ediliyor. Phi Phi, James Bond ve Bangkok şehir turları pakete dahil değildir; programda opsiyonel olarak gösterilir.",
         options: [ { text: "Daha fazla bilgi al", next: "contact" }, { text: "← Geri dön", next: "tour" } ] },
-      tourDates: { message: "🗓️ Tur tarihleri: 2 - 10 Aralık 2026 (7 gece 8 gün) - Aralık ara tatili döneminde.",
+      tourDates: { message: "🗓️ Tur tarihleri: 2 - 11 Aralık 2026 (7 gece 8 gün) - Aralık ara tatili döneminde.",
         options: [ { text: "Rezervasyon yap", next: "reservation" }, { text: "← Geri dön", next: "tour" } ] },
       tourGroup: { message: "👥 Türkiye ve Kıbrıs'tan toplam 10 kişilik özel grup turu. Sınırlı kontenjan!",
         options: [ { text: "Yer ayırt", next: "reservation" }, { text: "← Geri dön", next: "tour" } ] },
@@ -8883,11 +8649,11 @@
       hotelDetails: { message: "🏨 Phuket'te Thanthip Beach Resort (4★) ve Bangkok'ta Solitaire Sukhumvit 11 (4★) - her ikisi de merkezi konumda.",
         options: [ { text: "Daha fazla soru", next: "contact" }, { text: "← Geri dön", next: "flight" } ] },
       reservation: { message: "📅 Rezervasyon için bize ulaşın - sizinle birebir ilgilenelim. Hangi kanalı tercih edersiniz?",
-        options: [ { text: "📧 E-posta gönder", action: "email" }, { text: "📱 Instagram'dan yaz", action: "instagram" }, { text: "← Ana menü", next: "start" } ] },
+        options: [ { text: "📧 E-posta gönder", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Instagram'dan yaz", action: "instagram" }, { text: "← Ana menü", next: "start" } ] },
       other: { message: "Başka bir sorunuz var mı? Doğrudan bize ulaşın, hemen dönüş yapalım.",
-        options: [ { text: "📧 E-posta gönder", action: "email" }, { text: "📱 Instagram'dan yaz", action: "instagram" }, { text: "← Ana menü", next: "start" } ] },
+        options: [ { text: "📧 E-posta gönder", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Instagram'dan yaz", action: "instagram" }, { text: "← Ana menü", next: "start" } ] },
       contact: { message: "Sizinle birebir konuşalım! Hangi kanalı tercih edersiniz?",
-        options: [ { text: "📧 E-posta gönder", action: "email" }, { text: "📱 Instagram'dan yaz", action: "instagram" }, { text: "← Ana menü", next: "start" } ] }
+        options: [ { text: "📧 E-posta gönder", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Instagram'dan yaz", action: "instagram" }, { text: "← Ana menü", next: "start" } ] }
     };
 
     const chatFlow_en = {
@@ -8908,7 +8674,7 @@
         ] },
       tourCities: { message: "The tour covers Phuket (3 nights) and Bangkok (3 nights). Phi Phi, James Bond Island and Bangkok city tours are not included; they are shown as optional in the program.",
         options: [ { text: "Get more info", next: "contact" }, { text: "← Back", next: "tour" } ] },
-      tourDates: { message: "🗓️ Tour dates: 2 – 10 December 2026 (7 nights 8 days) — during the December mid-term break.",
+      tourDates: { message: "🗓️ Tour dates: 2 – 11 December 2026 (7 nights 8 days) — during the December mid-term break.",
         options: [ { text: "Book now", next: "reservation" }, { text: "← Back", next: "tour" } ] },
       tourGroup: { message: "👥 Private group of 10 people from Turkey and Cyprus. Limited capacity!",
         options: [ { text: "Reserve a spot", next: "reservation" }, { text: "← Back", next: "tour" } ] },
@@ -8927,11 +8693,11 @@
       hotelDetails: { message: "🏨 Thanthip Beach Resort (4★) in Phuket and Solitaire Sukhumvit 11 (4★) in Bangkok — both in central locations.",
         options: [ { text: "More questions", next: "contact" }, { text: "← Back", next: "flight" } ] },
       reservation: { message: "📅 Reach out for booking — we'll personally take care of you. Which channel do you prefer?",
-        options: [ { text: "📧 Send email", action: "email" }, { text: "📱 Message on Instagram", action: "instagram" }, { text: "← Main menu", next: "start" } ] },
+        options: [ { text: "📧 Send email", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Message on Instagram", action: "instagram" }, { text: "← Main menu", next: "start" } ] },
       other: { message: "Got another question? Reach out directly — we'll reply quickly.",
-        options: [ { text: "📧 Send email", action: "email" }, { text: "📱 Message on Instagram", action: "instagram" }, { text: "← Main menu", next: "start" } ] },
+        options: [ { text: "📧 Send email", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Message on Instagram", action: "instagram" }, { text: "← Main menu", next: "start" } ] },
       contact: { message: "Let's talk one-on-one! Which channel do you prefer?",
-        options: [ { text: "📧 Send email", action: "email" }, { text: "📱 Message on Instagram", action: "instagram" }, { text: "← Main menu", next: "start" } ] }
+        options: [ { text: "📧 Send email", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Message on Instagram", action: "instagram" }, { text: "← Main menu", next: "start" } ] }
     };
 
     refreshChatPriceSummary();
@@ -9022,6 +8788,10 @@
       } else if (option.action === "instagram") {
         setTimeout(function () {
           window.open("https://instagram.com/gezeceyik1", "_blank");
+        }, 400);
+      } else if (option.action === "whatsapp") {
+        setTimeout(function () {
+          window.open("https://wa.me/905338386102", "_blank");
         }, 400);
       } else if (option.next) {
         setTimeout(function () {
