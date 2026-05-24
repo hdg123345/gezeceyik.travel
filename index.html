@@ -2636,14 +2636,38 @@
     .modal__submit:hover { background: var(--accent-hover); }
     .modal__success {
       display: none;
-      padding: 1rem;
-      background: var(--accent-soft);
-      border-radius: var(--radius-sm);
-      color: var(--accent);
-      font-weight: 500;
+      padding: 1.5rem 1rem 1.25rem;
       text-align: center;
+      animation: successFadeIn 0.5s ease-out;
     }
     .modal__success.is-visible { display: block; }
+    .modal__success-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(34, 197, 94, 0.35);
+      animation: successBounce 0.55s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    .modal__success-icon svg {
+      width: 32px;
+      height: 32px;
+      animation: drawCheck 0.4s 0.25s ease-out forwards;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+    }
+    .modal__success-text {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      font-weight: 600;
+      color: #166534;
+    }
     .modal__error {
       display: none;
       margin: 0 0 1rem;
@@ -2801,6 +2825,7 @@
       height: 100%;
       max-height: min(32vh, 200px);
       object-fit: cover;
+      object-position: center 38%;
       display: block;
     }
     .day-modal__optional-slot {
@@ -3749,6 +3774,7 @@
             <li data-tr="Bangkok ↔ Pattaya transferleri" data-en="Bangkok ↔ Pattaya transfers">Bangkok ↔ Pattaya transferleri</li>
             <li data-tr="Festival servis transferi" data-en="Festival shuttle transfer">Festival servis transferi</li>
             <li data-tr="Tomorrowland Full Madness Pass" data-en="Tomorrowland Full Madness Pass">Tomorrowland Full Madness Pass</li>
+            <li data-tr="7/24 destek hizmeti" data-en="24/7 support service">7/24 destek hizmeti</li>
           </ul>
         </div>
 
@@ -3774,7 +3800,14 @@
       <h2 id="modal-heading" data-tr="Rezervasyon talebi" data-en="Booking request">Rezervasyon talebi</h2>
       <p class="modal__intro" id="reserve-intro" data-tr="Talebinizi doldurun; size en kısa sürede dönüş yapalım." data-en="Fill in your request — we'll get back to you shortly.">Talebinizi doldurun; size en kısa sürede dönüş yapalım.</p>
       <div class="modal__error" id="modal-error" role="alert"></div>
-      <div class="modal__success" id="modal-success" role="status" data-tr="Teşekkürler! Talebiniz alındı, en kısa sürede dönüş yapacağız." data-en="Thank you! Your request was received — we'll reply shortly.">Teşekkürler! Talebiniz alındı, en kısa sürede dönüş yapacağız.</div>
+      <div class="modal__success" id="modal-success" role="status">
+        <div class="modal__success-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <p class="modal__success-text" data-tr="Teşekkürler! Talebiniz alındı, en kısa sürede dönüş yapacağız." data-en="Thank you! Your request was received — we'll reply shortly.">Teşekkürler! Talebiniz alındı, en kısa sürede dönüş yapacağız.</p>
+      </div>
       <form id="reserve-form">
         <div class="modal__field-row">
           <div class="modal__field">
@@ -3834,7 +3867,7 @@
       <div class="day-modal__divider" aria-hidden="true"></div>
       <div class="day-modal__body" id="modalContent"></div>
       <div class="day-modal__figure" id="modalFigure" hidden>
-        <img id="modalImage" src="" alt="" width="700" height="240" />
+        <img id="modalImage" src="" alt="" width="700" height="240" decoding="async" />
       </div>
       <div class="day-modal__optional-slot" id="modalOptionalNotice" hidden></div>
     </div>
@@ -4647,10 +4680,10 @@
         optional: true,
         route: "Bangkok · Muay Thai günü",
         summary:
-          "Tam gün Muay Thai deneyimi: ice bath, spa, antrenman spor masajı, teori ve akşam canlı dövüş izleme (ek ücretli).",
+          "Tam gün Muay Thai deneyimi: ice bath, spa, antrenman spor masajı, teori ve akşam Rajadamnern Stadyumu'nda canlı dövüş izleme (ek ücretli).",
         date: "9 Aralık 2026 — Çarşamba",
         image: {
-          src: "https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&q=80",
+          src: "https://images.unsplash.com/photo-1773289338370-6197ab131713?w=800&q=80",
           alt: "Muay Thai antrenmanı"
         },
         content: `
@@ -4661,10 +4694,9 @@
         <li>Spa</li>
         <li>Antrenman spor masajı</li>
         <li>Muay Thai teorisi</li>
-        <li>Akşam gerçek Muay Thai müsabakası izleme</li>
+        <li>Akşam Rajadamnern Stadyumu'nda (Bangkok) canlı Muay Thai müsabakası izleme</li>
       </ul>
-      <p>Rezervasyon rehberiniz veya otel resepsiyonu aracılığıyla yapılır; ücret ve saatler yerinde teyit edilir.</p>
-      <p><strong>Saatler:</strong> tam gün (öğleden sonra teori ve antrenman; akşam ring)</p>
+      <p><strong>Saatler:</strong> tam gün (öğleden sonra teori ve antrenman; akşam Rajadamnern Stadyumu)</p>
       <p>Geceleme otelimizde.</p>`
       },
       {
@@ -4690,7 +4722,8 @@
       "Phuket — Thanthip Beach Resort Patong (4★), 2–7 Aralık 2026 · kahvaltı dahil",
       "Bangkok — Solitaire Bangkok Sukhumvit 11 (4★), 7–11 Aralık 2026 · kahvaltı dahil",
       "Tüm havalimanı ve şehir transferleri (özel VIP van)",
-      "Profesyonel İngilizce/Türkçe rehberlik hizmeti"
+      "Profesyonel İngilizce/Türkçe rehberlik hizmeti",
+      "7/24 destek hizmeti"
     ];
 
     const sidebarIncluded_backpack = [
@@ -4699,7 +4732,8 @@
       "Phuket Old Town Hostel — 3–7 Aralık (4 gece)",
       "Do Dee Cafe Hostel — 7–11 Aralık (4 gece)",
       "Havalimanı ve şehir transferleri",
-      "Profesyonel rehberlik"
+      "Profesyonel rehberlik",
+      "7/24 destek hizmeti"
     ];
     const sidebarIncluded_backpack_en = [
       "Economy international flights (Air Arabia / AirAsia or multi-stop per departure airport)",
@@ -4707,14 +4741,16 @@
       "Phuket Old Town Hostel — 3–7 Dec (4 nights)",
       "Do Dee Cafe Hostel — 7–11 Dec (4 nights)",
       "Airport and city transfers",
-      "Professional guiding"
+      "Professional guiding",
+      "24/7 support service"
     ];
 
     const includedBottom = [
       "Tüm uçuşlar (uluslararası ve Phuket–Bangkok iç hat)",
       "Konaklama",
       "VIP van transferleri",
-      "İngilizce/Türkçe rehberlik"
+      "İngilizce/Türkçe rehberlik",
+      "7/24 destek hizmeti"
     ];
 
     const excludedBottom = [
@@ -4743,10 +4779,10 @@
       <h2>Visa</h2>
       <ul>
         <li>Passports must be valid for at least <strong>6 months</strong> from the return date.</li>
-        <li>For border and customs clearance, your passport must have at least <strong>6 blank pages</strong> for entry/exit stamps. Holding a visa or a visa-exempt passport does not guarantee entry or exit; immigration officers may refuse entry or require departure. <strong>We</strong> accept no liability in this regard.</li>
+        <li>For border and customs clearance, your passport must have at least <strong>6 blank pages</strong> for entry/exit stamps. Holding a visa or a visa-exempt passport does not guarantee entry or exit; immigration officers may refuse entry or require departure. We accept no liability in this regard.</li>
         <li>Travel is not permitted with torn, damaged or otherwise defaced passports.</li>
         <li>If the itinerary includes a country that requires a visa for Turkish citizens, a valid visa for that country must be in your valid passport.</li>
-        <li>Guests who are not Turkish citizens, or who hold dual nationality and will join the tour on another country's passport, must consult the relevant consulates about visa requirements for the passport they will use. <strong>We</strong> accept no liability for adverse outcomes arising from this.</li>
+        <li>Guests who are not Turkish citizens, or who hold dual nationality and will join the tour on another country's passport, must consult the relevant consulates about visa requirements for the passport they will use. We accept no liability for adverse outcomes arising from this.</li>
         <li>Guests under 18 travelling with only one parent must carry a <strong>notarized consent letter</strong> from the parent who is not travelling.</li>
       </ul>
     `;
@@ -4815,12 +4851,12 @@
     const flightNotesHtml_en = `
       <h3>Important flight ticket notes</h3>
       <ul>
-        <li>Tickets are issued according to passport name/surname, date of birth, national ID (where applicable) and passport details. <strong>We</strong> accept no liability for incorrect information provided by guests.</li>
+        <li>Tickets are issued according to passport name/surname, date of birth, national ID (where applicable) and passport details. We accept no liability for incorrect information provided by guests.</li>
         <li>Please be at the designated airport at least <strong>3 hours</strong> before departure.</li>
         <li>Guests must complete <strong>online check-in</strong> from 24 hours before departure. You may use the airline-assigned seat or pay extra for seat selection if available. Some airlines do not allow online check-in or seat selection on group tickets; seat requests should be made at the check-in counter when dropping baggage, subject to availability.</li>
-        <li><strong>We</strong> are not liable for airline delays or cancellations, schedule or routing changes, or related fare increases.</li>
+        <li>We are not liable for airline delays or cancellations, schedule or routing changes, or related fare increases.</li>
         <li>For airlines offering domestic connections, please ask us about availability and pricing.</li>
-        <li>Guests who book their own domestic flights are not covered if a delay causes them to miss the international flight. We recommend flexible domestic tickets; otherwise <strong>We</strong> accept no liability.</li>
+        <li>Guests who book their own domestic flights are not covered if a delay causes them to miss the international flight. We recommend flexible domestic tickets; otherwise We accept no liability.</li>
         <li>Some airlines apply <strong>sequential ticketing</strong>; if the outbound flight is not used, the return may be cancelled automatically.</li>
         <li>Airlines may change flight dates/times and baggage rules without prior notice to the agency or guests.</li>
         <li>For business class, tickets must be separated from the group booking. Requests at least <strong>20 days</strong> before departure may receive a quote subject to availability; individual fare rules apply and refunds on changes may not be possible.</li>
@@ -4853,38 +4889,38 @@
 
     const accommodationHtml_backpack = `
       <h3>Phuket (3–7 Aralık) — Phuket Old Town Hostel</h3>
-      <p>Backpacker hostel, Phuket Eski Şehir bölgesinde (3–7 Aralık, 4 gece). Ortak alan, ücretsiz WiFi; oda tipi rezervasyonda teyit edilir.</p>
+      <p>Backpacker hostel, Phuket Eski Şehir bölgesinde (3–7 Aralık, 4 gece). Ortak alan, ücretsiz WiFi.</p>
       <ul>
         <li><strong>Konum:</strong> Phuket Old Town — sokak yemekleri, gece pazarları, tapınaklar yürüme mesafesinde</li>
-        <li><strong>Oda tipi:</strong> Yatakhanede yatak veya özel oda (müsaitliğe göre)</li>
-        <li><strong>Check-in / Check-out:</strong> 14:00 / 11:00 (otel politikasına göre)</li>
+        <li><strong>Oda tipi:</strong> 8 kişilik paylaşımlı yatakhanede yatak</li>
+        <li><strong>Check-in / Check-out:</strong> 14:00 / 11:00</li>
       </ul>
       <h3>Bangkok (7–11 Aralık) — Do Dee Cafe Hostel</h3>
       <p>Hostel / pansiyon, Bangkok (Phasi Charoen), 7–11 Aralık (4 gece). Bahçe, teras, ücretsiz WiFi.</p>
       <ul>
         <li><strong>Konum:</strong> Bangkok — şehir merkezine toplu taşıma ile ulaşım</li>
-        <li><strong>Oda tipi:</strong> Paylaşımlı veya özel oda (müsaitliğe göre)</li>
+        <li><strong>Oda tipi:</strong> 8 kişilik paylaşımlı yatakhanede yatak</li>
         <li><strong>Check-in / Check-out:</strong> 14:00 / 11:00</li>
       </ul>
-      <p style="font-size:0.85rem;color:var(--text-muted)">Kesin oda tipi tur teyidinde paylaşılır.</p>
+      <p style="font-size:0.85rem;color:var(--text-muted)">Backpacking paketinde yalnızca paylaşımlı hostel odaları dahildir.</p>
       ${accommodationNotesHtml}`;
 
     const accommodationHtml_backpack_en = `
       <h3>Phuket (3–7 Dec) — Phuket Old Town Hostel</h3>
-      <p>Backpacker hostel in Phuket Old Town (3–7 Dec, 4 nights). Shared areas, free WiFi; room type confirmed at booking.</p>
+      <p>Backpacker hostel in Phuket Old Town (3–7 Dec, 4 nights). Shared areas, free WiFi.</p>
       <ul>
         <li><strong>Location:</strong> Phuket Old Town — street food, night markets, temples within walking distance</li>
-        <li><strong>Room type:</strong> Dorm bed or private room (subject to availability)</li>
-        <li><strong>Check-in / Check-out:</strong> 14:00 / 11:00 (per property policy)</li>
+        <li><strong>Room type:</strong> 8 people shared dorm</li>
+        <li><strong>Check-in / Check-out:</strong> 14:00 / 11:00</li>
       </ul>
       <h3>Bangkok (7–11 Dec) — Do Dee Cafe Hostel</h3>
       <p>Hostel in Bangkok (Phasi Charoen), 7–11 Dec (4 nights). Garden, terrace, free WiFi.</p>
       <ul>
         <li><strong>Location:</strong> Bangkok — public transport to city centre</li>
-        <li><strong>Room type:</strong> Shared or private room (subject to availability)</li>
+        <li><strong>Room type:</strong> 8 people shared dorm</li>
         <li><strong>Check-in / Check-out:</strong> 14:00 / 11:00</li>
       </ul>
-      <p style="font-size:0.85rem;color:var(--text-muted)">Exact room type shared upon tour confirmation.</p>
+      <p style="font-size:0.85rem;color:var(--text-muted)">Backpacking package includes shared hostel rooms only.</p>
       ${accommodationNotesHtml_en}`;
 
     const flightsHtml = `
@@ -5062,9 +5098,9 @@
         n: 7,
         optional: true,
         route: "Bangkok · Muay Thai day",
-        summary: "Full-day Muay Thai experience: ice bath, spa, training sports massage, theory and live fight in the evening (extra cost).",
+        summary: "Full-day Muay Thai experience: ice bath, spa, training sports massage, theory and live fight at Rajadamnern Stadium, Bangkok in the evening (extra cost).",
         date: "9 December 2026 — Wednesday",
-        image: { src: "https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800&q=80", alt: "Muay Thai training" },
+        image: { src: "https://images.unsplash.com/photo-1773289338370-6197ab131713?w=800&q=80", alt: "Muay Thai training" },
         content: `
       <p>After a late breakfast at the hotel, a <strong>full-day Muay Thai program in Bangkok</strong> (not included in the tour price; extra cost).</p>
       <p><strong>Program:</strong></p>
@@ -5073,10 +5109,9 @@
         <li>Spa</li>
         <li>Training sports massage</li>
         <li>Muay Thai theory</li>
-        <li>Evening — watch a real Muay Thai fight</li>
+        <li>Evening — live Muay Thai bout at Rajadamnern Stadium, Bangkok</li>
       </ul>
-      <p>Book via your guide or hotel reception; price and times confirmed on-site.</p>
-      <p><strong>Hours:</strong> full day (afternoon theory and training; evening at the ring)</p>
+      <p><strong>Hours:</strong> full day (afternoon theory and training; evening at Rajadamnern Stadium)</p>
       <p>Overnight at our hotel.</p>`
       },
       {
@@ -5097,14 +5132,16 @@
       "Phuket — Thanthip Beach Resort Patong (4★), 2–7 Dec 2026 · breakfast included",
       "Bangkok — Solitaire Bangkok Sukhumvit 11 (4★), 7–11 Dec 2026 · breakfast included",
       "All airport and city transfers (private VIP van)",
-      "Professional English/Turkish guiding service"
+      "Professional English/Turkish guiding service",
+      "24/7 support service"
     ];
 
     const includedBottom_en = [
       "All flights (international and Phuket–Bangkok domestic)",
       "Accommodation",
       "VIP van transfers",
-      "English/Turkish guiding"
+      "English/Turkish guiding",
+      "24/7 support service"
     ];
 
     const excludedBottom_en = [
@@ -5141,26 +5178,13 @@
       <div class="terms-item">
         <h4>Tura Katılım</h4>
         <p>Kıbrıslı Gezgin tarafından bildirilen saatlerde belirtilen havalimanında hazır bulunmayan, check-in ve boarding işlemlerini zamanında yapmayan ya da uçağa binmeyen kişilerin uçuşu gerçekleştirememelerinden Kıbrıslı Gezgin sorumlu değildir. Uçağı kaçıran kişilerin tura dahil olmaları için gerekli olan gidiş-dönüş yeni uçak biletleri ve bölgedeki transfer masrafları kendilerine aittir.</p>
-      </div>
-      <div class="terms-item">
-        <h4>Program ve Yeme İçme</h4>
-        <p>Programlarda belirtilen geziler zorlayıcı nedenlerle belirtilen günler dışında başka günlerde yapılabilir. Programa dahil öğle ve akşam yemekleri, gerekli görüldüğünde veya uçuş saatlerindeki değişiklikler nedeniyle belirlenen restoranlarda verilebilir. Panoramik şehir turları, şehirlerin tanıtımı için düzenlenen 2-3 saat süreli turlardır. Şehir turları ve ekstra turlar, içeriği değişmemek şartıyla farklı günlerde düzenlenebilir. Ekstra tur fiyatları, içerik ve katılımcı sayısına göre değişiklik gösterebilir.</p>
-      </div>
-      <div class="terms-item">
-        <h4>Turun Yapılmaması</h4>
-        <p>Panoramik turlar ve diğer program turları yerel otoriteler tarafından gezilmesine izin verilmeyen veya kapalı yollar sebebiyle gerçekleşmeyebilir. Hava şartları nedeniyle turun yapılması imkansız hale geldiği durumlarda, bu turların yapılamamasından Kıbrıslı Gezgin sorumlu değildir. Kapalı yollar veya araç girişine izin verilmeyen noktalarda toplu taşımayla veya yaya olarak yapılabilir.</p>
-      </div>
-      <div class="terms-item">
-        <h4>Ekstra Turlar</h4>
-        <p>Programda ekstra olarak belirtilen geziler yeterli katılım olmaması halinde yapılamayabilir. Yol üzerindeki ekstra turlar, tüm yolcuların katılımı olmadan da gerçekleştirilecektir. Katılmayan misafirler, rehber tarafından dinlenme alanlarına yönlendirilecektir. Yol üzeri ekstra turlara katılmayan yolcular, mola yerinde beklemeyi kabul ederek tura katılmış sayılır.</p>
+        <p>Program kapsamındaki geziler zorlayıcı nedenler, hava koşulları, yerel otorite kararları veya kapalı yollar nedeniyle belirtilen günler dışında yapılabilir, ertelenebilir veya yapılamayabilir; bu hallerde Kıbrıslı Gezgin sorumlu tutulmaz. Araç girişinin mümkün olmadığı noktalarda program yaya veya toplu taşıma ile sürdürülebilir. Panoramik şehir turları şehir tanıtımı amaçlı 2–3 saatlik gezilerdir.</p>
+        <p>Şehir ve opsiyonel turlar içeriği değişmemek kaydıyla farklı günlere alınabilir; opsiyonel tur ücretleri içerik ve katılım sayısına göre değişebilir. Yeterli katılım olmayan opsiyonel geziler yapılmayabilir; yol üzeri opsiyonel turlar tüm misafirler katılmasa da gerçekleştirilebilir. Katılmayan misafirler rehber yönlendirmesiyle dinlenme alanında bekler ve bu beklemeyi kabul ederek tura katılmış sayılır.</p>
+        <p>Programa dahil öğle ve akşam yemekleri gerekli görüldüğünde veya uçuş saati değişikliklerinde belirlenen restoranlarda verilebilir.</p>
       </div>
       <div class="terms-item">
         <h4>Kişisel Eşyalar</h4>
         <p>Tura iştirak eden kişilerin şahsi eşyaları, çantaları ve valizleri kendi sorumluluğundadır. Unutulan, kaybolan veya çalınan eşyaların bulunması durumunda, ülkeye veya kişiye ulaştırılması sırasında yapılan masraflar eşya sahibine aittir.</p>
-      </div>
-      <div class="terms-item">
-        <h4>Otel ve Konaklama</h4>
-        <p>Kıbrıslı Gezgin, otel isimlerini değiştirme hakkını saklı tutar. 3 kişilik odalarda ilave yatak uygulaması olabilir; bu yataklar açma-kapama ve coach bed olarak adlandırılan yataklardan oluşabilir. Bu nedenle 3. kişi ve/veya çocuk rezervasyonlarında odalarda yaşanabilecek sıkışıklık ve yatak tipi kabul edilmiş sayılacaktır. Fiyat listesinde belirtilen çocuk fiyatları, çocuğun iki yetişkin yanında konaklaması durumunda geçerlidir. Otellerde sunulan kontinental kahvaltı; tereyağı, reçel veya bal, ekmek, çay veya kahve ile meyve suyundan oluşmaktadır. Grup kahvaltıları ayrı bir salonda servis edilebilir.</p>
       </div>
       <div class="terms-item">
         <h4>Pasaport geçerlilik tarihi</h4>
@@ -5182,7 +5206,7 @@
       <h2>Participation Terms</h2>
       <div class="terms-item">
         <h4>Agency &amp; Liability</h4>
-        <p><strong>We</strong> act as an intermediary between the airline and the passenger and are subject to the Hague Protocol of 28.09.1955. Flight times may change; all times must be reconfirmed 48 hours before departure. Routes may vary depending on the arrival city. Contact us or your sales representative for schedule updates. We cannot be held responsible for schedule changes or delays made by airlines.</p>
+        <p>We act as an intermediary between the airline and the passenger and are subject to the Hague Protocol of 28.09.1955. Flight times may change; all times must be reconfirmed 48 hours before departure. Routes may vary depending on the arrival city. Contact us or your sales representative for schedule updates. We cannot be held responsible for schedule changes or delays made by airlines.</p>
       </div>
       <div class="terms-item">
         <h4>Flight Procedures</h4>
@@ -5191,18 +5215,9 @@
       <div class="terms-item">
         <h4>Tour Participation</h4>
         <p>We are not responsible if participants are not at the specified airport at the announced time, fail to complete check-in/boarding on time, or miss the flight. Passengers who miss their flight must cover the cost of new round-trip tickets and local transfers required to join the tour.</p>
-      </div>
-      <div class="terms-item">
-        <h4>Program &amp; Meals</h4>
-        <p>Tours listed in the program may take place on different days due to force majeure. Included lunches and dinners may be served at designated restaurants when necessary or due to flight changes. Panoramic city tours are introductory tours lasting 2-3 hours. City and optional tours may be rescheduled without changing content. Optional tour prices may vary by content and group size.</p>
-      </div>
-      <div class="terms-item">
-        <h4>Tour Cancellation (Program)</h4>
-        <p>Panoramic and other program tours may not run if local authorities close sites or roads. We are not liable if tours cannot run due to weather. Where vehicles cannot enter, tours may continue on foot or by public transport.</p>
-      </div>
-      <div class="terms-item">
-        <h4>Optional Tours</h4>
-        <p>Optional tours may not operate without sufficient participation. En-route optional tours may run without all passengers joining; non-participants will be directed to rest areas by the guide. Passengers who do not join en-route optional tours accept waiting at the rest stop and are considered to have joined the tour.</p>
+        <p>Program tours may take place on different days, be rescheduled or not run due to force majeure, weather, local authority decisions or road closures; we are not liable in such cases. Where vehicles cannot enter, the program may continue on foot or by public transport. Panoramic city tours are introductory tours lasting 2–3 hours.</p>
+        <p>City and optional tours may be moved to other days without changing content; optional tour prices may vary by content and group size. Optional tours may not operate without sufficient participation; en-route optional tours may run without all guests joining. Non-participants will wait at a rest area as directed by the guide and are considered to have joined the tour by accepting this wait.</p>
+        <p>Included lunches and dinners may be served at designated restaurants when necessary or due to flight schedule changes.</p>
       </div>
       <div class="terms-item">
         <h4>Personal Belongings</h4>
@@ -5224,7 +5239,7 @@
         <p>If sufficient participation for the trip cannot be secured, the latest cancellation notice date is set as 20 days before the departure date. In such a case, guests will be notified of the cancellation.</p>
       </div>
       <div class="terms-item">
-        <p><strong>We</strong> will not accept responsibility for any change or cancellation made by the guest through direct contact with suppliers such as hotels, airlines, etc. In such cases, the cancellation terms set out in Article 7 of the Package Tour contract apply.</p>
+        <p>We will not accept responsibility for any change or cancellation made by the guest through direct contact with suppliers such as hotels, airlines, etc. In such cases, the cancellation terms set out in Article 7 of the Package Tour contract apply.</p>
       </div>
     `;
 
@@ -6999,7 +7014,8 @@
       "Tüm kahvaltılar dahil",
       "Tüm transferler (havalimanı, şehirler arası, Bangkok ↔ Pattaya)",
       "Festival shuttle servisi",
-      "Tomorrowland Full Madness Pass (2 gün)"
+      "Tomorrowland Full Madness Pass (2 gün)",
+      "7/24 destek hizmeti"
     ];
     const sidebarIncluded_tml_en = [
       "Roundtrip international flights + Phuket-Bangkok domestic",
@@ -7007,7 +7023,8 @@
       "All breakfasts included",
       "All transfers (airport, intercity, Bangkok ↔ Pattaya)",
       "Festival shuttle service",
-      "Tomorrowland Full Madness Pass (2 days)"
+      "Tomorrowland Full Madness Pass (2 days)",
+      "24/7 support service"
     ];
 
     const includedBottom_tml = [
@@ -7019,7 +7036,8 @@
       "Tüm havalimanı, şehirler arası ve Bangkok ↔ Pattaya transferleri (özel VIP van)",
       "Pattaya ↔ festival alanı shuttle servisi (2 gün)",
       "Tomorrowland Thailand Full Madness Pass (11 ve 13 Aralık)",
-      "Lisanslı Türkçe konuşan rehber/koordinatör"
+      "Lisanslı Türkçe konuşan rehber/koordinatör",
+      "7/24 destek hizmeti"
     ];
     const includedBottom_tml_en = [
       "Outbound flights same as Comfort package; return 14 December (post-festival) economy flights",
@@ -7030,7 +7048,8 @@
       "All airport, intercity and Bangkok ↔ Pattaya transfers (private VIP van)",
       "Pattaya ↔ festival ground shuttle service (2 days)",
       "Tomorrowland Thailand Full Madness Pass (11 &amp; 13 December)",
-      "Licensed Turkish-speaking guide/coordinator"
+      "Licensed Turkish-speaking guide/coordinator",
+      "24/7 support service"
     ];
 
     const excludedBottom_tml = [
