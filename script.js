@@ -223,7 +223,7 @@ const chatFlow = {
   },
   price: {
     message:
-      "💰 Backpacking style 1.290 €, Comfort 1.890 €, Luxury (Tomorrowland) 2.490 € kişi başı ’dan itibaren. Detaylı bilgi ister misiniz?",
+      "💰 Backpacking style 1.090 €, Comfort 1.690 €, Luxury (Tomorrowland) 2.390 € kişi başı ’dan itibaren.\n\nℹ️ Gösterilen fiyatlar değişebilir; kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır. Bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir.\n\nDetaylı bilgi ister misiniz?",
     options: [
       { text: "Fiyata neler dahil?", next: "priceIncludes" },
       { text: "Ödeme seçenekleri", next: "paymentOptions" },

@@ -1792,21 +1792,124 @@
       color: var(--text-muted);
       line-height: 1.35;
     }
-    .price-card__per {
-      font-size: 0.8125rem;
+    .price-mode {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+      margin-bottom: 0.65rem;
+      padding: 0.2rem;
+      border-radius: 10px;
+      background: rgba(15, 76, 92, 0.06);
+      border: 1px solid rgba(15, 76, 92, 0.1);
+    }
+    .price-mode__option {
+      border: none;
+      border-radius: 8px;
+      padding: 0.5rem 0.4rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      line-height: 1.25;
+      text-align: center;
+      cursor: pointer;
       color: var(--text-muted);
-      margin-bottom: 0.25rem;
+      background: transparent;
+      transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+    }
+    .price-mode__option:hover {
+      color: var(--primary);
+    }
+    .price-mode__option.is-active {
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      box-shadow: 0 4px 12px rgba(15, 76, 92, 0.22);
+    }
+    .price-card__eur-wrap {
+      position: relative;
+      min-height: 2rem;
     }
     .price-card__eur {
       font-size: 1.5rem;
       font-weight: 700;
       color: var(--accent);
       letter-spacing: -0.02em;
+      transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+    .price-card__eur.is-updating {
+      opacity: 0.2;
+      transform: translateY(6px);
+    }
+    .tml-price-amount {
+      transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+    .tml-price-amount.is-updating {
+      opacity: 0.2;
+      transform: translateY(4px);
+    }
+    .price-matrix {
+      margin-top: 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(15, 76, 92, 0.1);
+    }
+    .price-matrix__title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 0 0 0.45rem;
+    }
+    .price-matrix__table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.72rem;
+    }
+    .price-matrix__table th,
+    .price-matrix__table td {
+      padding: 0.35rem 0.25rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(15, 76, 92, 0.08);
+    }
+    .price-matrix__table th {
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 0.65rem;
+    }
+    .price-matrix__table td:last-child,
+    .price-matrix__table th:last-child {
+      text-align: right;
+    }
+    .price-matrix__table tr.is-current td {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .price-card__per {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
     }
     .price-card__from {
       font-size: 0.75rem;
       color: var(--text-muted);
       margin-top: 0.25rem;
+    }
+    .price-card__notice {
+      font-size: 0.7rem;
+      line-height: 1.45;
+      color: var(--text-muted);
+      margin: 0.5rem 0 0;
+    }
+    .tour-bottom__price-notice {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+      margin: 0 0 1rem;
+      max-width: 42rem;
+    }
+    .tml-price-notice {
+      font-size: 0.75rem;
+      line-height: 1.45;
+      color: var(--text-muted);
+      margin: 0.65rem 0 0;
     }
     .btn-reserve.book-button {
       width: 100%;
@@ -1850,16 +1953,6 @@
     .btn-reserve.book-button:active {
       transform: translateY(0);
     }
-    .price-card__link {
-      display: block;
-      margin-top: 0.45rem;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--accent);
-      text-decoration: none;
-    }
-    .price-card__link:hover { text-decoration: underline; }
-
     .flight-block {
       margin-top: 0.45rem;
     }
@@ -2754,6 +2847,7 @@
       color: var(--ink);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       animation: messageIn 0.3s ease;
+      white-space: pre-line;
     }
 
     .chat-message.user {
@@ -3203,7 +3297,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
           </svg>
-          <span id="tour-hero-dates">02 Aralık 2026 – 10 Aralık 2026 arasında 1 tur</span>
+          <span id="tour-hero-dates">02 Aralık 2026 – 12 Aralık 2026</span>
         </div>
       </div>
     </div>
@@ -3295,11 +3389,23 @@
               <select id="tour-date-select"></select>
             </div>
             <div class="price-card__section">
+              <div id="pricing-mode-wrap">
+                <div class="price-card__label" data-tr="Fiyatlandırma" data-en="Pricing">Fiyatlandırma</div>
+                <div class="price-mode" id="sidebar-price-mode" role="radiogroup" aria-label="Pricing mode">
+                  <button type="button" class="price-mode__option is-active" data-pricing-mode="solo" data-tr="Tek kişi" data-en="Single">Tek kişi</button>
+                  <button type="button" class="price-mode__option" data-pricing-mode="shared" data-tr="Çift kişi" data-en="Couple">Çift kişi</button>
+                </div>
+              </div>
               <div class="price-card__per" data-tr="Kişi başı" data-en="Per person">Kişi başı</div>
-              <div class="price-card__eur" id="price-card-eur">€ 1.290</div>
+              <div class="price-card__eur-wrap">
+                <div class="price-card__eur" id="price-card-eur">€ 1.690</div>
+              </div>
               <div class="price-card__from" data-tr="’dan itibaren" data-en="starting from">’dan itibaren</div>
+              <p class="price-card__notice" data-tr="Gösterilen fiyatlar değişebilir. Kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir." data-en="Prices shown are indicative and may change. Exact accommodation and flight details are shared upon booking / tour confirmation; minor add-ons such as extra baggage or airport taxes may apply.">Gösterilen fiyatlar değişebilir. Kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir.</p>
               <button type="button" class="btn-reserve book-button" id="open-reserve" data-tr="Rezervasyon Yap" data-en="Book Now">Rezervasyon Yap</button>
-              <a class="price-card__link" href="#tour-bottom-inclusions" id="hotel-price-link" data-tr="Otellere göre fiyat tablosu →" data-en="Price table by hotel →">Otellere göre fiyat tablosu →</a>
+              <div class="price-matrix" id="price-matrix">
+                <div class="price-matrix__title" data-tr="Kalkış limanına göre fiyat" data-en="Price by departure airport">Kalkış limanına göre fiyat</div>
+              </div>
             </div>
             <div class="price-card__section">
               <div class="price-card__label" data-tr="Ulaşım bilgileri" data-en="Transportation">Ulaşım bilgileri</div>
@@ -3352,6 +3458,7 @@
     <div class="wrap tour-bottom__grid">
       <div>
         <h2 id="bottom-incl-heading" data-tr="Ücrete dahil olan hizmetler" data-en="Services included in the price">Ücrete dahil olan hizmetler</h2>
+        <p class="tour-bottom__price-notice" data-tr="Paket fiyatları önceden haber verilmeksizin değişebilir. Kesin otel, uçuş saatleri ve konaklama detayları rezervasyon sonrası / tur teyidinde paylaşılır. Bagaj ücreti, havalimanı vergileri ve benzeri küçük ek kalemler paket dışında kalabilir." data-en="Package prices may change without prior notice. Exact hotels, flight times and stay details are confirmed upon booking / tour confirmation. Extra baggage, airport taxes and similar minor charges may apply on top of the package price.">Paket fiyatları önceden haber verilmeksizin değişebilir. Kesin otel, uçuş saatleri ve konaklama detayları rezervasyon sonrası / tur teyidinde paylaşılır. Bagaj ücreti, havalimanı vergileri ve benzeri küçük ek kalemler paket dışında kalabilir.</p>
         <ul id="list-included-bottom"></ul>
       </div>
       <div>
@@ -3524,12 +3631,17 @@
         </div>
 
         <div class="tml-price-bar">
-          <div>
+          <div class="tml-price-bar__main">
+            <div class="price-mode tml-price-mode" role="radiogroup" aria-label="Pricing mode">
+              <button type="button" class="price-mode__option is-active" data-pricing-mode="solo" data-tr="Tek kişi" data-en="Single">Tek kişi</button>
+              <button type="button" class="price-mode__option" data-pricing-mode="shared" data-tr="Çift kişi" data-en="Couple">Çift kişi</button>
+            </div>
             <div class="tml-price-label" data-tr="Kişi başı paket fiyatı" data-en="Per person package price">Kişi başı paket fiyatı</div>
-            <div class="tml-price-amount" id="tml-price-amount">€ 2.490</div>
+            <div class="tml-price-amount" id="tml-price-amount">€ 2.590</div>
           </div>
           <a class="tml-reserve" href="mailto:gezeceyik1travel@gmail.com?subject=Tomorrowland%20Thailand%20Paketi&amp;body=Merhaba%2C%20Tomorrowland%20Thailand%20paketi%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum." data-tr="Rezervasyon talebi" data-en="Booking request">Rezervasyon talebi</a>
         </div>
+        <p class="tml-price-notice" data-tr="Gösterilen fiyatlar değişebilir. Kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir." data-en="Prices shown are indicative and may change. Exact accommodation and flight details are shared upon booking / tour confirmation; minor add-ons such as extra baggage or airport taxes may apply.">Gösterilen fiyatlar değişebilir. Kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir.</p>
       </div>
     </div>
   </div>
@@ -3967,23 +4079,23 @@
           : currentTour === "tomorrowland"
             ? "Luxury (Tomorrowland)"
             : "Comfort";
-      const portLabels = {
-        istanbul: { tr: "İstanbul (SAW)", en: "Istanbul (SAW)" },
-        ercan: { tr: "Ercan (ECN)", en: "Ercan (ECN)" },
-        larnaca: { tr: "Larnaca (LCA)", en: "Larnaca (LCA)" },
-        helsinki: { tr: "Helsinki (HEL)", en: "Helsinki (HEL)" },
-        london: { tr: "Londra (LHR)", en: "London (LHR)" },
-        berlin: { tr: "Berlin (BER)", en: "Berlin (BER)" },
-        amsterdam: { tr: "Amsterdam (AMS)", en: "Amsterdam (AMS)" }
-      };
       const portKey = normalizeDeparturePort(currentDeparturePort);
-      const port = portLabels[portKey][lang === "en" ? "en" : "tr"];
+      const port = DEPARTURE_PORT_LABELS[portKey][lang === "en" ? "en" : "tr"];
+      const modeLabel =
+        PRICING_MODE_LABELS[getEffectivePricingMode(currentTour)][lang === "en" ? "en" : "tr"];
+      const displayed = getDisplayedPriceEur(currentTour, portKey);
       return (
         (lang === "en" ? "Package: " : "Paket: ") +
         tourLabel +
         "\n" +
         (lang === "en" ? "Departure: " : "Kalkış: ") +
-        port
+        port +
+        "\n" +
+        (lang === "en" ? "Pricing: " : "Fiyatlandırma: ") +
+        modeLabel +
+        "\n" +
+        (lang === "en" ? "Package price (per person): " : "Paket fiyatı (kişi başı): ") +
+        formatEurDisplay(displayed)
       );
     }
 
@@ -4241,8 +4353,8 @@
     const sidebarIncluded = [
       "Gidiş-dönüş uluslararası ekonomi uçuşları + Phuket–Bangkok iç hat (kalkış limanına göre)",
       "Thai AirAsia ile Phuket → Bangkok iç hat (20 kg bagaj)",
-      "Phuket — Thanthip Beach Resort Patong (4★), 2–7 Aralık 2026 · kahvaltı dahil (~305 €)",
-      "Bangkok — Solitaire Bangkok Sukhumvit 11 (4★), 7–11 Aralık 2026 · kahvaltı dahil (~263 €)",
+      "Phuket — Thanthip Beach Resort Patong (4★), 2–7 Aralık 2026 · kahvaltı dahil",
+      "Bangkok — Solitaire Bangkok Sukhumvit 11 (4★), 7–11 Aralık 2026 · kahvaltı dahil",
       "Tüm havalimanı ve şehir transferleri (özel VIP van)",
       "Profesyonel İngilizce/Türkçe rehberlik hizmeti",
       "Tur kodu: GZK26TY8"
@@ -4281,7 +4393,36 @@
       "Seyahat sigortası (önerilir, ayrıca alınabilir)"
     ];
 
+    const TDAC_ARRIVAL_CARD_URL = "https://tdac.immigration.go.th/arrival-card/#/home";
+
+    const visaInfoHtml = `
+      <h2>Vize</h2>
+      <ul>
+        <li>Türkiye Cumhuriyeti vatandaşları için vize uygulaması bulunmamaktadır. Ancak Tayland girişlerinde <strong>Digital Arrival Card</strong> formunun doldurulması zorunludur. Formu <a href="${TDAC_ARRIVAL_CARD_URL}" target="_blank" rel="noopener noreferrer">buradan</a> doldurabilirsiniz.</li>
+        <li>Pasaportların dönüş tarihinden itibaren minimum <strong>6 ay</strong> geçerlilik süresinin olması gerekmektedir.</li>
+        <li>Gümrük geçişlerinde ve sınır kapılarında pasaportunuza giriş-çıkış kaşesi basılabilmesi için pasaportunuzda en az <strong>6 boş sayfa</strong> olması gerekmektedir. Vize alınmış olması veya vize gerektirmeyen pasaporta sahip olunması, ülkeye giriş ve çıkış yapılabileceği anlamına gelmez; pasaport polisinin sizi ülkeye kabul etmeme veya ülkeden çıkarmama yetkisi bulunmaktadır. <strong>Kıbrıslı Gezgin</strong>'in bu konuda herhangi bir sorumluluğu bulunmamaktadır.</li>
+        <li>Yırtılmış, yıpranmış veya benzeri tahribata uğramış pasaportlar ile seyahat edilememektedir.</li>
+        <li>Türk vatandaşlarına vize uygulayan bir ülke ziyaret ediliyorsa, ilgili ülke adına alınmış geçerli vizenin geçerli pasaportunuzda olması gerekmektedir.</li>
+        <li>Türk vatandaşı olmayan ya da çifte vatandaşlığı olup diğer ülke pasaportunu kullanarak tura katılacak misafirlerin, seyahat edilecek ülkenin kullanacakları pasaporta uyguladığı vize prosedürünü ilgili konsolosluklara bizzat danışmaları gerekmektedir. <strong>Kıbrıslı Gezgin</strong>'in doğacak olumsuzluklardan dolayı herhangi bir sorumluluğu bulunmamaktadır.</li>
+        <li>18 yaşından küçük misafirlerimizin anne veya babasından herhangi biriyle seyahat etmesi durumunda, seyahate katılmayan ebeveynden <strong>noter onaylı muvafakatname</strong> alması gerekmektedir.</li>
+      </ul>
+    `;
+
+    const visaInfoHtml_en = `
+      <h2>Visa</h2>
+      <ul>
+        <li>There is no visa requirement for citizens of the Republic of Türkiye. However, completing the Thailand <strong>Digital Arrival Card</strong> is mandatory on entry. You can fill in the form <a href="${TDAC_ARRIVAL_CARD_URL}" target="_blank" rel="noopener noreferrer">here</a>.</li>
+        <li>Passports must be valid for at least <strong>6 months</strong> from the return date.</li>
+        <li>For border and customs clearance, your passport must have at least <strong>6 blank pages</strong> for entry/exit stamps. Holding a visa or a visa-exempt passport does not guarantee entry or exit; immigration officers may refuse entry or require departure. <strong>Cypriot Traveler</strong> accepts no liability in this regard.</li>
+        <li>Travel is not permitted with torn, damaged or otherwise defaced passports.</li>
+        <li>If the itinerary includes a country that requires a visa for Turkish citizens, a valid visa for that country must be in your valid passport.</li>
+        <li>Guests who are not Turkish citizens, or who hold dual nationality and will join the tour on another country's passport, must consult the relevant consulates about visa requirements for the passport they will use. <strong>Cypriot Traveler</strong> accepts no liability for adverse outcomes arising from this.</li>
+        <li>Guests under 18 travelling with only one parent must carry a <strong>notarized consent letter</strong> from the parent who is not travelling.</li>
+      </ul>
+    `;
+
     const generalHtml = `
+      ${visaInfoHtml}
       <p>Bu tur <strong>2–12 Aralık 2026</strong> tarihleri arasında, <strong>9 gece 10 gün</strong> süreyle planlanmıştır. Günlük sıra ve kesin uçuş saatleri tur teyidinde paylaşılır.</p>
       <h3>Tayland geneli</h3>
       <ul>
@@ -4295,9 +4436,75 @@
       <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem">Pasaport ve vize bilgisi pasaport ülkenize göre yukarıda gösterilir.</p>
     `;
 
+    const accommodationNotesHtml = `
+      <h3>Konaklamaya dair önemli notlar</h3>
+      <ul>
+        <li>İlgili tur programında belirtilen otel/oteller <strong>“ve benzeri”</strong> olup, nihai otel <strong>Kıbrıslı Gezgin (tur düzenleyicisi)</strong> tarafından belirlenerek kesinleşecek ve tur kalkış tarihinden <strong>48 saat önce</strong> bildirilecektir.</li>
+        <li>Otellerin yıldız ve sınıflandırması gidilen ülkelerin değerlendirme şartlarına göre farklılık gösterebilir.</li>
+        <li>Otellere giriş saati gidilen şehrin yerel saati ile en erken <strong>15:00</strong>; çıkış saati ise <strong>11:00 / 12:00</strong>'dır.</li>
+        <li>Oteller giriş esnasında kredi kartınızdan olası harcamalarınız adına belli bir miktar <strong>depozito</strong> talep edebilir.</li>
+        <li>Yatak tipi garanti edilemeyip, otelin müsaitliğine bağlı olarak bloke edilmektedir.</li>
+        <li>Tek kişilik odalarda yatak tipi tek kişiliktir. Çift kişilik yataklı oda blokajı müsaitlik doğrultusunda verilebilir.</li>
+        <li>Triple veya 2 yetişkin + 1 çocuk olarak alınan rezervasyonlarda 3. kişi veya çocuk için verilen yataklar sabit yatak konforunda değildir; normal yatak standardından daha küçük açılır-kapanır yatak verilebilir.</li>
+        <li>Grup konaklamalarında oteller kahvaltı organizasyonunu ana restoran harici otel içerisinde farklı bir salonda verebilir. Otel kahvaltı saatini gruba özel belirleyebilir. Sunulan kahvaltı, bulunan ülkenin kültürüne uygun olarak sınırlı bir menü ile servis edilmektedir.</li>
+      </ul>
+    `;
+
+    const accommodationNotesHtml_en = `
+      <h3>Important accommodation notes</h3>
+      <ul>
+        <li>Hotels listed in the tour programme are <strong>“or similar”</strong>. The final property will be confirmed by <strong>Cypriot Traveler (tour operator)</strong> and communicated at least <strong>48 hours</strong> before departure.</li>
+        <li>Star ratings and classifications may differ according to each destination country's standards.</li>
+        <li>Standard hotel check-in is from <strong>15:00</strong> and check-out by <strong>11:00 / 12:00</strong> local time.</li>
+        <li>Hotels may request a <strong>deposit</strong> on your credit card at check-in for incidental charges.</li>
+        <li>Bed types are not guaranteed and are allocated subject to availability.</li>
+        <li>Single rooms have a single bed. Double beds in twin bookings are subject to availability.</li>
+        <li>For triple or 2 adults + 1 child bookings, the third bed may be a smaller sofa/fold-out bed, not the same standard as regular beds.</li>
+        <li>On group stays, breakfast may be served in a separate hall rather than the main restaurant. The hotel may set breakfast times for the group. Breakfast is a limited menu reflecting local customs.</li>
+      </ul>
+    `;
+
+    const flightNotesHtml = `
+      <h3>Uçak biletlerine dair önemli notlar</h3>
+      <ul>
+        <li>Uçak biletleri pasaportta geçen isim/soyisim, doğum tarihi, T.C. kimlik numarası ve pasaport detaylarına göre kesilmektedir. Bu bilgilerin hatalı bildirilmesi durumunda <strong>Kıbrıslı Gezgin</strong>'in bu konuda herhangi bir sorumluluğu bulunmamaktadır.</li>
+        <li>Uçuş saatinden minimum <strong>3 saat önce</strong> belirtilen havalimanında olunması gerekmektedir.</li>
+        <li>Misafirler <strong>online check-in</strong> işlemini uçuştan 24 saat öncesinden kendileri yapmakla yükümlüdür. Havayolunun atamış olduğu koltuk üzerinden ilerleyebilir ya da uçağın müsaitliği doğrultusunda ek ücret ödeyerek önceden koltuk seçimi yapabilirler. Kimi havayolları grup biletlerinde online check-in ve koltuk seçimine izin vermemektedir; koltuk talepleri müsaitliğe bağlı olarak havalimanında bagaj teslimi esnasında kontuar görevlisine bildirilmelidir.</li>
+        <li>Havayolu kaynaklı rötar ve iptaller, uçuş saati veya parkur değişiklikleri ve buna bağlı fiyat artışlarından <strong>Kıbrıslı Gezgin</strong> sorumlu değildir.</li>
+        <li>İç hat bağlantısı veren havayolları için müsaitlik ve fiyatlandırmanın tarafımıza sorulmasını rica ederiz.</li>
+        <li>İç hat uçuşunu kendileri alan misafirlerimiz, uçuş gecikmesi nedeniyle uluslararası uçuşa yetişemezse <strong>Kıbrıslı Gezgin</strong> sorumlu değildir. Olası tur iptali veya uçuş değişikliklerinde mağduriyet yaşamamak için iç hat biletlerinin cezasız iptal/değişiklik yapılabilir sınıftan alınmasını tavsiye ederiz; aksi halde sorumluluk kabul edilmez.</li>
+        <li>Bazı havayolları <strong>sıralı bilet</strong> kuralı uygular; gidiş uçağı kullanılmazsa dönüş uçuşu havayolu tarafından otomatik iptal edilebilir.</li>
+        <li>Havayollarının uçuş günü/saati ile ilgili değişiklik yapma hakkı bulunmaktadır. Bagaj taşıma kurallarını acente veya misafirlere bildirmeksizin değiştirme hakkı da mevcuttur.</li>
+        <li>Business kabinde seyahat için biletlerin grup rezervasyonundan ayrılması gerekir. Kalkıştan <strong>20 gün önce</strong> talep ile müsaitliğe bağlı fiyat sunulabilir; kabul eden misafirler için münferit bilet şartları geçerlidir ve iptal/değişiklikte iade mümkün olmayabilir.</li>
+        <li>Ülkelerdeki yerel havayollarının iç/dış hat uçuşlarında bagaj hakları farklılık gösterebilir; bagaj hakkı ücretli olabilir.</li>
+        <li>Uçak biletini kendi alıp yalnızca yer hizmetlerine katılan misafirler, grup ile aynı uçuş saatlerini almazsa transfer ve şehir turuna katılamayabilir; havalimanı–otel ulaşımı misafirin sorumluluğundadır.</li>
+        <li>Hamile misafirler, özel doktor kısıtlaması olmadığı ve doktor onayı ile <strong>36. haftaya kadar</strong> seyahat edebilir.</li>
+        <li>İlgili tur bölge karşılamalı olup farklı acente misafirlerinin katılımına açık bir programdır. <strong>Kıbrıslı Gezgin</strong> misafirleri, <strong>Kıbrıslı Gezgin</strong> sorumluluğundadır. Rehberlik hizmeti varılan ülke başlangıçlıdır.</li>
+      </ul>
+    `;
+
+    const flightNotesHtml_en = `
+      <h3>Important flight ticket notes</h3>
+      <ul>
+        <li>Tickets are issued according to passport name/surname, date of birth, national ID (where applicable) and passport details. <strong>Cypriot Traveler</strong> accepts no liability for incorrect information provided by guests.</li>
+        <li>Please be at the designated airport at least <strong>3 hours</strong> before departure.</li>
+        <li>Guests must complete <strong>online check-in</strong> from 24 hours before departure. You may use the airline-assigned seat or pay extra for seat selection if available. Some airlines do not allow online check-in or seat selection on group tickets; seat requests should be made at the check-in counter when dropping baggage, subject to availability.</li>
+        <li><strong>Cypriot Traveler</strong> is not liable for airline delays or cancellations, schedule or routing changes, or related fare increases.</li>
+        <li>For airlines offering domestic connections, please ask us about availability and pricing.</li>
+        <li>Guests who book their own domestic flights are not covered if a delay causes them to miss the international flight. We recommend flexible domestic tickets; otherwise <strong>Cypriot Traveler</strong> accepts no liability.</li>
+        <li>Some airlines apply <strong>sequential ticketing</strong>; if the outbound flight is not used, the return may be cancelled automatically.</li>
+        <li>Airlines may change flight dates/times and baggage rules without prior notice to the agency or guests.</li>
+        <li>For business class, tickets must be separated from the group booking. Requests at least <strong>20 days</strong> before departure may receive a quote subject to availability; individual fare rules apply and refunds on changes may not be possible.</li>
+        <li>Baggage allowances on local carriers may differ on domestic/international sectors and may be chargeable.</li>
+        <li>Guests who buy their own flights and join for land services only must match group flight times to use transfers and city tours; airport–hotel transport is their responsibility.</li>
+        <li>Pregnant guests may travel up to <strong>week 36</strong> with medical clearance, unless otherwise restricted.</li>
+        <li>This is a regional group tour open to guests from other agencies. <strong>Cypriot Traveler</strong> guests are under <strong>Cypriot Traveler</strong> responsibility. Guiding starts in the destination country.</li>
+      </ul>
+    `;
+
     const accommodationHtml = `
       <h3>Phuket — Thanthip Beach Resort Patong (4★)</h3>
-      <p><strong>2–7 Aralık 2026</strong> (5 gece) · kahvaltı dahil · paket referansı <strong>~305 €</strong></p>
+      <p><strong>2–7 Aralık 2026</strong> (5 gece) · kahvaltı dahil</p>
       <p>Twin oda; Patong plajına yaklaşık 200 m; açık havuz, restoran ve bar; ücretsiz WiFi.</p>
       <ul>
         <li><strong>Konum:</strong> Patong Beach merkezi</li>
@@ -4305,13 +4512,14 @@
         <li><strong>Check-in / Check-out:</strong> 14:00 / 12:00</li>
       </ul>
       <h3>Bangkok — Solitaire Bangkok Sukhumvit 11 (4★ Superior)</h3>
-      <p><strong>7–11 Aralık 2026</strong> (4 gece) · kahvaltı dahil · paket referansı <strong>~263 €</strong></p>
+      <p><strong>7–11 Aralık 2026</strong> (4 gece) · kahvaltı dahil</p>
       <p>Twin Superior oda; Nana BTS yürüme mesafesi; çatı havuzu, spa ve fitness.</p>
       <ul>
         <li><strong>Konum:</strong> Sukhumvit Soi 11</li>
         <li><strong>Check-in / Check-out:</strong> 14:00 / 12:00</li>
       </ul>
       <p style="font-size:0.85rem;color:var(--text-muted)">Tüm Comfort kalkışlarında aynı oteller ve tarihler. Otel değişiklik hakkı saklıdır; aynı kategori veya üstü garanti edilir.</p>
+      ${accommodationNotesHtml}
     `;
 
     const accommodationHtml_backpack = `
@@ -4329,7 +4537,8 @@
         <li><strong>Oda tipi:</strong> Paylaşımlı veya özel oda (müsaitliğe göre)</li>
         <li><strong>Check-in / Check-out:</strong> 14:00 / 11:00</li>
       </ul>
-      <p style="font-size:0.85rem;color:var(--text-muted)">Kesin oda tipi tur teyidinde paylaşılır.</p>`;
+      <p style="font-size:0.85rem;color:var(--text-muted)">Kesin oda tipi tur teyidinde paylaşılır.</p>
+      ${accommodationNotesHtml}`;
 
     const accommodationHtml_backpack_en = `
       <h3>Phuket (3–7 Dec) — Phuket Old Town Hostel</h3>
@@ -4346,7 +4555,8 @@
         <li><strong>Room type:</strong> Shared or private room (subject to availability)</li>
         <li><strong>Check-in / Check-out:</strong> 14:00 / 11:00</li>
       </ul>
-      <p style="font-size:0.85rem;color:var(--text-muted)">Exact room type shared upon tour confirmation.</p>`;
+      <p style="font-size:0.85rem;color:var(--text-muted)">Exact room type shared upon tour confirmation.</p>
+      ${accommodationNotesHtml_en}`;
 
     const flightsHtml = `
       <h3>Gidiş uçuşları</h3>
@@ -4563,8 +4773,8 @@
     const sidebarIncluded_en = [
       "Round-trip international economy flights + Phuket–Bangkok domestic (per departure airport)",
       "Thai AirAsia Phuket → Bangkok domestic (20 kg baggage)",
-      "Phuket — Thanthip Beach Resort Patong (4★), 2–7 Dec 2026 · breakfast included (~€305)",
-      "Bangkok — Solitaire Bangkok Sukhumvit 11 (4★), 7–11 Dec 2026 · breakfast included (~€263)",
+      "Phuket — Thanthip Beach Resort Patong (4★), 2–7 Dec 2026 · breakfast included",
+      "Bangkok — Solitaire Bangkok Sukhumvit 11 (4★), 7–11 Dec 2026 · breakfast included",
       "All airport and city transfers (private VIP van)",
       "Professional English/Turkish guiding service",
       "Tour code: GZK26TY8"
@@ -4587,6 +4797,7 @@
     ];
 
     const generalHtml_en = `
+      ${visaInfoHtml_en}
       <p>This tour is planned for <strong>2–12 December 2026</strong>, lasting <strong>9 nights 10 days</strong>. Daily schedule and exact flight times are shared upon tour confirmation.</p>
       <h3>About Thailand</h3>
       <ul>
@@ -4635,30 +4846,18 @@
         <p>Kıbrıslı Gezgin, otel isimlerini değiştirme hakkını saklı tutar. 3 kişilik odalarda ilave yatak uygulaması olabilir; bu yataklar açma-kapama ve coach bed olarak adlandırılan yataklardan oluşabilir. Bu nedenle 3. kişi ve/veya çocuk rezervasyonlarında odalarda yaşanabilecek sıkışıklık ve yatak tipi kabul edilmiş sayılacaktır. Fiyat listesinde belirtilen çocuk fiyatları, çocuğun iki yetişkin yanında konaklaması durumunda geçerlidir. Otellerde sunulan kontinental kahvaltı; tereyağı, reçel veya bal, ekmek, çay veya kahve ile meyve suyundan oluşmaktadır. Grup kahvaltıları ayrı bir salonda servis edilebilir.</p>
       </div>
       <div class="terms-item">
-        <h4>Sigorta ve Sağlık</h4>
-        <p>Katılımcıların seyahat sırasında yanlarında seyahat sigortalarını bulundurmaları gerekmektedir. Tura katılım sırasında sağlık sorunları, hamilelik durumu ve sürekli kullanımda bulunan ilaçlarla ilgili raporların yanınızda bulundurulması zorunludur.</p>
-      </div>
-      <div class="terms-item">
-        <h4>Diğer Notlar</h4>
-        <p>Turlar başka acente turları ile birleştirilebilir. Bu durumda Kıbrıslı Gezgin misafirleri Kıbrıslı Gezgin sorumluluğundadır. Yoğun dönemlerde (fuar, kongre, konser, etkinlik, spor turnuvası vb.) oteller belirtilen kilometrelerden fazla mesafede olabilir. Bu tür durumlarda turun hareket tarihinden 15 gün önce bilgi verilecektir. 18 yaş altı çocukların anne veya babalarından biri veya ikisi ile beraber tura katılmadığı durumlarda, muvaffakatnamelerin seyahat sırasında yanlarında bulundurulması gerekmektedir.</p>
-      </div>
-      <div class="terms-item">
         <h4>Pasaport geçerlilik tarihi</h4>
         <p>Yurt dışına seyahat edecek tüm yolcularımızın, mevcut geçerli bulunan pasaportlarının ilk alış tarihi 10 yıldan eski olmamalıdır. Ayrıca seyahat bitimi itibariyle geçerlilik sürelerinin 6 aylık olması gerekmektedir. Pasaportunu yenileyecek misafirlerimiz satın alma sırasında geçerli pasaport bilgisi vermediği takdirde ilerleyen günlerde güncel pasaport bilgilerini satın aldığı kanal aracılığıyla paylaşmakla yükümlüdür.</p>
       </div>
-      <h2>İptal İade Şartları</h2>
-      <p class="terms-intro">Tur rezervasyonunuzu iptal etmeden önce sözleşmede belirtilen koşulları ve varsa ceza bedellerini dikkatlice gözden geçirmenizde fayda vardır.</p>
+      <h2>İptal Şartları</h2>
       <div class="terms-item">
-        <h4>İptal Hakkı</h4>
-        <p>Tur kalkış tarihinden 30 gün öncesine kadar koşulsuz iptal hakkınız bulunmaktadır. 30-20 gün arasında %50 kesintili, 19-10 gün arasında %75 kesintili, 9-0 gün arasında %95 kesintili iptal işlemi yapılabilmektedir.</p>
+        <p>Turun kalkış tarihinden 30 gün öncesine kadar cezasız iptal hakkı bulunmaktadır.</p>
       </div>
       <div class="terms-item">
-        <h4>Katılım Yetersizliği</h4>
-        <p>Eğer gezide yeterli katılım sağlanamazsa, Kıbrıslı Gezgin gezinin hareket tarihinden 20 gün önce iptal bildiriminde bulunabilir. Bu durumda iptal bilgisi tarafınıza iletilecektir. 30 gün altında tarafınızdan yapılacak iptallerde, Kıbrıslı Gezgin'in sözleşmede belirtilen iptal koşulları geçerli olacaktır.</p>
+        <p>Gezi için yeterli katılım sağlanamadığı takdirde; son iptal bildirim tarihi, gezi hareket tarihinden 20 gün öncesi olarak belirlenmiştir. Böyle bir durum geliştiğinde iptal bilgisi misafire iletilir.</p>
       </div>
       <div class="terms-item">
-        <h4>İç Hat Uçuşları</h4>
-        <p>Tayland iç hat uçuşu içeren paketlerde, iç hat biletlerinin önceden alınması gerekebilir ve bu biletlerin iptal koşulları farklı olabilir. 30 günden önce yapılacak iptal taleplerinde de ceza bedeli uygulanabilir; rezervasyon sırasında teyit edilmelidir.</p>
+        <p><strong>Kıbrıslı Gezgin</strong>, misafirin doğrudan otel, havayolu vb. tedarikçi ile iletişime geçerek yaptığı herhangi bir değişiklik veya iptal işlemi için sorumluluk kabul etmeyecektir. Bu durumda Paket Tur sözleşmesi 7. maddede düzenlenen İptal Koşulları geçerlidir.</p>
       </div>
     `;
 
@@ -4697,36 +4896,24 @@
         <p>Cypriot Traveler reserves the right to change hotel names. Triple rooms may include extra beds (sofa/fold-out/coach beds); crowding and bed type in triple/child bookings are accepted. Child prices apply when the child shares a room with two adults. Continental breakfast typically includes butter, jam or honey, bread, tea or coffee and juice. Group breakfasts may be served in a separate hall.</p>
       </div>
       <div class="terms-item">
-        <h4>Insurance &amp; Health</h4>
-        <p>Participants must carry travel insurance during the trip. Medical reports for health conditions, pregnancy or regular medication must be carried during the tour.</p>
-      </div>
-      <div class="terms-item">
-        <h4>Other Notes</h4>
-        <p>Tours may be combined with other agencies' groups; Cypriot Traveler guests remain under Cypriot Traveler's responsibility. During peak periods (fairs, congresses, concerts, sports events etc.) hotels may be farther than stated; notice will be given 15 days before departure. Minors under 18 not travelling with one or both parents must carry notarized consent forms.</p>
-      </div>
-      <div class="terms-item">
         <h4>Passport validity</h4>
         <p>Passports must not be more than 10 years from the original issue date and must be valid for at least 6 months after the end of travel. Guests renewing passports must share updated passport details through their booking channel if valid details were not provided at purchase.</p>
       </div>
-      <h2>Cancellation &amp; Refund Policy</h2>
-      <p class="terms-intro">Please review the contract terms and any penalty fees carefully before cancelling your tour reservation.</p>
+      <h2>Cancellation Terms</h2>
       <div class="terms-item">
-        <h4>Cancellation Rights</h4>
-        <p>Free cancellation is available up to 30 days before departure. 30-20 days: 50% penalty; 19-10 days: 75% penalty; 9-0 days: 95% penalty.</p>
+        <p>You may cancel without penalty up to 30 days before the tour departure date.</p>
       </div>
       <div class="terms-item">
-        <h4>Insufficient Participation</h4>
-        <p>If minimum participation is not reached, Cypriot Traveler may cancel the tour up to 20 days before departure and notify you. Cancellations by you within 30 days of departure are subject to Cypriot Traveler's contractual cancellation terms.</p>
+        <p>If sufficient participation for the trip cannot be secured, the latest cancellation notice date is set as 20 days before the departure date. In such a case, guests will be notified of the cancellation.</p>
       </div>
       <div class="terms-item">
-        <h4>Domestic Flights</h4>
-        <p>For packages including Thailand domestic flights, tickets may be purchased in advance with different cancellation rules. Penalties may apply even for cancellations more than 30 days before departure; confirm at booking.</p>
+        <p><strong>Cypriot Traveler</strong> will not accept responsibility for any change or cancellation made by the guest through direct contact with suppliers such as hotels, airlines, etc. In such cases, the cancellation terms set out in Article 7 of the Package Tour contract apply.</p>
       </div>
     `;
 
     const accommodationHtml_en = `
       <h3>Phuket — Thanthip Beach Resort Patong (4★)</h3>
-      <p><strong>2–7 December 2026</strong> (5 nights) · breakfast included · package reference <strong>~€305</strong></p>
+      <p><strong>2–7 December 2026</strong> (5 nights) · breakfast included</p>
       <p>Twin room; ~200 m to Patong beach; outdoor pool, restaurant and bar; free WiFi.</p>
       <ul>
         <li><strong>Location:</strong> Central Patong</li>
@@ -4734,13 +4921,14 @@
         <li><strong>Check-in / Check-out:</strong> 14:00 / 12:00</li>
       </ul>
       <h3>Bangkok — Solitaire Bangkok Sukhumvit 11 (4★ Superior)</h3>
-      <p><strong>7–11 December 2026</strong> (4 nights) · breakfast included · package reference <strong>~€263</strong></p>
+      <p><strong>7–11 December 2026</strong> (4 nights) · breakfast included</p>
       <p>Twin Superior room; walking distance to Nana BTS; rooftop pool, spa and fitness.</p>
       <ul>
         <li><strong>Location:</strong> Sukhumvit Soi 11</li>
         <li><strong>Check-in / Check-out:</strong> 14:00 / 12:00</li>
       </ul>
       <p style="font-size:0.85rem;color:var(--text-muted)">Same hotels and dates for all Comfort departures. Hotels subject to change; same category or higher guaranteed.</p>
+      ${accommodationNotesHtml_en}
     `;
 
     const flightsHtml_en = `
@@ -5168,7 +5356,7 @@
             "Larnaca (LCA) kalkış; Atina ve Sharjah aktarmalı Air Arabia ile Phuket. Tüm stillerde aynı gidiş rotası.",
           content: `
       <p><strong>02 Aralık</strong> Larnaca (LCA) bölgesinden hareket. <strong>Atina (ATH)</strong> aktarması sonrası <strong>Air Arabia</strong> ile Sharjah (SHJ) ve Phuket (HKT).</p>
-      <p><strong>Örnek gidiş uçuşları</strong> (teyit tur dokümanında · ~553 € referans):</p>
+      <p><strong>Örnek gidiş uçuşları</strong> (teyit tur dokümanında):</p>
       <ul>
         <li>LCA → ATH: Atina aktarması · ~1s 45dk bekleme</li>
         <li>ATH → SHJ: Kalkış 02.12.2026 13:45 · Varış 02.12.2026 20:15</li>
@@ -5185,7 +5373,7 @@
             "Depart Larnaca (LCA); Air Arabia via Athens and Sharjah to Phuket. Same outbound for all styles.",
           content: `
       <p><strong>2 December</strong> travel from the Larnaca (LCA) area. Connection in <strong>Athens (ATH)</strong>, then <strong>Air Arabia</strong> to Sharjah (SHJ) and Phuket (HKT).</p>
-      <p><strong>Sample outbound flights</strong> (confirmed in tour document · ~€553 reference):</p>
+      <p><strong>Sample outbound flights</strong> (confirmed in tour document):</p>
       <ul>
         <li>LCA → ATH: Athens connection · ~1h 45m wait</li>
         <li>ATH → SHJ: Dep 02.12.2026 13:45 · Arr 02.12.2026 20:15</li>
@@ -5202,7 +5390,7 @@
         8: {
           route: "Bangkok > Doha > Larnaca",
           summary:
-            "Sabah erken BKK kalkışı; Doha aktarmalı Qatar Airways ile Larnaca (LCA) — ~553 € referans dönüş.",
+            "Sabah erken BKK kalkışı; Doha aktarmalı Qatar Airways ile Larnaca (LCA).",
           content: `
       <p>Kahvaltı sonrası check-out. Özel van ile <strong>Bangkok Suvarnabhumi Havalimanı</strong>'na transfer.</p>
       <ul>
@@ -5230,7 +5418,7 @@
         8: {
           route: "Bangkok > Doha > Larnaca",
           summary:
-            "Early morning BKK departure; Qatar Airways via Doha to Larnaca (LCA) — ~€553 reference return.",
+            "Early morning BKK departure; Qatar Airways via Doha to Larnaca (LCA).",
           content: `
       <p>After breakfast, check-out. Private transfer to <strong>Bangkok Suvarnabhumi Airport</strong>.</p>
       <ul>
@@ -6147,10 +6335,10 @@
         1: {
           route: "Helsinki > Phuket",
           summary:
-            "Helsinki (HEL) kalkış; Finnair ile direkt Phuket — ~748 € referans gidiş.",
+            "Helsinki (HEL) kalkış; Finnair ile direkt Phuket.",
           content: `
       <p><strong>02 Aralık</strong> Helsinki-Vantaa (HEL) kalkış. <strong>Finnair</strong> ile direkt Phuket (HKT).</p>
-      <p><strong>Örnek gidiş uçuşu</strong> (~748 € referans):</p>
+      <p><strong>Örnek gidiş uçuşu</strong> (teyit tur dokümanında):</p>
       <ul>
         <li>HEL → HKT: Kalkış 02.12.2026 16:35 · Varış 03.12.2026 09:00 (+1 gün)</li>
         <li>Uçuş süresi: ~11s 25dk · direkt</li>
@@ -6162,10 +6350,10 @@
         1: {
           route: "Helsinki > Phuket",
           summary:
-            "Depart Helsinki (HEL); direct Finnair to Phuket — ~€748 reference outbound.",
+            "Depart Helsinki (HEL); direct Finnair to Phuket.",
           content: `
       <p><strong>2 December</strong> depart Helsinki-Vantaa (HEL). <strong>Finnair</strong> direct to Phuket (HKT).</p>
-      <p><strong>Sample outbound flight</strong> (~€748 reference):</p>
+      <p><strong>Sample outbound flight</strong> (confirmed in tour document):</p>
       <ul>
         <li>HEL → HKT: Dep 02.12.2026 16:35 · Arr 03.12.2026 09:00 (+1 day)</li>
         <li>Duration: ~11h 25m · non-stop</li>
@@ -6180,7 +6368,7 @@
         8: {
           route: "Bangkok > İstanbul > Helsinki",
           summary:
-            "Sabah BKK kalkışı; İstanbul aktarmalı Turkish Airlines ile Helsinki — ~557 € referans dönüş.",
+            "Sabah BKK kalkışı; İstanbul aktarmalı Turkish Airlines ile Helsinki.",
           content: `
       <p>Kahvaltı sonrası check-out. Özel van ile <strong>Bangkok Suvarnabhumi Havalimanı</strong>'na transfer.</p>
       <ul>
@@ -6195,7 +6383,7 @@
         8: {
           route: "Bangkok > Istanbul > Helsinki",
           summary:
-            "Morning BKK departure; Turkish Airlines via Istanbul to Helsinki — ~€557 reference return.",
+            "Morning BKK departure; Turkish Airlines via Istanbul to Helsinki.",
           content: `
       <p>After breakfast, check-out. Private transfer to <strong>Bangkok Suvarnabhumi Airport</strong>.</p>
       <ul>
@@ -6213,7 +6401,7 @@
         11: {
           route: "Pattaya → Bangkok > Helsinki",
           summary:
-            "Finnair ile BKK–Helsinki; gizli şehir bileti (resmi varış Münih) — ~557 € referans.",
+            "Finnair ile BKK–Helsinki; gizli şehir bileti (resmi varış Münih).",
           content: `
       <p>Otelde kahvaltı sonrası check-out. Özel transferle Bangkok Suvarnabhumi Havalimanı'na hareket (yaklaşık 1.5-2 saat).</p>
       <ul>
@@ -6227,7 +6415,7 @@
         11: {
           route: "Pattaya → Bangkok > Helsinki",
           summary:
-            "Finnair BKK–Helsinki; hidden-city ticket (official destination Munich) — ~€557 reference.",
+            "Finnair BKK–Helsinki; hidden-city ticket (official destination Munich).",
           content: `
       <p>Breakfast and check-out at the hotel. Private transfer to Bangkok Suvarnabhumi Airport (approximately 1.5-2 hours).</p>
       <ul>
@@ -6402,6 +6590,7 @@
 
     /* ─── TOMORROWLAND PACKAGE — Side content (TR/EN) ─────────────────── */
     const generalHtml_tml = `
+      ${visaInfoHtml}
       <p>Bu paket normal Phuket &amp; Bangkok turunun tamamını içerir; ardından <strong>Pattaya'da Tomorrowland Thailand</strong> festival uzantısı eklenir. Toplam <strong>02–14 Aralık 2026</strong>, <strong>10 gece 11 gün</strong>. Festival günleri <strong>11 ve 13 Aralık</strong>; aradaki gün serbest.</p>
       <h3>Tayland geneli</h3>
       <ul>
@@ -6414,6 +6603,7 @@
       </ul>
       <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem">Pasaport ve vize bilgisi pasaport ülkenize göre yukarıda gösterilir.</p>`;
     const generalHtml_tml_en = `
+      ${visaInfoHtml_en}
       <p>This package includes the full Phuket &amp; Bangkok tour, then adds the <strong>Tomorrowland Thailand</strong> festival extension in Pattaya. Total <strong>02–14 December 2026</strong>, <strong>10 nights 11 days</strong>. Festival days are <strong>11 and 13 December</strong>; the day in between is free.</p>
       <h3>About Thailand</h3>
       <ul>
@@ -6438,7 +6628,8 @@
         <li><strong>Olanaklar:</strong> Açık havuz, spa, fitness, restoran, ücretsiz WiFi</li>
         <li><strong>Check-in / Check-out:</strong> Otel politikasına göre (teyit dokümanında)</li>
       </ul>
-      <p style="font-size:0.85rem;color:var(--text-muted)">Otel değişiklik hakkı saklıdır; aynı kategori veya üstü garanti edilir.</p>`;
+      <p style="font-size:0.85rem;color:var(--text-muted)">Otel değişiklik hakkı saklıdır; aynı kategori veya üstü garanti edilir.</p>
+      ${accommodationNotesHtml}`;
     const accommodationHtml_tml_en = `
       <h3>Phuket (5 nights) — SKYVIEW Resort Phuket Patong Beach</h3>
       <p>2–7 December 2026 · Patong · breakfast included. Pool, close to the beach; free WiFi.</p>
@@ -6451,7 +6642,8 @@
         <li><strong>Amenities:</strong> Outdoor pool, spa, fitness, restaurant, free WiFi</li>
         <li><strong>Check-in / Check-out:</strong> Per hotel policy (confirmed in tour document)</li>
       </ul>
-      <p style="font-size:0.85rem;color:var(--text-muted)">Hotel subject to change; same category or higher is guaranteed.</p>`;
+      <p style="font-size:0.85rem;color:var(--text-muted)">Hotel subject to change; same category or higher is guaranteed.</p>
+      ${accommodationNotesHtml_en}`;
 
     const flightsHtml_tml = `
       <h3>Gidiş uçuşları</h3>
@@ -6778,11 +6970,7 @@
       { titleTr: 'Dönüş uçuşu 2', titleEn: 'Return flight 2',
         route: 'Doha (DOH) → Larnaca (LCA) · Qatar Airways',
         timeTr: 'Kalkış: 14.12.2026 08:25 · Varış: 14.12.2026 11:00',
-        timeEn: 'Dep: 14.12.2026 08:25 · Arr: 14.12.2026 11:00' },
-      { titleTr: 'Referans fiyat', titleEn: 'Reference fare',
-        route: 'Dönüş bilet örneği (14 Ara)',
-        timeTr: '~549 €',
-        timeEn: '~€549' }
+        timeEn: 'Dep: 14.12.2026 08:25 · Arr: 14.12.2026 11:00' }
     ];
   /* Helsinki (HEL) — Finnair direct outbound; return via IST or hidden-city */
     const FLIGHT_HEL_OUTBOUND = [
@@ -6812,8 +7000,8 @@
         timeEn: 'Dep: 14.12.2026 11:15 · Arr: 14.12.2026 18:50' },
       { titleTr: 'Uçuş bilgisi', titleEn: 'Flight info',
         route: 'Direkt · ~12s 35dk',
-        timeTr: 'Referans bilet: ~778 €',
-        timeEn: 'Reference fare: ~€778' }
+        timeTr: 'Finnair · direkt',
+        timeEn: 'Finnair · non-stop' }
     ];
     const FLIGHT_HEL_BACKPACK_OUTBOUND = [
       { titleTr: 'Gidiş uçuşu 1', titleEn: 'Outbound flight 1',
@@ -7025,8 +7213,8 @@
         timeEn: 'Dep: 14.12.2026 23:45 · Arr: 15.12.2026 06:05 (+1 day)' },
       { titleTr: 'Uçuş bilgisi', titleEn: 'Flight info',
         route: 'Direkt · ~10s 20dk',
-        timeTr: 'Referans bilet: ~473 €',
-        timeEn: 'Reference fare: ~€473' }
+        timeTr: 'Turkish Airlines · direkt',
+        timeEn: 'Turkish Airlines · non-stop' }
     ];
     const FLIGHT_LON_RETURN_TML = [
       { titleTr: 'Dönüş uçuşu', titleEn: 'Return flight',
@@ -7035,8 +7223,8 @@
         timeEn: 'Dep: 14.12.2026 12:45 · Arr: 14.12.2026 18:45' },
       { titleTr: 'Uçuş bilgisi', titleEn: 'Flight info',
         route: 'Direkt · ~13 saat',
-        timeTr: 'Referans bilet: ~389 €',
-        timeEn: 'Reference fare: ~€389' }
+        timeTr: 'Norse Atlantic UK · direkt',
+        timeEn: 'Norse Atlantic UK · non-stop' }
     ];
     const FLIGHT_BER_RETURN_TML = [
       { titleTr: 'Dönüş uçuşu 1', titleEn: 'Return flight 1',
@@ -7059,8 +7247,8 @@
         timeEn: 'Dep: 14.12.2026 05:00 · Arr: 14.12.2026 11:40' },
       { titleTr: 'Uçuş bilgisi', titleEn: 'Flight info',
         route: 'Direkt · ~12s 40dk',
-        timeTr: 'Referans bilet: ~607 €',
-        timeEn: 'Reference fare: ~€607' }
+        timeTr: 'Thai Airways · direkt',
+        timeEn: 'Thai Airways · non-stop' }
     ];
     const TML_RETURN_BY_PORT = {
       istanbul: FLIGHT_IST_RETURN_TML,
@@ -7169,13 +7357,13 @@
         breadcrumb: { tr: 'Phuket & Bangkok · Backpacking', en: 'Phuket & Bangkok · Backpacking' },
         dateOptions: { tr: ['2 Aralık 2026'], en: ['2 December 2026'] },
         pricesByPort: {
-          istanbul: { eur: 905 },
-          amsterdam: { eur: 953 },
-          ercan:    { eur: 1322 },
-          larnaca:  { eur: 1280 },
-          helsinki: { eur: 1301 },
-          london:   { eur: 1100 },
-          berlin:   { eur: 1296 }
+          istanbul: { eur: 1090 },
+          amsterdam: { eur: 1090 },
+          ercan:    { eur: 1390 },
+          larnaca:  { eur: 1390 },
+          helsinki: { eur: 1390 },
+          london:   { eur: 1199 },
+          berlin:   { eur: 1399 }
         },
         emailSubject: 'Phuket%20Backpacking%20Style%20Rezervasyonu'
       },
@@ -7195,18 +7383,18 @@
           amsterdam: { tr: 'Amsterdam → Phuket, Bangkok', en: 'Amsterdam → Phuket, Bangkok' }
         },
         duration: { tr: '9 gece 10 gün', en: '9 nights 10 days' },
-        dates:    { tr: '02 Aralık 2026 – 12 Aralık 2026 arasında 1 tur',
-                    en: '1 tour between 02 December 2026 – 12 December 2026' },
+        dates:    { tr: '02 Aralık 2026 – 12 Aralık 2026',
+                    en: '02 December 2026 – 12 December 2026' },
         breadcrumb: { tr: 'Phuket & Bangkok · Comfort', en: 'Phuket & Bangkok · Comfort' },
         dateOptions: { tr: ['2 Aralık 2026'], en: ['2 December 2026'] },
         pricesByPort: {
-          istanbul: { eur: 1517 },
-          ercan:    { eur: 1682 },
-          larnaca:  { eur: 1969 },
-          helsinki: { eur: 2078 },
-          london:   { eur: 1571 },
-          berlin:   { eur: 1663 },
-          amsterdam: { eur: 1611 }
+          istanbul: { eur: 1690 },
+          ercan:    { eur: 1790 },
+          larnaca:  { eur: 2090 },
+          helsinki: { eur: 2190 },
+          london:   { eur: 1690 },
+          berlin:   { eur: 1790 },
+          amsterdam: { eur: 1690 }
         },
         emailSubject: 'Phuket%20%26%20Bangkok%20Tur%20Rezervasyonu'
       },
@@ -7226,19 +7414,19 @@
           amsterdam: { tr: 'Amsterdam → Phuket, Bangkok → Tomorrowland', en: 'Amsterdam → Phuket, Bangkok → Tomorrowland' }
         },
         duration: { tr: '10 gece 11 gün', en: '10 nights 11 days' },
-        dates:    { tr: '02 Aralık 2026 – 14 Aralık 2026 arasında 1 tur',
-                    en: '1 tour between 02 December 2026 – 14 December 2026' },
+        dates:    { tr: '02 Aralık 2026 – 14 Aralık 2026',
+                    en: '02 December 2026 – 14 December 2026' },
         breadcrumb: { tr: 'Phuket, Bangkok & Tomorrowland',
                       en: 'Phuket, Bangkok & Tomorrowland' },
         dateOptions: { tr: ['2 Aralık 2026'], en: ['2 December 2026'] },
         pricesByPort: {
-          istanbul: { eur: 2465 },
-          ercan:    { eur: 2450 },
-          larnaca:  { eur: 2490 },
-          helsinki: { eur: 2690 },
-          london:   { eur: 2330 },
-          berlin:   { eur: 2640 },
-          amsterdam: { eur: 2590 }
+          istanbul: { eur: 2590 },
+          ercan:    { eur: 2690 },
+          larnaca:  { eur: 2590 },
+          helsinki: { eur: 2790 },
+          london:   { eur: 2390 },
+          berlin:   { eur: 2790 },
+          amsterdam: { eur: 2690 }
         },
         emailSubject: 'Tomorrowland%20Thailand%20Paketi'
       }
@@ -7250,6 +7438,62 @@
     function formatEurDisplay(n) {
       return "€ " + formatMoneyDots(n);
     }
+    const COUPLE_PRICE_OFFSET_EUR = 100;
+    function normalizePackageType(tourKey) {
+      if (tourKey === "backpacking") return "backpacking";
+      if (tourKey === "tomorrowland") return "tomorrowland";
+      if (tourKey === "phuket") return "comfort";
+      return "comfort";
+    }
+    function calculateSharedRoomPrice(packageType, soloPrice) {
+      if (packageType === "backpacking") return soloPrice;
+      if (
+        packageType === "comfort" ||
+        packageType === "luxury" ||
+        packageType === "tomorrowland"
+      ) {
+        return soloPrice - COUPLE_PRICE_OFFSET_EUR;
+      }
+      return soloPrice;
+    }
+    function getSoloPriceEur(tourKey, port) {
+      return getTourPriceFor(tourKey, port).eur;
+    }
+    function supportsCouplePricing(tourKey) {
+      return tourKey !== "backpacking";
+    }
+    function getEffectivePricingMode(tourKey) {
+      if (!supportsCouplePricing(tourKey)) return "solo";
+      return currentPricingMode;
+    }
+    function getDisplayedPriceEur(tourKey, port) {
+      const solo = getSoloPriceEur(tourKey, port);
+      if (getEffectivePricingMode(tourKey) === "solo") return solo;
+      return calculateSharedRoomPrice(normalizePackageType(tourKey), solo);
+    }
+    const DEPARTURE_PORTS_ORDER = [
+      "istanbul",
+      "amsterdam",
+      "ercan",
+      "larnaca",
+      "helsinki",
+      "london",
+      "berlin"
+    ];
+    const DEPARTURE_PORT_LABELS = {
+      istanbul: { tr: "İstanbul (SAW)", en: "Istanbul (SAW)" },
+      ercan: { tr: "Ercan (ECN)", en: "Ercan (ECN)" },
+      larnaca: { tr: "Larnaca (LCA)", en: "Larnaca (LCA)" },
+      helsinki: { tr: "Helsinki (HEL)", en: "Helsinki (HEL)" },
+      london: { tr: "Londra (LHR)", en: "London (LHR)" },
+      berlin: { tr: "Berlin (BER)", en: "Berlin (BER)" },
+      amsterdam: { tr: "Amsterdam (AMS)", en: "Amsterdam (AMS)" }
+    };
+    const PRICING_MODE_LABELS = {
+      solo: { tr: "Tek kişi", en: "Single" },
+      shared: { tr: "Çift kişi", en: "Couple" }
+    };
+    let currentPricingMode = "solo";
     function normalizeDeparturePort(port) {
       if (port === "ercan" || port === "larnaca" || port === "helsinki" || port === "london" || port === "berlin" || port === "amsterdam") return port;
       return "istanbul";
@@ -7258,6 +7502,153 @@
       const t = TOURS[tourKey] || TOURS.phuket;
       const p = normalizeDeparturePort(port);
       return (t.pricesByPort && t.pricesByPort[p]) || t.pricesByPort.istanbul;
+    }
+    function getMinTourPriceEur(tourKey) {
+      const t = TOURS[tourKey];
+      if (!t || !t.pricesByPort) return 0;
+      return Math.min(
+        ...Object.keys(t.pricesByPort).map((p) => getDisplayedPriceEur(tourKey, p))
+      );
+    }
+    function animatePriceElement(el, newText) {
+      if (!el) return;
+      if (el.textContent.trim() === newText) return;
+      el.classList.add("is-updating");
+      window.setTimeout(function () {
+        el.textContent = newText;
+        el.classList.remove("is-updating");
+      }, 140);
+    }
+    function syncPricingModeButtons() {
+      document.querySelectorAll(".price-mode__option").forEach(function (btn) {
+        const active = btn.getAttribute("data-pricing-mode") === currentPricingMode;
+        btn.classList.toggle("is-active", active);
+        btn.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+    }
+    function updatePricingModeVisibility() {
+      const wrap = document.getElementById("pricing-mode-wrap");
+      if (wrap) wrap.hidden = !supportsCouplePricing(currentTour);
+      if (!supportsCouplePricing(currentTour) && currentPricingMode !== "solo") {
+        currentPricingMode = "solo";
+        syncPricingModeButtons();
+      }
+    }
+    function setPricingMode(mode) {
+      if (mode !== "solo" && mode !== "shared") return;
+      if (mode === "shared" && !supportsCouplePricing(currentTour)) return;
+      if (currentPricingMode === mode) return;
+      currentPricingMode = mode;
+      syncPricingModeButtons();
+      updatePriceDisplays();
+      if (typeof refreshChatPriceSummary === "function") refreshChatPriceSummary();
+    }
+    function renderPriceMatrix() {
+      const wrap = document.getElementById("price-matrix");
+      if (!wrap) return;
+      const lang = L();
+      const t = T();
+      const ports = t.pricesByPort ? Object.keys(t.pricesByPort) : [];
+      const order = DEPARTURE_PORTS_ORDER.filter(function (p) {
+        return ports.indexOf(p) !== -1;
+      });
+      let table = wrap.querySelector(".price-matrix__table");
+      if (!table) {
+        table = document.createElement("table");
+        table.className = "price-matrix__table";
+        wrap.appendChild(table);
+      }
+      const portCol = lang === "en" ? "Departure" : "Kalkış";
+      const priceCol = lang === "en" ? "Per person" : "Kişi başı";
+      const currentPort = normalizeDeparturePort(currentDeparturePort);
+      let rows = "";
+      order.forEach(function (port) {
+        const label = DEPARTURE_PORT_LABELS[port][lang];
+        const eur = getDisplayedPriceEur(currentTour, port);
+        const rowClass = port === currentPort ? ' class="is-current"' : "";
+        rows +=
+          "<tr" +
+          rowClass +
+          "><td>" +
+          label +
+          "</td><td>" +
+          formatEurDisplay(eur) +
+          "</td></tr>";
+      });
+      table.innerHTML =
+        "<thead><tr><th>" +
+        portCol +
+        "</th><th>" +
+        priceCol +
+        "</th></tr></thead><tbody>" +
+        rows +
+        "</tbody>";
+      wrap.hidden = !document.body.classList.contains("view-tour");
+    }
+    function updatePriceDisplays() {
+      updatePricingModeVisibility();
+      const displayed = getDisplayedPriceEur(currentTour, currentDeparturePort);
+      const priceText = formatEurDisplay(displayed);
+      animatePriceElement(document.getElementById("price-card-eur"), priceText);
+      const tmlPriceEl = document.getElementById("tml-price-amount");
+      if (tmlPriceEl) {
+        const tmlDisplayed = getDisplayedPriceEur("tomorrowland", currentDeparturePort);
+        animatePriceElement(tmlPriceEl, formatEurDisplay(tmlDisplayed));
+      }
+      renderPriceMatrix();
+    }
+    const PRICE_DISCLAIMER = {
+      tr: "ℹ️ Gösterilen fiyatlar değişebilir. Kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir.",
+      en: "ℹ️ Prices shown are indicative and may change. Exact accommodation and flight details are shared upon booking / tour confirmation; minor add-ons such as extra baggage or airport taxes may apply."
+    };
+    function getPriceDisclaimer(lang) {
+      return PRICE_DISCLAIMER[lang === "en" ? "en" : "tr"];
+    }
+    function formatChatPriceSummary(lang) {
+      const bp = getMinTourPriceEur("backpacking");
+      const cf = getMinTourPriceEur("phuket");
+      const tml = getMinTourPriceEur("tomorrowland");
+      const disc = getPriceDisclaimer(lang);
+      const modeSuffix =
+        supportsCouplePricing(currentTour) && currentPricingMode === "shared"
+          ? lang === "en"
+            ? " · Couple"
+            : " · Çift kişi"
+          : "";
+      if (lang === "en") {
+        return (
+          "💰 Backpacking style from " +
+          formatEurDisplay(bp) +
+          ", Comfort from " +
+          formatEurDisplay(cf) +
+          ", Luxury (Tomorrowland) from " +
+          formatEurDisplay(tml) +
+          " per person" +
+          modeSuffix +
+          ".\n\n" +
+          disc +
+          "\n\nWant more details?"
+        );
+      }
+      return (
+        "💰 Backpacking style " +
+        formatEurDisplay(bp) +
+        ", Comfort " +
+        formatEurDisplay(cf) +
+        ", Luxury (Tomorrowland) " +
+        formatEurDisplay(tml) +
+        " kişi başı ’dan itibaren" +
+        modeSuffix +
+        ".\n\n" +
+        disc +
+        "\n\nDetaylı bilgi ister misiniz?"
+      );
+    }
+    function refreshChatPriceSummary() {
+      if (typeof chatFlow_tr === "undefined") return;
+      chatFlow_tr.price.message = formatChatPriceSummary("tr");
+      chatFlow_en.price.message = formatChatPriceSummary("en");
+      if (typeof chatFlowCur === "function") chatFlow = chatFlowCur();
     }
     let currentTour = 'phuket';
     let currentDeparturePort = 'istanbul';
@@ -7279,10 +7670,20 @@
     function isReturnFlightLeg(f) {
       return /Dönüş/i.test(f.titleTr || "") || /Return/i.test(f.titleEn || "");
     }
+    function isDomesticFlightLeg(f) {
+      return /İç hat/i.test(f.titleTr || "") || /Domestic flight/i.test(f.titleEn || "");
+    }
     function groupFlightsByDirection(flights) {
       const splitIdx = flights.findIndex(isReturnFlightLeg);
-      if (splitIdx === -1) return { outbound: flights, return: [] };
-      return { outbound: flights.slice(0, splitIdx), return: flights.slice(splitIdx) };
+      const outbound = splitIdx === -1 ? flights.slice() : flights.slice(0, splitIdx);
+      const ret = splitIdx === -1 ? [] : flights.slice(splitIdx);
+      const domesticIdx = outbound.findIndex(isDomesticFlightLeg);
+      if (domesticIdx === -1) return { outbound, domestic: [], return: ret };
+      return {
+        outbound: outbound.slice(0, domesticIdx),
+        domestic: outbound.slice(domesticIdx, domesticIdx + 1),
+        return: ret
+      };
     }
     function isLayoverLeg(f) {
       return /aktarma|layover/i.test(f.titleTr || "") || /aktarma|layover/i.test(f.titleEn || "");
@@ -7321,6 +7722,10 @@
           ? lang === "en"
             ? "Return flight"
             : "Dönüş uçuşu"
+          : key === "domestic"
+            ? lang === "en"
+              ? "Domestic flight"
+              : "İç hat uçuşu"
           : lang === "en"
             ? "Outbound flight"
             : "Gidiş uçuşu";
@@ -7347,7 +7752,11 @@
     }
     function renderFlightGroupsHTML(flights, lang) {
       const g = groupFlightsByDirection(flights);
-      return renderFlightGroup("outbound", g.outbound, lang) + renderFlightGroup("return", g.return, lang);
+      return (
+        renderFlightGroup("outbound", g.outbound, lang) +
+        renderFlightGroup("domestic", g.domestic, lang) +
+        renderFlightGroup("return", g.return, lang)
+      );
     }
     function getTourRoute(lang) {
       const t = T();
@@ -7361,6 +7770,7 @@
       const baggage = isEn
         ? '<h3>Baggage</h3><ul><li><strong>International:</strong> 30 kg checked + 7 kg cabin (economy)</li><li><strong>Domestic (Thai AirAsia):</strong> 20 kg checked + 7 kg cabin</li></ul>'
         : '<h3>Bagaj bilgisi</h3><ul><li><strong>Uluslararası:</strong> 30 kg bagaj + 7 kg kabin bagajı (ekonomi)</li><li><strong>İç hat (Thai AirAsia):</strong> 20 kg bagaj + 7 kg kabin bagajı</li></ul>';
+      const flightNotes = isEn ? flightNotesHtml_en : flightNotesHtml;
       const note = isEn
         ? '<p style="font-size:0.85rem;color:var(--text-muted)">Sample schedules; exact flight info is shared upon tour confirmation.</p>'
         : '<p style="font-size:0.85rem;color:var(--text-muted)">Örnek sefer saatleri; kesin uçuş bilgisi tur teyidinde paylaşılır.</p>';
@@ -7371,6 +7781,7 @@
         "</p>" +
         groups +
         baggage +
+        flightNotes +
         note
       );
     }
@@ -7477,14 +7888,7 @@
           .map((d) => '<option>' + d + '</option>').join('');
       }
 
-      // Price (by departure port)
-      const price = getTourPriceFor(currentTour, currentDeparturePort);
-      setText("price-card-eur", formatEurDisplay(price.eur));
-      const tmlPriceEl = document.getElementById("tml-price-amount");
-      if (tmlPriceEl) {
-        const tmlPrice = getTourPriceFor("tomorrowland", currentDeparturePort);
-        tmlPriceEl.textContent = formatEurDisplay(tmlPrice.eur);
-      }
+      updatePriceDisplays();
       const portSel = document.getElementById('departure-port-select');
       if (portSel) portSel.value = currentDeparturePort;
 
@@ -7493,8 +7897,8 @@
       if (flightBlock) {
         const html = renderFlightGroupsHTML(getTourFlights(), lang);
         const note = lang === "en"
-          ? "Sample schedules; exact flight info is shared upon tour confirmation."
-          : "Örnek sefer saatleri; kesin uçuş bilgisi tur teyidinde paylaşılır.";
+          ? "Sample schedules only; exact flights and hotels are confirmed upon booking. Package price may vary; extra baggage, taxes and similar minor charges may apply."
+          : "Örnek sefer saatleri; kesin uçuş ve otel bilgisi rezervasyon / tur teyidinde paylaşılır. Paket fiyatı değişebilir; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir.";
         flightBlock.innerHTML =
           html +
           '<p style="font-size:0.7rem;color:var(--text-muted);margin:0.35rem 0 0;line-height:1.4">' +
@@ -7681,6 +8085,18 @@
       const dur  = L() === 'en' ? rule.en_dur : rule.tr_dur;
       const lbl  = natLabels();
       info.hidden = false;
+      const tdacRow =
+        nat.code === "TR"
+          ? '<div class="nat-info__row"><strong>TDAC</strong><span>' +
+            (L() === "en"
+              ? 'Mandatory <a href="' +
+                TDAC_ARRIVAL_CARD_URL +
+                '" target="_blank" rel="noopener noreferrer">Digital Arrival Card</a> for Thailand entry'
+              : 'Tayland girişinde zorunlu <a href="' +
+                TDAC_ARRIVAL_CARD_URL +
+                '" target="_blank" rel="noopener noreferrer">Digital Arrival Card</a>') +
+            "</span></div>"
+          : "";
       info.innerHTML = `
         <div class="nat-info__head">
           <span class="nat-info__flag">${nat.flag}</span>
@@ -7690,6 +8106,7 @@
         <div class="nat-info__row"><strong>${lbl.visa}</strong><span>${visaText(rule)}</span></div>
         <div class="nat-info__row"><strong>${lbl.duration}</strong><span>${dur}</span></div>
         <div class="nat-info__row"><strong>${lbl.passport}</strong><span>${lbl.passportReq}</span></div>
+        ${tdacRow}
       `;
     }
 
@@ -8034,11 +8451,6 @@
       if (submitBtn) submitBtn.disabled = false;
     });
 
-    document.getElementById("hotel-price-link").addEventListener("click", (e) => {
-      e.preventDefault();
-      document.getElementById("tour-bottom-inclusions").scrollIntoView({ behavior: "smooth" });
-    });
-
     document.addEventListener("click", (e) => {
       const chatWidgetEl = document.getElementById("chatWidget");
       if (
@@ -8265,6 +8677,15 @@
       });
     }
 
+    document.addEventListener("click", function (e) {
+      const modeBtn = e.target.closest("[data-pricing-mode]");
+      if (!modeBtn || !modeBtn.classList.contains("price-mode__option")) return;
+      const mode = modeBtn.getAttribute("data-pricing-mode");
+      if (mode === "shared" && modeBtn.closest("#pricing-mode-wrap") && !supportsCouplePricing(currentTour)) return;
+      e.preventDefault();
+      setPricingMode(mode);
+    });
+
     function syncViewFromHash() {
       const hash = location.hash;
       const isBackpacking = hash === "#tur-backpacking";
@@ -8347,9 +8768,10 @@
       if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
     })();
 
-    // Initial render — call updateTourMeta first so hero/sidebar reflect default tour
-    updateTourMeta();
+    // Initial render — sync route first so price matrix visibility matches view
+    syncPricingModeButtons();
     syncViewFromHash();
+    updateTourMeta();
     renderTimeline();
     fillLists();
 
@@ -8369,6 +8791,7 @@
       });
       // Re-render tour-specific content (hero, sidebar, timeline, panels) for new language
       if (typeof updateTourMeta === 'function') updateTourMeta();
+      if (typeof refreshChatPriceSummary === 'function') refreshChatPriceSummary();
       if (typeof renderTimeline === 'function') renderTimeline();
       if (typeof fillLists === 'function') fillLists();
       if (typeof updateDepartureModalHints === 'function') {
@@ -8447,9 +8870,9 @@
         options: [ { text: "Yer ayırt", next: "reservation" }, { text: "← Geri dön", next: "tour" } ] },
       tourProgram: { message: "Detaylı 8 günlük program tur sayfasında bulunuyor. Tur kartına tıklayarak inceleyebilirsiniz.",
         options: [ { text: "Daha fazla soru sor", next: "contact" }, { text: "← Geri dön", next: "tour" } ] },
-      price: { message: "💰 Backpacking style 1.290 €, Comfort 1.890 €, Luxury (Tomorrowland) 2.490 € kişi başı ’dan itibaren. Detaylı bilgi ister misiniz?",
+      price: { message: "",
         options: [ { text: "Fiyata neler dahil?", next: "priceIncludes" }, { text: "Ödeme seçenekleri", next: "paymentOptions" }, { text: "← Ana menü", next: "start" } ] },
-      priceIncludes: { message: "✅ Fiyata dahil: Uçak biletleri (gidiş-dönüş), konaklama, kahvaltılar, transferler ve rehberlik. Phi Phi, James Bond ve Bangkok şehir turları dahil değildir.",
+      priceIncludes: { message: "✅ Fiyata dahil: Uçak biletleri (gidiş-dönüş), konaklama, kahvaltılar, transferler ve rehberlik. Phi Phi, James Bond ve Bangkok şehir turları dahil değildir.\n\nℹ️ Gösterilen fiyatlar değişebilir; kesin konaklama ve uçuş detayları rezervasyon sonrası paylaşılır. Bagaj ve vergi gibi küçük ek ücretler ayrıca olabilir.",
         options: [ { text: "Detayları konuş", next: "contact" }, { text: "← Geri dön", next: "price" } ] },
       paymentOptions: { message: "💳 Taksit ve ödeme seçenekleri için bizimle iletişime geçin - size özel çözümler sunalım.",
         options: [ { text: "İletişime geç", next: "contact" }, { text: "← Geri dön", next: "price" } ] },
@@ -8491,9 +8914,9 @@
         options: [ { text: "Reserve a spot", next: "reservation" }, { text: "← Back", next: "tour" } ] },
       tourProgram: { message: "The detailed 8-day program is on the tour page. Click the tour card to view it.",
         options: [ { text: "Ask more", next: "contact" }, { text: "← Back", next: "tour" } ] },
-      price: { message: "💰 Backpacking style from €1,290, Comfort from €1,890, Luxury (Tomorrowland) from €2,490 per person. Want more details?",
+      price: { message: "",
         options: [ { text: "What's included?", next: "priceIncludes" }, { text: "Payment options", next: "paymentOptions" }, { text: "← Main menu", next: "start" } ] },
-      priceIncludes: { message: "✅ Included: Round-trip flights, accommodation, breakfasts, transfers and guiding. Phi Phi, James Bond Island and Bangkok city tours are not included.",
+      priceIncludes: { message: "✅ Included: Round-trip flights, accommodation, breakfasts, transfers and guiding. Phi Phi, James Bond Island and Bangkok city tours are not included.\n\nℹ️ Prices may change; exact accommodation and flights are confirmed upon booking. Extra baggage, taxes and similar minor charges may apply.",
         options: [ { text: "Discuss details", next: "contact" }, { text: "← Back", next: "price" } ] },
       paymentOptions: { message: "💳 For installment and payment options, please get in touch — we'll offer tailored solutions.",
         options: [ { text: "Get in touch", next: "contact" }, { text: "← Back", next: "price" } ] },
@@ -8510,6 +8933,8 @@
       contact: { message: "Let's talk one-on-one! Which channel do you prefer?",
         options: [ { text: "📧 Send email", action: "email" }, { text: "📱 Message on Instagram", action: "instagram" }, { text: "← Main menu", next: "start" } ] }
     };
+
+    refreshChatPriceSummary();
 
     function chatFlowCur() {
       return document.documentElement.getAttribute('data-lang') === 'en' ? chatFlow_en : chatFlow_tr;
