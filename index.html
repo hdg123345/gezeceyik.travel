@@ -4235,6 +4235,11 @@
       else hydrateImages();
     })();
 
+    function L() {
+      const v = (document.documentElement.getAttribute("data-lang") || "tr").toLowerCase();
+      return v === "en" || v.startsWith("en-") ? "en" : "tr";
+    }
+
     const INQUIRY_EMAIL = "gezeceyik1travel@gmail.com";
 
     async function sendInquiryEmail(fields) {
@@ -7894,10 +7899,6 @@
     let currentDeparturePort = 'istanbul';
     let pendingTourHash = null;
 
-    // Language helpers
-    function L() {
-      return document.documentElement.getAttribute('data-lang') === 'en' ? 'en' : 'tr';
-    }
     function T() { return TOURS[currentTour] || TOURS.phuket; }
     function getTourFlights() {
       const port = normalizeDeparturePort(currentDeparturePort);
@@ -8049,8 +8050,8 @@
         return copy;
       });
     }
-    function progData() {
-      const lang = L();
+    function progData(forcedLang) {
+      const lang = forcedLang || L();
       if (currentTour === "tomorrowland") {
         return applyTmlHotelNames(withDeparturePort(
           lang === "en" ? programDays_tml_en : programDays_tml,
@@ -8468,13 +8469,15 @@
       return d.innerHTML;
     }
 
-    function renderTimeline() {
+    function renderTimeline(forcedLang) {
       const root = document.getElementById("timeline-root");
-      const days = progData();
-      const dayWord = L() === 'en' ? 'DAY' : 'GÜN';
-      const openLabel = L() === 'en' ? 'open details' : 'detayları aç';
-      const dayNounLong = L() === 'en' ? 'Day' : 'Gün';
-      const optPill = L() === 'en' ? 'Optional · extra' : 'Opsiyonel · ek ücret';
+      if (!root) return;
+      const lang = forcedLang || L();
+      const days = progData(lang);
+      const dayWord = lang === "en" ? "DAY" : "GÜN";
+      const openLabel = lang === "en" ? "open details" : "detayları aç";
+      const dayNounLong = lang === "en" ? "Day" : "Gün";
+      const optPill = lang === "en" ? "Optional · extra" : "Opsiyonel · ek ücret";
       root.innerHTML = days
         .map((d) => {
           const summaryHtml = escapeHtml(d.summary).replace(/\n/g, "<br>");
@@ -8587,10 +8590,15 @@
     }
 
     // Re-render dynamic content when language changes
-    document.addEventListener('gezeceyik-lang', () => {
-      renderTimeline();
-      fillLists();
+    document.addEventListener("gezeceyik-lang", function (e) {
+      const lang = (e.detail && e.detail.lang) || L();
       updateTourMeta();
+      renderTimeline(lang);
+      fillLists();
+      const modalDayNum = document.getElementById("modalDayNumber");
+      if (dayModalEl && !dayModalEl.hidden && modalDayNum && modalDayNum.textContent) {
+        openDayModal(Number(modalDayNum.textContent));
+      }
     });
 
     const tabs = document.querySelectorAll(".tour-tabs [role='tab']");
@@ -8854,7 +8862,7 @@
       departurePortSelect.addEventListener('change', function () {
         setDeparturePort(departurePortSelect.value);
         updateTourMeta();
-        renderTimeline();
+        renderTimeline(L());
         fillLists();
       });
     }
@@ -8894,7 +8902,7 @@
 
       if (showTour) {
         updateTourMeta();
-        renderTimeline();
+        renderTimeline(L());
         fillLists();
       }
 
@@ -8954,28 +8962,28 @@
     syncPricingModeButtons();
     syncViewFromHash();
     updateTourMeta();
-    renderTimeline();
+    renderTimeline(L());
     fillLists();
 
     /* ─── i18n: TR / EN language switcher ─────────────────────────────── */
     function applyTranslations() {
-      const lang = document.documentElement.getAttribute('data-lang') || 'tr';
+      const lang = L();
       // Text content: elements with data-tr + data-en
-      document.querySelectorAll('[data-tr][data-en]').forEach((el) => {
-        const v = el.getAttribute('data-' + lang);
+      document.querySelectorAll("[data-tr][data-en]").forEach(function (el) {
+        const v = el.getAttribute("data-" + lang);
         if (v !== null) el.textContent = v;
       });
       // Attribute translation (e.g., placeholder, aria-label)
-      document.querySelectorAll('[data-i18n-attr]').forEach((el) => {
-        const spec = el.getAttribute('data-i18n-attr');     // e.g., "placeholder"
-        const val  = el.getAttribute('data-' + lang + '-' + spec);
+      document.querySelectorAll("[data-i18n-attr]").forEach(function (el) {
+        const spec = el.getAttribute("data-i18n-attr");
+        const val = el.getAttribute("data-" + lang + "-" + spec);
         if (val !== null) el.setAttribute(spec, val);
       });
       // Re-render tour-specific content (hero, sidebar, timeline, panels) for new language
-      if (typeof updateTourMeta === 'function') updateTourMeta();
-      if (typeof refreshChatPriceSummary === 'function') refreshChatPriceSummary();
-      if (typeof renderTimeline === 'function') renderTimeline();
-      if (typeof fillLists === 'function') fillLists();
+      if (typeof updateTourMeta === "function") updateTourMeta();
+      if (typeof refreshChatPriceSummary === "function") refreshChatPriceSummary();
+      if (typeof renderTimeline === "function") renderTimeline(lang);
+      if (typeof fillLists === "function") fillLists();
       if (document.getElementById("reserve-tour")) {
         populateReserveTourSelect();
         populateReservePaymentSelect();
