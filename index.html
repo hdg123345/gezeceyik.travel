@@ -2597,6 +2597,40 @@
       margin: 0;
       padding: 0.5rem 0;
     }
+    .modal__baggage {
+      margin: 0 0 0.85rem;
+      padding: 0;
+      border: none;
+    }
+    .modal__baggage legend {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+      padding: 0;
+    }
+    .modal__baggage-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.55rem;
+      font-size: 0.8125rem;
+      line-height: 1.4;
+      color: var(--text);
+      cursor: pointer;
+      padding: 0.35rem 0.55rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: rgba(15, 76, 92, 0.03);
+    }
+    .modal__baggage-option input {
+      margin-top: 0.2rem;
+      flex-shrink: 0;
+      accent-color: var(--primary);
+    }
+    .modal__baggage-option span strong {
+      color: var(--primary);
+      font-weight: 600;
+    }
     .modal-overlay.is-open .modal { transform: scale(1); }
     .modal__close {
       float: right;
@@ -3995,6 +4029,13 @@
           <label class="modal__field-label" for="reserve-payment" data-tr="Tercih edilen ödeme" data-en="Preferred payment">Tercih edilen ödeme</label>
           <select id="reserve-payment" name="payment" required></select>
         </div>
+        <fieldset class="modal__baggage">
+          <legend data-tr="Kayıtlı bagaj" data-en="Checked baggage">Kayıtlı bagaj</legend>
+          <label class="modal__baggage-option" for="reserve-checked-baggage">
+            <input type="checkbox" id="reserve-checked-baggage" name="checked_baggage" value="20" />
+            <span data-tr="20 kg kayıtlı bagaj talep ediyorum" data-en="I would like 20 kg checked baggage">20 kg kayıtlı bagaj talep ediyorum</span>
+          </label>
+        </fieldset>
         <fieldset class="modal__addons">
           <legend data-tr="Opsiyonel ek turlar" data-en="Optional add-on tours">Opsiyonel ek turlar</legend>
           <p class="modal__addons-hint" data-tr="Ek ücretlidir; seçtikleriniz talebinize eklenir." data-en="Extra cost; your selections are included in the request.">Ek ücretlidir; seçtikleriniz talebinize eklenir.</p>
@@ -4450,7 +4491,7 @@
 
     const PAYMENT_OPTIONS = [
       { value: "transfer", tr: "Havale / EFT", en: "Bank transfer / EFT" },
-      { value: "card", tr: "Kredi kartı / taksit", en: "Credit card / installments" },
+      { value: "card", tr: "Kredi kartı", en: "Credit card" },
       { value: "cash", tr: "Nakit", en: "Cash" },
       { value: "other", tr: "Diğer (mesajda belirtin)", en: "Other (specify in message)" }
     ];
@@ -4640,6 +4681,14 @@
       lines.push(
         (lang === "en" ? "Preferred payment: " : "Tercih edilen ödeme: ") + data.paymentLabel
       );
+      lines.push("");
+      if (data.checkedBaggage) {
+        lines.push(lang === "en" ? "20 kg checked baggage: requested" : "20 kg kayıtlı bagaj: talep edildi");
+      } else {
+        lines.push(
+          lang === "en" ? "20 kg checked baggage: not requested" : "20 kg kayıtlı bagaj: talep edilmedi"
+        );
+      }
       lines.push("");
       if (data.addons.length) {
         lines.push(lang === "en" ? "Optional add-ons selected:" : "Seçilen opsiyonel turlar:");
@@ -4984,31 +5033,28 @@
     const THAILAND_EVISA_URL = "https://www.thaievisa.go.th/";
 
     const visaInfoHtml = `
-      <h2>Vize</h2>
-      <ul>
-        <li>Pasaportların dönüş tarihinden itibaren minimum <strong>6 ay</strong> geçerlilik süresinin olması gerekmektedir.</li>
-        <li>Gümrük geçişlerinde ve sınır kapılarında pasaportunuza giriş-çıkış kaşesi basılabilmesi için pasaportunuzda en az <strong>6 boş sayfa</strong> olması gerekmektedir. Vize alınmış olması veya vize gerektirmeyen pasaporta sahip olunması, ülkeye giriş ve çıkış yapılabileceği anlamına gelmez; pasaport polisinin sizi ülkeye kabul etmeme veya ülkeden çıkarmama yetkisi bulunmaktadır. <strong>Kıbrıslı Gezgin</strong>'in bu konuda herhangi bir sorumluluğu bulunmamaktadır.</li>
-        <li>Yırtılmış, yıpranmış veya benzeri tahribata uğramış pasaportlar ile seyahat edilememektedir.</li>
-        <li>Türk vatandaşlarına vize uygulayan bir ülke ziyaret ediliyorsa, ilgili ülke adına alınmış geçerli vizenin geçerli pasaportunuzda olması gerekmektedir.</li>
-        <li>Türk vatandaşı olmayan ya da çifte vatandaşlığı olup diğer ülke pasaportunu kullanarak tura katılacak misafirlerin, seyahat edilecek ülkenin kullanacakları pasaporta uyguladığı vize prosedürünü ilgili konsolosluklara bizzat danışmaları gerekmektedir. <strong>Kıbrıslı Gezgin</strong>'in doğacak olumsuzluklardan dolayı herhangi bir sorumluluğu bulunmamaktadır.</li>
-        <li>18 yaşından küçük misafirlerimizin anne veya babasından herhangi biriyle seyahat etmesi durumunda, seyahate katılmayan ebeveynden <strong>noter onaylı muvafakatname</strong> alması gerekmektedir.</li>
-      </ul>
+      <div class="terms-item">
+        <h4>Vize</h4>
+        <p>Pasaportların dönüş tarihinden itibaren minimum <strong>6 ay</strong> geçerlilik süresinin olması gerekmektedir.</p>
+        <p>Gümrük geçişlerinde ve sınır kapılarında pasaportunuza giriş-çıkış kaşesi basılabilmesi için pasaportunuzda en az <strong>6 boş sayfa</strong> olması gerekmektedir. Vize alınmış olması veya vize gerektirmeyen pasaporta sahip olunması, ülkeye giriş ve çıkış yapılabileceği anlamına gelmez; pasaport polisinin sizi ülkeye kabul etmeme veya ülkeden çıkarmama yetkisi bulunmaktadır. <strong>Kıbrıslı Gezgin</strong>'in bu konuda herhangi bir sorumluluğu bulunmamaktadır.</p>
+        <p>Yırtılmış, yıpranmış veya benzeri tahribata uğramış pasaportlar ile seyahat edilememektedir.</p>
+        <p>Türk vatandaşı olmayan ya da çifte vatandaşlığı olup diğer ülke pasaportunu kullanarak tura katılacak misafirlerin, seyahat edilecek ülkenin kullanacakları pasaporta uyguladığı vize prosedürünü ilgili konsolosluklara bizzat danışmaları gerekmektedir. <strong>Kıbrıslı Gezgin</strong>'in doğacak olumsuzluklardan dolayı herhangi bir sorumluluğu bulunmamaktadır.</p>
+        <p>18 yaşından küçük misafirlerimizin anne veya babasından herhangi biriyle seyahat etmesi durumunda, seyahate katılmayan ebeveynden <strong>noter onaylı muvafakatname</strong> alması gerekmektedir.</p>
+      </div>
     `;
 
     const visaInfoHtml_en = `
-      <h2>Visa</h2>
-      <ul>
-        <li>Passports must be valid for at least <strong>6 months</strong> from the return date.</li>
-        <li>For border and customs clearance, your passport must have at least <strong>6 blank pages</strong> for entry/exit stamps. Holding a visa or a visa-exempt passport does not guarantee entry or exit; immigration officers may refuse entry or require departure. We accept no liability in this regard.</li>
-        <li>Travel is not permitted with torn, damaged or otherwise defaced passports.</li>
-        <li>If the itinerary includes a country that requires a visa for Turkish citizens, a valid visa for that country must be in your valid passport.</li>
-        <li>Guests who are not Turkish citizens, or who hold dual nationality and will join the tour on another country's passport, must consult the relevant consulates about visa requirements for the passport they will use. We accept no liability for adverse outcomes arising from this.</li>
-        <li>Guests under 18 travelling with only one parent must carry a <strong>notarized consent letter</strong> from the parent who is not travelling.</li>
-      </ul>
+      <div class="terms-item">
+        <h4>Visa</h4>
+        <p>Passports must be valid for at least <strong>6 months</strong> from the return date.</p>
+        <p>For border and customs clearance, your passport must have at least <strong>6 blank pages</strong> for entry/exit stamps. Holding a visa or a visa-exempt passport does not guarantee entry or exit; immigration officers may refuse entry or require departure. <strong>Kıbrıslı Gezgin</strong> accepts no liability in this regard.</p>
+        <p>Travel is not permitted with torn, damaged or otherwise defaced passports.</p>
+        <p>Guests who are not Turkish citizens, or who hold dual nationality and will join the tour on another country's passport, must consult the relevant consulates about visa requirements for the passport they will use. <strong>Kıbrıslı Gezgin</strong> accepts no liability for adverse outcomes arising from this.</p>
+        <p>Guests under 18 travelling with only one parent must carry a <strong>notarized consent letter</strong> from the parent who is not travelling.</p>
+      </div>
     `;
 
     const generalHtml = `
-      ${visaInfoHtml}
       <h3>Tayland geneli</h3>
       <ul>
         <li><strong>Para birimi:</strong> Thai Baht (THB) — 1€ ≈ 38-40 THB</li>
@@ -5018,7 +5064,7 @@
         <li><strong>Elektrik:</strong> 220V, çoğunlukla A/B/C tipi prizler</li>
         <li><strong>Aşılar:</strong> Sarı humma önerilir (zorunlu değil)</li>
       </ul>
-      <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem">Pasaport ve vize bilgisi pasaport ülkenize göre yukarıda gösterilir.</p>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem">Ülkeye özel vize gereklilikleri için yukarıdan pasaport ülkenizi seçin.</p>
     `;
 
     const accommodationNotesHtml = `
@@ -5153,7 +5199,7 @@
       <p><strong>Turkish Airlines TK65 — Bangkok (BKK) → İstanbul (SAW)</strong><br />Kalkış: 10.12.2026 09:25 · Varış: 10.12.2026 15:10</p>
       <h3>Bagaj bilgisi</h3>
       <ul>
-        <li><strong>Uluslararası:</strong> 7 kg kabin bagajı dahil · 30 kg kayıtlı bagaj ek ücretlidir (Qatar Airways &amp; Turkish Airlines ekonomi)</li>
+        <li><strong>Uluslararası:</strong> 7 kg kabin bagajı dahil · 20 kg kayıtlı bagaj ek ücretlidir</li>
         <li><strong>İç hat (Thai AirAsia):</strong> 7 kg kabin bagajı dahil · 20 kg kayıtlı bagaj ek ücretlidir</li>
       </ul>
       <p style="font-size:0.85rem;color:var(--text-muted)">Kesin uçuş bilgisi tur teyidinde paylaşılır.</p>
@@ -5763,7 +5809,6 @@
     ];
 
     const generalHtml_en = `
-      ${visaInfoHtml_en}
       <h3>About Thailand</h3>
       <ul>
         <li><strong>Currency:</strong> Thai Baht (THB) — 1€ ≈ 38-40 THB</li>
@@ -5773,7 +5818,7 @@
         <li><strong>Electricity:</strong> 220V, mostly type A/B/C plugs</li>
         <li><strong>Vaccinations:</strong> Yellow fever recommended (not mandatory)</li>
       </ul>
-      <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem">Passport &amp; visa details are shown above based on your passport country.</p>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem">Select your passport country above for country-specific visa requirements.</p>
     `;
 
     const importantInfoHtml = `
@@ -5786,6 +5831,7 @@
         <h4>Uçuş İşlemleri</h4>
         <p>Uçaklı turlara katılan kişilerin check-in ve boarding işlemleri kişisel sorumluluklarındadır ve uçuş öncesinde havalimanında hava yolu kontuarlarında veya online olarak yapılmalıdır. Son dakika rötarları ve kapı değişiklikleri havalimanlarında sesli anons edilmekte ve bilgi panolarında gösterilmektedir. Bu bilgilerin takip edilmesi gerekmektedir.</p>
       </div>
+      ${visaInfoHtml}
       <div class="terms-item">
         <h4>Tura Katılım</h4>
         <p>Kıbrıslı Gezgin tarafından bildirilen saatlerde belirtilen havalimanında hazır bulunmayan, check-in ve boarding işlemlerini zamanında yapmayan ya da uçağa binmeyen kişilerin uçuşu gerçekleştirememelerinden Kıbrıslı Gezgin sorumlu değildir. Uçağı kaçıran kişilerin tura dahil olmaları için gerekli olan gidiş-dönüş yeni uçak biletleri ve bölgedeki transfer masrafları kendilerine aittir.</p>
@@ -5805,10 +5851,10 @@
         <p>Turun kalkış tarihinden 30 gün öncesine kadar cezasız iptal hakkı bulunmaktadır.</p>
       </div>
       <div class="terms-item">
-        <p>Gezi için yeterli katılım sağlanamadığı takdirde; son iptal bildirim tarihi, gezi hareket tarihinden 20 gün öncesi olarak belirlenmiştir. Böyle bir durum geliştiğinde iptal bilgisi misafire iletilir.</p>
+        <p>Gezi için yeterli katılım sağlanamadığı takdirde; son iptal bildirim tarihi, gezi hareket tarihinden 30 gün öncesi olarak belirlenmiştir. Böyle bir durum geliştiğinde iptal bilgisi misafire iletilir.</p>
       </div>
       <div class="terms-item">
-        <p><strong>Kıbrıslı Gezgin</strong>, misafirin doğrudan otel, havayolu vb. tedarikçi ile iletişime geçerek yaptığı herhangi bir değişiklik veya iptal işlemi için sorumluluk kabul etmeyecektir. Bu durumda Paket Tur sözleşmesi 7. maddede düzenlenen İptal Koşulları geçerlidir.</p>
+        <p><strong>Kıbrıslı Gezgin</strong>, misafirin doğrudan otel, havayolu vb. tedarikçi ile iletişime geçerek yaptığı herhangi bir değişiklik veya iptal işlemi için sorumluluk kabul etmeyecektir. Bu durumda tur sözleşmesindeki İptal Koşulları geçerlidir.</p>
       </div>
     `;
 
@@ -5822,6 +5868,7 @@
         <h4>Flight Procedures</h4>
         <p>Participants on flight-inclusive tours are personally responsible for check-in and boarding, which must be completed at airline counters or online before departure. Last-minute delays and gate changes are announced at airports and shown on information boards; passengers must follow these announcements.</p>
       </div>
+      ${visaInfoHtml_en}
       <div class="terms-item">
         <h4>Tour Participation</h4>
         <p>We are not responsible if participants are not at the specified airport at the announced time, fail to complete check-in/boarding on time, or miss the flight. Passengers who miss their flight must cover the cost of new round-trip tickets and local transfers required to join the tour.</p>
@@ -5845,10 +5892,10 @@
         <p>You may cancel without penalty up to 30 days before the tour departure date.</p>
       </div>
       <div class="terms-item">
-        <p>If sufficient participation for the trip cannot be secured, the latest cancellation notice date is set as 20 days before the departure date. In such a case, guests will be notified of the cancellation.</p>
+        <p>If sufficient participation for the trip cannot be secured, the latest cancellation notice date is set as 30 days before the departure date. In such a case, guests will be notified of the cancellation.</p>
       </div>
       <div class="terms-item">
-        <p>We will not accept responsibility for any change or cancellation made by the guest through direct contact with suppliers such as hotels, airlines, etc. In such cases, the cancellation terms set out in Article 7 of the Package Tour contract apply.</p>
+        <p>We will not accept responsibility for any change or cancellation made by the guest through direct contact with suppliers such as hotels, airlines, etc. In such cases, the Cancellation Terms in the tour contract apply.</p>
       </div>
     `;
 
@@ -5882,7 +5929,7 @@
       <p><strong>Turkish Airlines TK65 — Bangkok (BKK) → Istanbul (SAW)</strong><br />Dep: 10.12.2026 09:25 · Arr: 10.12.2026 15:10</p>
       <h3>Baggage info</h3>
       <ul>
-        <li><strong>International:</strong> 7 kg cabin baggage included · 30 kg checked baggage extra (Qatar Airways &amp; Turkish Airlines economy)</li>
+        <li><strong>International:</strong> 7 kg cabin baggage included · 20 kg checked baggage extra</li>
         <li><strong>Domestic (Thai AirAsia):</strong> 7 kg cabin baggage included · 20 kg checked baggage extra</li>
       </ul>
       <p style="font-size:0.85rem;color:var(--text-muted)">Exact flight info is shared upon tour confirmation.</p>
@@ -7602,7 +7649,7 @@
       <p>Kalkış limanına göre değişir (14 Ara); İstanbul: <strong>TK8548</strong> BKK 23:45 → IST 06:05 (+1 gün). Uçuş sekmesinde seçili limanın dönüş detayları listelenir.</p>
       <h3>Bagaj bilgisi</h3>
       <ul>
-        <li><strong>Uluslararası (Qatar / THY ekonomi):</strong> 7 kg kabin bagajı dahil · 30 kg kayıtlı bagaj ek ücretlidir</li>
+        <li><strong>Uluslararası (Qatar / THY ekonomi):</strong> 7 kg kabin bagajı dahil · 20 kg kayıtlı bagaj ek ücretlidir</li>
         <li><strong>İç hat (Thai AirAsia):</strong> 7 kg kabin bagajı dahil · 20 kg kayıtlı bagaj ek ücretlidir</li>
       </ul>
       <p style="font-size:0.85rem;color:var(--text-muted)">Kesin uçuş saatleri tur teyidinde paylaşılır.</p>`;
@@ -7617,7 +7664,7 @@
       <p>Vary by departure city (14 Dec); example Istanbul: <strong>TK8548</strong> BKK 23:45 → IST 06:05 (+1 day). Full return details appear in the Flights tab for your port.</p>
       <h3>Baggage info</h3>
       <ul>
-        <li><strong>International (Qatar / THY economy):</strong> 7 kg cabin baggage included · 30 kg checked baggage extra</li>
+        <li><strong>International (Qatar / THY economy):</strong> 7 kg cabin baggage included · 20 kg checked baggage extra</li>
         <li><strong>Domestic (Thai AirAsia):</strong> 7 kg cabin baggage included · 20 kg checked baggage extra</li>
       </ul>
       <p style="font-size:0.85rem;color:var(--text-muted)">Exact flight times shared upon tour confirmation.</p>`;
@@ -8827,8 +8874,8 @@
       const isEn = lang === "en";
       const groups = renderFlightGroupsHTML(flights, lang);
       const baggage = isEn
-        ? '<h3>Baggage</h3><ul><li><strong>International:</strong> 7 kg cabin baggage included · 30 kg checked baggage extra (economy)</li><li><strong>Domestic (Thai AirAsia):</strong> 7 kg cabin baggage included · 20 kg checked baggage extra</li></ul>'
-        : '<h3>Bagaj bilgisi</h3><ul><li><strong>Uluslararası:</strong> 7 kg kabin bagajı dahil · 30 kg kayıtlı bagaj ek ücretlidir (ekonomi)</li><li><strong>İç hat (Thai AirAsia):</strong> 7 kg kabin bagajı dahil · 20 kg kayıtlı bagaj ek ücretlidir</li></ul>';
+        ? '<h3>Baggage</h3><ul><li><strong>International:</strong> 7 kg cabin baggage included · 20 kg checked baggage extra</li><li><strong>Domestic (Thai AirAsia):</strong> 7 kg cabin baggage included · 20 kg checked baggage extra</li></ul>'
+        : '<h3>Bagaj bilgisi</h3><ul><li><strong>Uluslararası:</strong> 7 kg kabin bagajı dahil · 20 kg kayıtlı bagaj ek ücretlidir (ekonomi)</li><li><strong>İç hat (Thai AirAsia):</strong> 7 kg kabin bagajı dahil · 20 kg kayıtlı bagaj ek ücretlidir</li></ul>';
       const flightNotes = isEn ? flightNotesHtml_en : flightNotesHtml;
       const note = isEn
         ? '<p style="font-size:0.85rem;color:var(--text-muted)">Exact flight info is shared upon tour confirmation.</p>'
@@ -9656,6 +9703,7 @@
       const paymentLabel = getPaymentLabel(payment);
       const message = document.getElementById("reserve-message").value.trim();
       const addons = getSelectedReserveAddons();
+      const checkedBaggage = document.getElementById("reserve-checked-baggage")?.checked || false;
       const submitBtn = document.getElementById("reserve-submit-btn");
       const lang = L();
       if (submitBtn) submitBtn.disabled = true;
@@ -9677,6 +9725,7 @@
             guests: guests,
             tour: tour,
             paymentLabel: paymentLabel,
+            checkedBaggage: checkedBaggage,
             addons: addons,
             message: message
           })
