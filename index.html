@@ -3,13 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gezeceyik — Kıbrıslı Gezgin ile Phuket &amp; Bangkok</title>
+  <title>Gezeceyik | Phuket &amp; Bangkok Turları — Kıbrıslı Gezgin</title>
+  <meta name="description" content="Kıbrıslı Gezgin ile Tayland turları: Phuket, Bangkok ve Tomorrowland. Backpacking ve comfort paketler, uçuş ve konaklama dahil. Rezervasyon talebi için hemen inceleyin." id="meta-description" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0f4c5c" />
+  <link rel="canonical" href="https://www.gezeceyiktravel.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.gezeceyiktravel.com/" />
+  <meta property="og:title" content="Gezeceyik | Phuket &amp; Bangkok Turları" id="og-title" />
+  <meta property="og:description" content="Kıbrıslı Gezgin ile Tayland turları: Phuket, Bangkok ve Tomorrowland. Backpacking ve comfort paketler." id="og-description" />
+  <meta property="og:image" content="https://www.gezeceyiktravel.com/comfort-card.avif" />
+  <meta property="og:locale" content="tr_TR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Gezeceyik | Phuket &amp; Bangkok Turları" id="twitter-title" />
+  <meta name="twitter:description" content="Kıbrıslı Gezgin ile Tayland turları: Phuket, Bangkok ve Tomorrowland." id="twitter-description" />
+  <meta name="twitter:image" content="https://www.gezeceyiktravel.com/comfort-card.avif" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="https://d3js.org/topojson.v3.min.js"></script>
+  <link rel="preload" href="backpacking-card.webp" as="image" type="image/webp" />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TravelAgency",
+    "name": "Gezeceyik — Kıbrıslı Gezgin",
+    "url": "https://www.gezeceyiktravel.com/",
+    "email": "gezeceyik1travel@gmail.com",
+    "description": "Phuket, Bangkok ve Tomorrowland Tayland turları — backpacking ve comfort paketler.",
+    "areaServed": ["TR", "CY", "TH"]
+  }
+  </script>
   <style>
     :root {
       --primary: #0f4c5c;
@@ -56,7 +79,8 @@
     .tour-card {
       cursor: pointer;
     }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; overflow-x: clip; }
+    img, video { max-width: 100%; height: auto; }
     :where(*) {
       scroll-margin-top: 80px;
     }
@@ -1225,6 +1249,18 @@
       }
     }
     @media (max-width: 767px) {
+      .price-card select,
+      #departure-port-select,
+      #tour-date-select {
+        width: 100%;
+        max-width: 100%;
+        min-height: 44px;
+        font-size: 16px;
+      }
+      .tour-tabs button {
+        flex-shrink: 0;
+        min-height: 44px;
+      }
       .tour-hero {
         min-height: 320px;
         height: 320px;
@@ -1287,11 +1323,14 @@
     /* Tabs */
     .tour-tabs {
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 0.3rem;
       margin-bottom: 0.9rem;
       border-bottom: 1px solid var(--border);
       padding-bottom: 0.4rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
     }
     .tour-tabs button {
       border: none;
@@ -1469,6 +1508,12 @@
     }
     .prose p { margin: 0 0 1rem; }
     .prose ul { margin: 0 0 1rem; padding-left: 1.2rem; }
+    .photo-grid img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
     .prose h2 {
       font-family: var(--font-display);
       font-size: 1.35rem;
@@ -2514,6 +2559,16 @@
       .modal__field-row {
         grid-template-columns: 1fr;
       }
+      .modal.modal--booking {
+        width: 100%;
+        max-height: 100dvh;
+        border-radius: 0;
+        padding: 1.25rem 1rem max(1rem, env(safe-area-inset-bottom));
+      }
+      .modal-overlay.is-open {
+        padding: 0;
+        align-items: stretch;
+      }
     }
     .modal__field {
       margin-bottom: 0.85rem;
@@ -2722,12 +2777,6 @@
     body.modal-open,
     body.day-modal-open {
       overflow: hidden;
-    }
-    body.day-modal-open .cursor-plane,
-    body.day-modal-open .cursor-trail {
-      opacity: 0 !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
     }
 
     /* Gün detay modal */
@@ -3340,7 +3389,7 @@
       width: 46px;
       height: 46px;
       pointer-events: none;
-      z-index: 9999;
+      z-index: 11000;
       color: var(--terracotta);
       transform: translate(-50%, -50%);
       /* No transition — instant position follow */
@@ -3365,7 +3414,7 @@
         transparent 82%
       );
       pointer-events: none;
-      z-index: 9998;
+      z-index: 10999;
       transform: translate(-50%, -50%);
       filter: blur(0.6px);
       opacity: 0;
@@ -3528,7 +3577,7 @@
         aria-expanded="false"
         aria-controls="tour-full"
       >
-        <div class="landing-preview__media backpacking-media" role="img" aria-label="Hostel konaklama"></div>
+        <div class="landing-preview__media backpacking-media" role="img" data-tr-aria-label="Backpacking tur kartı — hostel konaklama" data-en-aria-label="Backpacking tour card — hostel stay" aria-label="Backpacking tur kartı — hostel konaklama"></div>
         <div class="landing-preview__body">
           <div class="landing-preview__badge" data-tr="02 – 11 Aralık" data-en="02 – 11 December">02 – 11 Aralık</div>
           <p class="landing-preview__tier" data-tr="Backpacking style" data-en="Backpacking style">Backpacking style</p>
@@ -3551,7 +3600,7 @@
         aria-expanded="false"
         aria-controls="tour-full"
       >
-        <div class="landing-preview__media comfort-media" role="img" aria-label="Phuket plajı"></div>
+        <div class="landing-preview__media comfort-media" role="img" data-tr-aria-label="Comfort tur kartı — Phuket plajı" data-en-aria-label="Comfort tour card — Phuket beach" aria-label="Comfort tur kartı — Phuket plajı"></div>
         <div class="landing-preview__body">
           <div class="landing-preview__badge" data-tr="02 – 11 Aralık" data-en="02 – 11 December">02 – 11 Aralık</div>
           <p class="landing-preview__tier" data-tr="Comfort" data-en="Comfort">Comfort</p>
@@ -3574,7 +3623,7 @@
         aria-expanded="false"
         aria-controls="tour-full"
       >
-        <div class="landing-preview__media festival-media" role="img" aria-label="Tomorrowland festival"></div>
+        <div class="landing-preview__media festival-media" role="img" data-tr-aria-label="Tomorrowland tur kartı — festival" data-en-aria-label="Tomorrowland tour card — festival" aria-label="Tomorrowland tur kartı — festival"></div>
         <div class="landing-preview__body">
           <div class="landing-preview__badge" data-tr="02 – 14 Aralık" data-en="02 – 14 December">02 – 14 Aralık</div>
           <p class="landing-preview__tier" data-tr="Luxury" data-en="Luxury">Luxury</p>
@@ -4079,7 +4128,7 @@
         <div class="day-modal__body day-modal__body--rest" id="modalContentRest" hidden></div>
         <div class="day-modal__foot" id="modalContentFoot" hidden></div>
       <div class="day-modal__figure" id="modalFigure" hidden>
-          <img id="modalImage" src="" alt="" width="960" height="200" decoding="async" />
+          <img id="modalImage" alt="Tur programı gün görseli" width="960" height="200" decoding="async" loading="lazy" />
         </div>
         <div class="day-modal__optional-slot" id="modalOptionalNotice" hidden></div>
       </div>
@@ -4088,7 +4137,10 @@
 
   </div>
 
+  <script src="https://d3js.org/d3.v7.min.js" defer></script>
+  <script src="https://d3js.org/topojson.v3.min.js" defer></script>
   <script>
+    document.addEventListener("DOMContentLoaded", function () {
     (function initWorldMapBackground() {
       const DATA_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
       const ISO_COUNTRY = { 792: "Turkey", 196: "Cyprus", 764: "Thailand" };
@@ -4357,6 +4409,8 @@
 
       setupCityMarkers();
     })();
+
+    }); /* DOMContentLoaded: d3 map + city markers */
 
     (function premiumPolish() {
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -4881,7 +4935,7 @@
           "Tam gün Khao Sok: yağmur ormanı, Cheow Lan Gölü tekne turu ve yüzen bungalovlar (ek ücretli).",
         date: "6 Aralık 2026 — Pazar",
         image: {
-          src: "khao-sok-national-park.png",
+          src: "khao-sok-national-park.jpg",
           alt: "Khao Sok — Cheow Lan Gölü",
           altEn: "Khao Sok — Cheow Lan Lake",
           objectPosition: "center 49%"
@@ -5252,7 +5306,7 @@
       tourPhoto("photo-1605045544284-d13c6d6a60a6", "James Bond Adası — kireçtaşı kayalıkları", "James Bond Island — limestone karsts"),
       tourPhoto("photo-1545153976-5d451256a9a1", "Phang Nga — tekne ile körfez turu", "Phang Nga — bay tour by boat"),
       /* Khao Sok Milli Parkı */
-      localPhoto("khao-sok-national-park.png", "Khao Sok — Cheow Lan Gölü", "Khao Sok — Cheow Lan Lake"),
+      localPhoto("khao-sok-national-park.jpg", "Khao Sok — Cheow Lan Gölü", "Khao Sok — Cheow Lan Lake"),
       tourPhoto("photo-1494948949099-1311f3e907a9", "Khao Sok — Cheow Lan Gölü ve yüzen bungalovlar", "Khao Sok — Cheow Lan Lake floating bungalows"),
       tourPhoto("photo-1578157693553-69118df519ed", "Khao Sok — yağmur ormanı", "Khao Sok — rainforest"),
       tourPhoto("photo-1520961810802-7f0a32de665a", "Khao Sok — göl ve dağlar", "Khao Sok — lake and mountains"),
@@ -5354,7 +5408,7 @@
           "Full-day Khao Sok: rainforest, Cheow Lan Lake boat tour and floating bungalows (extra cost).",
         date: "6 December 2026 — Sunday",
         image: {
-          src: "khao-sok-national-park.png",
+          src: "khao-sok-national-park.jpg",
           alt: "Khao Sok — Cheow Lan Gölü",
           altEn: "Khao Sok — Cheow Lan Lake",
           objectPosition: "center 49%"
@@ -7670,12 +7724,12 @@
       <p style="font-size:0.85rem;color:var(--text-muted)">Exact flight times shared upon tour confirmation.</p>`;
 
     const photos_tml = [
-      { href: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=80", src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80", alt: "Tomorrowland sahne" },
-      { href: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1600&q=80", src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&q=80", alt: "Festival kalabalık" },
-      { href: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=1600&q=80", src: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=600&q=80", alt: "Phuket plajı" },
-      { href: "https://images.unsplash.com/photo-1625276413000-12c38e7b7d0a?w=1600&q=80", src: "https://images.unsplash.com/photo-1625276413000-12c38e7b7d0a?w=600&q=80", alt: "Pattaya plajı" },
-      { href: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1600&q=80", src: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=600&q=80", alt: "Bangkok tapınağı" },
-      { href: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=1600&q=80", src: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=600&q=80", alt: "Bangkok gece hayatı" }
+      { href: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=80", src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80", alt: "Tomorrowland sahne", altEn: "Tomorrowland stage" },
+      { href: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1600&q=80", src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&q=80", alt: "Festival kalabalık", altEn: "Festival crowd" },
+      { href: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=1600&q=80", src: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=600&q=80", alt: "Phuket plajı", altEn: "Phuket beach" },
+      { href: "https://images.unsplash.com/photo-1625276413000-12c38e7b7d0a?w=1600&q=80", src: "https://images.unsplash.com/photo-1625276413000-12c38e7b7d0a?w=600&q=80", alt: "Pattaya plajı", altEn: "Pattaya beach" },
+      { href: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1600&q=80", src: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=600&q=80", alt: "Bangkok tapınağı", altEn: "Bangkok temple" },
+      { href: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=1600&q=80", src: "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=600&q=80", alt: "Bangkok gece hayatı", altEn: "Bangkok nightlife" }
     ];
 
     const sidebarIncluded_tml = [
@@ -9502,13 +9556,14 @@
       if (day.image && day.image.src) {
         modalImageEl.src = day.image.src;
         modalImageEl.alt =
-          L() === "en" && day.image.altEn ? day.image.altEn : day.image.alt || "";
+          L() === "en" && day.image.altEn ? day.image.altEn : day.image.alt || (L() === "en" ? "Tour day photo" : "Tur günü görseli");
         modalImageEl.style.objectPosition =
           day.image.objectPosition || "";
         modalFigureEl.hidden = false;
       } else {
         modalFigureEl.hidden = true;
         modalImageEl.removeAttribute("src");
+        modalImageEl.alt = L() === "en" ? "Tour day photo" : "Tur günü görseli";
       }
 
       dayModalEl.hidden = false;
@@ -9958,10 +10013,49 @@
     /* ─── i18n: TR / EN language switcher ─────────────────────────────── */
     function applyTranslations() {
       const lang = L();
+      document.documentElement.lang = lang === "en" ? "en" : "tr";
+      document.title =
+        lang === "en"
+          ? "Gezeceyik | Phuket & Bangkok Tours — Kıbrıslı Gezgin"
+          : "Gezeceyik | Phuket & Bangkok Turları — Kıbrıslı Gezgin";
+      const metaDesc = document.getElementById("meta-description");
+      if (metaDesc) {
+        metaDesc.setAttribute(
+          "content",
+          lang === "en"
+            ? "Thailand tours with Kıbrıslı Gezgin: Phuket, Bangkok and Tomorrowland. Backpacking and comfort packages with flights and hotels. Request a booking quote."
+            : "Kıbrıslı Gezgin ile Tayland turları: Phuket, Bangkok ve Tomorrowland. Backpacking ve comfort paketler, uçuş ve konaklama dahil. Rezervasyon talebi için hemen inceleyin."
+        );
+      }
+      const ogTitle = document.getElementById("og-title");
+      const ogDesc = document.getElementById("og-description");
+      const twTitle = document.getElementById("twitter-title");
+      const twDesc = document.getElementById("twitter-description");
+      if (ogTitle) {
+        ogTitle.setAttribute(
+          "content",
+          lang === "en" ? "Gezeceyik | Phuket & Bangkok Tours" : "Gezeceyik | Phuket & Bangkok Turları"
+        );
+      }
+      if (ogDesc) {
+        ogDesc.setAttribute(
+          "content",
+          lang === "en"
+            ? "Thailand tours with Kıbrıslı Gezgin: Phuket, Bangkok and Tomorrowland."
+            : "Kıbrıslı Gezgin ile Tayland turları: Phuket, Bangkok ve Tomorrowland."
+        );
+      }
+      if (twTitle) twTitle.setAttribute("content", document.title);
+      if (twDesc && metaDesc) twDesc.setAttribute("content", metaDesc.getAttribute("content"));
       // Text content: elements with data-tr + data-en
       document.querySelectorAll("[data-tr][data-en]").forEach(function (el) {
         const v = el.getAttribute("data-" + lang);
         if (v !== null) el.textContent = v;
+      });
+      // aria-label on decorative tour card images
+      document.querySelectorAll("[data-tr-aria-label][data-en-aria-label]").forEach(function (el) {
+        const v = el.getAttribute("data-" + lang + "-aria-label");
+        if (v !== null) el.setAttribute("aria-label", v);
       });
       // Attribute translation (e.g., placeholder, aria-label)
       document.querySelectorAll("[data-i18n-attr]").forEach(function (el) {
@@ -10333,9 +10427,9 @@
         puff.style.left = (x + perpX * jitter).toFixed(1) + 'px';
         puff.style.top  = (y + perpY * jitter).toFixed(1) + 'px';
         document.body.appendChild(puff);
-        setTimeout(() => { puff.remove(); }, 1300);
-      }
-    })();
+    setTimeout(() => { puff.remove(); }, 1300);
+  }
+})();
   </script>
 </body>
 </html>
