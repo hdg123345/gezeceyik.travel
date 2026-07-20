@@ -65,6 +65,7 @@
       --ink: var(--text-dark);
       --terracotta: var(--accent);
       --teal: #2d5f5d;
+      --soft: #e8ebed;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -120,6 +121,8 @@
     }
     body.view-tour .upcoming-tour-section,
     body.on-detail-page .upcoming-tour-section,
+    body.view-tour .curated-section,
+    body.on-detail-page .curated-section,
     body.view-tour .contact-hint,
     body.on-detail-page .contact-hint,
     body.view-tour .contact-section,
@@ -155,7 +158,7 @@
       background: var(--bg);
     }
 
-    /* Flat world map — realistic earth tones (homepage only; hidden on tour view) */
+    /* Physical world map — terrain tones (homepage only; hidden on tour view) */
     #world-map-bg {
       position: fixed;
       top: 0;
@@ -164,8 +167,8 @@
       height: 100vh;
       z-index: -1;
       overflow: hidden;
-      background: linear-gradient(180deg, #c5dee0 0%, #a8c8cc 50%, #88adb3 100%);
-      opacity: 0.92;
+      background: linear-gradient(180deg, #1b4f68 0%, #123a52 50%, #0a2840 100%);
+      opacity: 1;
       pointer-events: none;
     }
 
@@ -174,9 +177,9 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse at 22% 28%, rgba(255, 240, 210, 0.18) 0%, transparent 55%),
-        radial-gradient(ellipse at 78% 70%, rgba(80, 130, 155, 0.16) 0%, transparent 60%),
-        radial-gradient(ellipse at 50% 50%, rgba(255, 220, 170, 0.06) 0%, transparent 70%);
+        radial-gradient(ellipse at 18% 22%, rgba(120, 185, 210, 0.22) 0%, transparent 48%),
+        radial-gradient(ellipse at 82% 78%, rgba(20, 55, 80, 0.28) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 100%, rgba(8, 35, 55, 0.35) 0%, transparent 45%);
       pointer-events: none;
     }
 
@@ -187,91 +190,77 @@
       background: radial-gradient(
         ellipse at center,
         transparent 0%,
-        transparent 52%,
-        rgba(30, 55, 70, 0.22) 100%
+        transparent 50%,
+        rgba(5, 20, 35, 0.28) 100%
       );
       pointer-events: none;
     }
 
-    #world-map {
-      position: relative;
-      z-index: 0;
+    #world-map-terrain {
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       display: block;
-      opacity: 0.95;
+      z-index: 0;
+    }
+
+    #world-map {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: block;
+      opacity: 1;
       pointer-events: none;
     }
 
     #world-map path.country {
-      fill: #aec09a;
-      stroke: #849c7c;
-      stroke-width: 0.5;
+      fill: rgba(0, 0, 0, 0);
+      stroke: none;
       vector-effect: non-scaling-stroke;
-      opacity: 0.82;
       transition:
-        fill 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-        stroke 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-        stroke-width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-        filter 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        fill 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        stroke 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        stroke-width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        filter 0.35s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: none;
     }
 
-    #world-map path.country:nth-child(2n) {
-      fill: #b8c8a2;
-    }
-    #world-map path.country:nth-child(3n) {
-      fill: #c2bc94;
-    }
-    #world-map path.country:nth-child(5n) {
-      fill: #a3b690;
-    }
-    #world-map path.country:nth-child(7n) {
-      fill: #b6a988;
-    }
-    #world-map path.country:nth-child(11n) {
-      fill: #9eb18c;
-    }
-    #world-map path.country:nth-child(13n) {
-      fill: #bdb593;
-    }
-
     #world-map path.country.is-hovered {
-      fill: #98b388;
-      stroke: #4a7a5f;
-      stroke-width: 1.4;
-      filter: drop-shadow(0 0 6px rgba(74, 122, 95, 0.28));
-      opacity: 1;
+      fill: rgba(255, 255, 255, 0.1);
+      stroke: rgba(20, 58, 48, 0.72);
+      stroke-width: 0.85;
+      filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.12));
     }
 
-    #world-map path.country[data-country="Thailand"] {
-      fill: #e8c5a0;
-      stroke: #d4a574;
-      stroke-width: 1;
-      opacity: 1;
-      animation: gentlePulse 4s ease-in-out infinite;
-    }
+#world-map path.country[data-country="Thailand"] {
+  fill: rgba(255, 210, 120, 0.18);
+  stroke: #e8a860;
+  stroke-width: 1.05;
+  animation: gentlePulse 4s ease-in-out infinite;
+}
 
-    @keyframes gentlePulse {
-      0%,
-      100% {
-        fill: #e8c5a0;
-        filter: drop-shadow(0 0 4px rgba(231, 111, 81, 0.22));
-      }
-      50% {
-        fill: #f0d4b0;
-        filter: drop-shadow(0 0 8px rgba(231, 111, 81, 0.38));
-      }
-    }
+@keyframes gentlePulse {
+  0%,
+  100% {
+    fill: rgba(255, 210, 120, 0.18);
+    filter: drop-shadow(0 0 5px rgba(231, 111, 81, 0.32));
+  }
+  50% {
+    fill: rgba(255, 220, 140, 0.28);
+    filter: drop-shadow(0 0 10px rgba(231, 111, 81, 0.46));
+  }
+}
 
-    #world-map path.country[data-country="Thailand"].is-hovered {
-      fill: #f0d4b0;
-      stroke: #c77847;
-      stroke-width: 1.5;
-      filter: drop-shadow(0 0 10px rgba(199, 120, 71, 0.45));
-      animation: none;
-    }
+#world-map path.country[data-country="Thailand"].is-hovered {
+  fill: rgba(255, 220, 140, 0.32);
+  stroke: #e87840;
+  stroke-width: 1.45;
+  filter: brightness(1.06) drop-shadow(0 0 11px rgba(199, 120, 71, 0.48));
+  animation: none;
+}
     #flight-path-svg {
       position: fixed;
       top: 0;
@@ -856,6 +845,57 @@
     }
     .tour-card--festival:hover {
       box-shadow: var(--shadow-lg), var(--shadow-glow);
+    }
+    .tour-card__availability {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      line-height: 1.3;
+    }
+    .tour-card__availability--open {
+      color: var(--primary);
+    }
+    .tour-card__availability--sold-out {
+      color: #9b1c1c;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .tour-card--sold-out {
+      opacity: 0.78;
+      cursor: not-allowed;
+      filter: grayscale(0.12);
+    }
+    .tour-card--sold-out:hover {
+      transform: none;
+      box-shadow: var(--shadow);
+      border-color: var(--border);
+    }
+    .tour-card--sold-out:hover::before {
+      opacity: 0;
+    }
+    .tour-card--sold-out:hover .landing-preview__media {
+      transform: none;
+    }
+    .tour-card--sold-out .landing-preview__hint.tour-link {
+      color: var(--text-muted);
+    }
+    .tour-card--sold-out .landing-preview__hint.tour-link::after {
+      display: none;
+    }
+    .price-card__sold-out {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #9b1c1c;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-align: center;
+      margin: 0 0 0.5rem;
+    }
+    .btn-reserve.book-button.is-sold-out,
+    .btn-reserve.book-button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      pointer-events: none;
     }
 
     /* Tomorrowland modal */
@@ -3473,6 +3513,574 @@
         display: none !important;
       }
     }
+
+    /* Kişiye özel turlar — Hollanda builder */
+    .curated-section {
+      position: relative;
+      z-index: 10;
+      padding: 60px 0 40px;
+      max-width: 900px;
+      margin: 0 auto;
+      background: transparent !important;
+    }
+
+    .curated-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .curated-badge {
+      display: inline-block;
+      background: var(--terracotta);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .curated-title {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 10px;
+      color: var(--ink);
+    }
+
+    .curated-title em {
+      font-style: italic;
+      color: var(--terracotta);
+    }
+
+    .curated-subtitle {
+      font-size: 14px;
+      opacity: 0.7;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+
+    .curated-card {
+      position: relative;
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+    }
+
+    .curated-visual {
+      position: relative;
+      min-height: 340px;
+      overflow: hidden;
+      background: var(--soft);
+    }
+
+    .curated-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+    }
+
+    .curated-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 45%, rgba(0, 0, 0, 0.8) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 22px;
+      color: white;
+    }
+
+    .curated-tag {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 5px 12px;
+      border-radius: 100px;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      width: fit-content;
+    }
+
+    .curated-destination {
+      font-family: var(--font-display);
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .curated-location {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .curated-builder {
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .builder-step {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      padding-bottom: 14px;
+    }
+
+    .builder-step:last-of-type {
+      border-bottom: none;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .step-number {
+      background: var(--teal);
+      color: white;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .step-header h4 {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .step-header h4 .optional {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 400;
+      opacity: 0.5;
+      font-style: normal;
+    }
+
+    .days-selector {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .day-btn {
+      background: white;
+      border: 1.5px solid rgba(45, 95, 93, 0.2);
+      color: var(--teal);
+      padding: 7px 14px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .day-btn:hover {
+      border-color: var(--teal);
+    }
+
+    .day-btn.active {
+      background: var(--teal);
+      color: white;
+      border-color: var(--teal);
+    }
+
+    .date-picker-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .date-input {
+      padding: 9px 12px;
+      border: 1.5px solid rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--ink);
+      background: white;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+      max-width: 260px;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      position: relative;
+    }
+
+    .date-input::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+      padding: 4px;
+      filter: invert(30%) sepia(15%) saturate(500%) hue-rotate(140deg);
+    }
+
+    .date-input::-webkit-calendar-picker-indicator:hover {
+      opacity: 1;
+    }
+
+    .date-input:focus {
+      border-color: var(--teal);
+    }
+
+    .date-input::-webkit-inner-spin-button,
+    .date-input::-webkit-clear-button {
+      display: none;
+    }
+
+    .date-hint {
+      font-size: 11px;
+      opacity: 0.6;
+    }
+
+    .addons-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .addon-card {
+      cursor: pointer;
+      display: block;
+    }
+
+    .addon-card input {
+      display: none;
+    }
+
+    .addon-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1.5px solid rgba(0, 0, 0, 0.08);
+      border-radius: 10px;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    .addon-card:hover .addon-content {
+      border-color: var(--teal);
+    }
+
+    .addon-card input:checked ~ .addon-content {
+      background: rgba(45, 95, 93, 0.05);
+      border-color: var(--teal);
+    }
+
+    .addon-card input:checked ~ .addon-content .addon-name {
+      color: var(--teal);
+    }
+
+    .addon-emoji {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .addon-content > div {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .addon-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    .addon-desc {
+      font-size: 11px;
+      opacity: 0.6;
+    }
+
+    .addon-price {
+      font-weight: 700;
+      color: var(--terracotta);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .builder-summary {
+      background: #faf7f0;
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-top: 4px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 5px 0;
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    .summary-total {
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+      margin-top: 6px;
+      padding-top: 10px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .summary-total span:last-child {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: var(--teal);
+    }
+
+    .curated-cta {
+      width: 100%;
+      background: var(--terracotta);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+
+    .curated-cta:hover {
+      background: var(--teal);
+      transform: translateY(-2px);
+    }
+
+    .curated-note {
+      font-size: 10px;
+      opacity: 0.6;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .date-range-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .date-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .date-field label {
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--teal);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .date-field:hover .date-input {
+      border-color: var(--teal);
+    }
+
+    .date-field .date-input {
+      max-width: 100%;
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 13px;
+    }
+
+    .cities-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .city-btn {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1.5px solid rgba(45, 95, 93, 0.2);
+      border-radius: 100px;
+      background: white;
+      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--teal);
+      justify-content: center;
+    }
+
+    .city-btn:hover {
+      border-color: var(--teal);
+    }
+
+    .city-btn input {
+      display: none;
+    }
+
+    .city-btn.active {
+      background: var(--teal);
+      color: white;
+      border-color: var(--teal);
+    }
+
+    .city-btn.active .city-name {
+      color: white;
+    }
+
+    .city-flag {
+      font-size: 16px;
+    }
+
+    .curated-coming-soon {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+
+    .curated-coming-soon.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .coming-soon-content {
+      text-align: center;
+      max-width: 480px;
+    }
+
+    .coming-soon-badge {
+      display: inline-block;
+      background: var(--terracotta);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 100px;
+      font-size: 11px;
+      letter-spacing: 3px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      animation: comingSoonPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes comingSoonPulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(231, 111, 81, 0.4);
+      }
+      50% {
+        transform: scale(1.03);
+        box-shadow: 0 0 0 12px rgba(231, 111, 81, 0);
+      }
+    }
+
+    .coming-soon-title {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .coming-soon-title em {
+      font-style: italic;
+      color: var(--terracotta);
+    }
+
+    .coming-soon-text {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--ink);
+      opacity: 0.75;
+      margin-bottom: 20px;
+    }
+
+    .coming-soon-note {
+      font-size: 13px;
+      color: var(--teal);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 768px) {
+      .coming-soon-title {
+        font-size: 26px;
+      }
+      .coming-soon-text {
+        font-size: 13px;
+      }
+      .curated-coming-soon {
+        padding: 24px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .curated-section {
+        padding: 40px 0;
+      }
+      .curated-title {
+        font-size: 26px;
+      }
+      .curated-card {
+        grid-template-columns: 1fr;
+      }
+      .curated-visual {
+        min-height: 240px;
+      }
+      .curated-destination {
+        font-size: 30px;
+      }
+      .curated-builder {
+        padding: 24px 20px;
+      }
+      .date-range-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
@@ -3497,6 +4105,7 @@
     })();
   </script>
   <div id="world-map-bg" aria-hidden="true">
+    <canvas id="world-map-terrain"></canvas>
     <svg id="world-map"></svg>
   </div>
   <svg id="flight-path-svg" aria-hidden="true">
@@ -3574,6 +4183,7 @@
         type="button"
         class="landing-preview tour-card tour-card--backpacking"
         id="open-tour-backpacking"
+        data-tour="backpacking"
         aria-expanded="false"
         aria-controls="tour-full"
       >
@@ -3588,6 +4198,7 @@
             <span class="landing-preview__meta-line" data-tr="Hostel konaklama" data-en="Hostel stay">Hostel konaklama</span>
           </div>
           <div class="landing-preview__price">
+            <span class="tour-card__availability tour-card__availability--open" id="tour-card-availability-backpacking" aria-live="polite"></span>
             <span class="landing-preview__hint tour-link" data-tr="Tur sayfasını aç →" data-en="Open tour page →">Tur sayfasını aç →</span>
           </div>
         </div>
@@ -3597,6 +4208,7 @@
         type="button"
         class="landing-preview tour-card tour-card--comfort"
         id="open-tour-detail"
+        data-tour="phuket"
         aria-expanded="false"
         aria-controls="tour-full"
       >
@@ -3611,6 +4223,7 @@
             <span class="landing-preview__meta-line" data-tr="4★ otel" data-en="4★ hotels">4★ otel</span>
           </div>
           <div class="landing-preview__price">
+            <span class="tour-card__availability tour-card__availability--open" id="tour-card-availability-phuket" aria-live="polite"></span>
             <span class="landing-preview__hint tour-link" data-tr="Tur sayfasını aç →" data-en="Open tour page →">Tur sayfasını aç →</span>
           </div>
         </div>
@@ -3618,8 +4231,11 @@
 
       <button
         type="button"
-        class="landing-preview tour-card tour-card--festival"
+        class="landing-preview tour-card tour-card--festival tour-card--sold-out"
         id="open-tomorrowland-detail"
+        data-tour="tomorrowland"
+        disabled
+        aria-disabled="true"
         aria-expanded="false"
         aria-controls="tour-full"
       >
@@ -3634,12 +4250,116 @@
             <span class="landing-preview__meta-line" data-tr="5★ otel" data-en="5★ hotels">5★ otel</span>
           </div>
           <div class="landing-preview__price">
-            <span class="landing-preview__hint tour-link" data-tr="Tur sayfasını aç →" data-en="Open tour page →">Tur sayfasını aç →</span>
+            <span class="tour-card__availability tour-card__availability--sold-out" id="tour-card-availability-tomorrowland" aria-live="polite"></span>
+            <span class="landing-preview__hint tour-link" data-tr="Tükendi" data-en="Sold out">Tükendi</span>
           </div>
         </div>
       </button>
     </div>
   </div>
+
+  <section class="curated-section wrap fade-in-section" id="curated-section" aria-labelledby="curated-title">
+    <div class="curated-header">
+      <span class="curated-badge" data-tr="KİŞİYE ÖZEL · CURATED" data-en="CURATED · BESPOKE">KİŞİYE ÖZEL · CURATED</span>
+      <h2 class="curated-title" id="curated-title">
+        <span data-tr="Kendine göre" data-en="Design your">Kendine göre</span> <em data-tr="tasarla" data-en="own trip">tasarla</em>
+      </h2>
+      <p class="curated-subtitle" data-tr="Yerel rehberimizle esnek tarihlerde, sana göre planlanmış deneyimler." data-en="Flexible dates and a trip planned around you, with our local guide.">Yerel rehberimizle esnek tarihlerde, sana göre planlanmış deneyimler.</p>
+    </div>
+
+    <div class="curated-card">
+      <!-- Kartı açmak için: class="curated-coming-soon hidden" yap -->
+      <div class="curated-coming-soon">
+        <div class="coming-soon-content">
+          <span class="coming-soon-badge" data-tr="YAKINDA" data-en="COMING SOON">YAKINDA</span>
+          <h3 class="coming-soon-title"><span data-tr="Kendine göre" data-en="Design your">Kendine göre</span> <em data-tr="tasarla" data-en="own trip">tasarla</em></h3>
+          <p class="coming-soon-text" data-tr="Hollanda'da kişiye özel deneyimler yakında burada. Amsterdam, Rotterdam ve daha fazlası — sen seç, biz planlayalım." data-en="Bespoke Netherlands experiences are coming soon. Amsterdam, Rotterdam and more — you choose, we plan.">Hollanda'da kişiye özel deneyimler yakında burada. Amsterdam, Rotterdam ve daha fazlası — sen seç, biz planlayalım.</p>
+          <p class="coming-soon-note" data-tr="✨ Erken kayıt için bize ulaş" data-en="✨ Contact us for early access">✨ Erken kayıt için bize ulaş</p>
+        </div>
+      </div>
+      <div class="curated-visual" id="curatedVisual">
+        <img id="cityImage" src="https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=1200&amp;auto=format&amp;fit=crop" alt="Amsterdam" loading="lazy" width="1200" height="800" onerror="this.src='https://images.unsplash.com/photo-1459679749680-18eb1eb37418?w=1200'"/>
+        <div class="curated-overlay">
+          <span class="curated-tag" data-tr="🇳🇱 HOLLANDA" data-en="🇳🇱 NETHERLANDS">🇳🇱 HOLLANDA</span>
+          <h3 class="curated-destination" id="cityTitle">Amsterdam</h3>
+          <p class="curated-location" id="citySubtitle" data-tr="Kanallar, müzeler, bisiklet turları" data-en="Canals, museums, bike tours">Kanallar, müzeler, bisiklet turları</p>
+        </div>
+      </div>
+
+      <div class="curated-builder">
+        <div class="builder-step">
+          <div class="step-header">
+            <span class="step-number">01</span>
+            <h4 data-tr="Hangi şehir(ler)?" data-en="Which city/cities?">Hangi şehir(ler)?</h4>
+          </div>
+          <div class="cities-selector">
+            <label class="city-btn active" data-city="amsterdam">
+              <input type="checkbox" checked/>
+              <span class="city-flag" aria-hidden="true">🏛️</span>
+              <span class="city-name">Amsterdam</span>
+            </label>
+            <label class="city-btn" data-city="rotterdam">
+              <input type="checkbox"/>
+              <span class="city-flag" aria-hidden="true">🏙️</span>
+              <span class="city-name">Rotterdam</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="builder-step">
+          <div class="step-header">
+            <span class="step-number">02</span>
+            <h4 data-tr="Tarih aralığı" data-en="Date range">Tarih aralığı</h4>
+          </div>
+          <div class="date-range-wrap">
+            <div class="date-field">
+              <label data-tr="Başlangıç" data-en="Start">Başlangıç</label>
+              <input type="date" id="tripStartDate" class="date-input"/>
+            </div>
+            <div class="date-field">
+              <label data-tr="Bitiş" data-en="End">Bitiş</label>
+              <input type="date" id="tripEndDate" class="date-input"/>
+            </div>
+          </div>
+          <span class="date-hint" data-tr="Esnek tarihler mümkün, sana en uygun planı yapalım" data-en="Flexible dates are fine — we'll plan what works best for you">Esnek tarihler mümkün, sana en uygun planı yapalım</span>
+        </div>
+
+        <div class="builder-step">
+          <div class="step-header">
+            <span class="step-number">03</span>
+            <h4>
+              <span data-tr="Ekstra gün turları" data-en="Optional day trips">Ekstra gün turları</span>
+              <span class="optional" data-tr="(opsiyonel)" data-en="(optional)">(opsiyonel)</span>
+            </h4>
+          </div>
+          <div class="addons-grid" id="addonsGrid"></div>
+        </div>
+
+        <div class="builder-summary">
+          <div class="summary-row">
+            <span id="summaryCity">Amsterdam</span>
+            <span id="summaryDays">€590</span>
+          </div>
+          <div class="summary-row" id="summaryAddonsRow" style="display: none;">
+            <span data-tr="Ekstra günler" data-en="Extra day trips">Ekstra günler</span>
+            <span id="summaryAddons">-</span>
+          </div>
+          <div class="summary-row summary-total">
+            <span data-tr="Toplam" data-en="Total">Toplam</span>
+            <span id="summaryTotal">€590</span>
+          </div>
+          <button type="button" class="curated-cta" id="curatedReserveBtn">
+            <span data-tr="Rezervasyon Talebi Gönder" data-en="Send booking request">Rezervasyon Talebi Gönder</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+          <p class="curated-note" data-tr="Talep gönderildiğinde, size 24 saat içinde özel plan ve kesin fiyat gönderilir." data-en="After your request, we'll send a custom plan and final price within 24 hours.">Talep gönderildiğinde, size 24 saat içinde özel plan ve kesin fiyat gönderilir.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="contact-hint" id="contactHint" aria-label="İletişim">
     <p class="contact-hint-text" data-tr="İletişim" data-en="Contact">İletişim</p>
     <div class="scroll-arrow">
@@ -4146,8 +4866,15 @@
       const ISO_COUNTRY = { 792: "Turkey", 196: "Cyprus", 764: "Thailand" };
 
       const mapSvg = document.getElementById("world-map");
+      const terrainCanvas = document.getElementById("world-map-terrain");
       const tooltipEl = document.getElementById("country-tooltip");
-      if (!mapSvg || !window.d3 || !window.topojson) return;
+      if (!mapSvg || !terrainCanvas || !window.d3 || !window.topojson) return;
+
+      const TERRAIN_MAP_URL = "world-terrain-map.jpg?v=2";
+      let terrainMapPixels = null;
+      let terrainMapW = 0;
+      let terrainMapH = 0;
+      let terrainMapReady = null;
 
       let resizeTimer = 0;
       let loadGen = 0;
@@ -4174,6 +4901,95 @@
 
       function countryKey(d) {
         return d && d.id != null ? String(d.id) : "";
+      }
+
+      function clamp(v, min, max) {
+        return Math.max(min, Math.min(max, v));
+      }
+
+      function loadTerrainMap() {
+        if (terrainMapReady) return terrainMapReady;
+        terrainMapReady = new Promise(function (resolve) {
+          if (terrainMapPixels) {
+            resolve();
+            return;
+          }
+          const img = new Image();
+          img.onload = function () {
+            const off = document.createElement("canvas");
+            off.width = img.naturalWidth;
+            off.height = img.naturalHeight;
+            const offCtx = off.getContext("2d");
+            if (!offCtx) {
+              resolve();
+              return;
+            }
+            offCtx.drawImage(img, 0, 0);
+            terrainMapPixels = offCtx.getImageData(0, 0, off.width, off.height).data;
+            terrainMapW = off.width;
+            terrainMapH = off.height;
+            resolve();
+          };
+          img.onerror = function () {
+            resolve();
+          };
+          img.src = TERRAIN_MAP_URL;
+        });
+        return terrainMapReady;
+      }
+
+      function sampleTerrainFromMap(lon, lat) {
+        if (!terrainMapPixels || !terrainMapW || !terrainMapH) {
+          return [90, 118, 72];
+        }
+        const u = (lon + 180) / 360;
+        const v = (90 - lat) / 180;
+        const x = clamp(Math.floor(u * (terrainMapW - 1)), 0, terrainMapW - 1);
+        const y = clamp(Math.floor(v * (terrainMapH - 1)), 0, terrainMapH - 1);
+        const i = (y * terrainMapW + x) * 4;
+        return [
+          terrainMapPixels[i],
+          terrainMapPixels[i + 1],
+          terrainMapPixels[i + 2]
+        ];
+      }
+
+      function renderTerrainCanvas(w, h) {
+        if (!terrainMapPixels) return;
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        terrainCanvas.width = Math.round(w * dpr);
+        terrainCanvas.height = Math.round(h * dpr);
+        terrainCanvas.style.width = w + "px";
+        terrainCanvas.style.height = h + "px";
+
+        const ctx = terrainCanvas.getContext("2d");
+        if (!ctx || !path || !features.length) return;
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+
+        const canvasPath = d3.geoPath().projection(projection).context(ctx);
+        const step = Math.max(2, Math.floor(w / 720));
+
+        ctx.save();
+        ctx.beginPath();
+        features.forEach(function (feature) {
+          canvasPath(feature);
+        });
+        ctx.clip();
+
+        for (let y = 0; y < h; y += step) {
+          for (let x = 0; x < w; x += step) {
+            const ll = projection.invert([x + step * 0.5, y + step * 0.5]);
+            if (!ll || !isFinite(ll[0]) || !isFinite(ll[1])) continue;
+            const rgb = sampleTerrainFromMap(ll[0], ll[1]);
+            ctx.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+            ctx.fillRect(x, y, step + 1, step + 1);
+          }
+        }
+
+        ctx.restore();
       }
 
       function clearHover() {
@@ -4287,6 +5103,7 @@
         projection.scale(w / 6.5).center([0, 20]).translate([w / 2, h / 2]);
         d3.select(mapSvg).attr("viewBox", "0 0 " + w + " " + h);
         countrySelection.attr("d", path);
+        renderTerrainCanvas(w, h);
         clearHover();
       }
 
@@ -4327,10 +5144,20 @@
                 return v || null;
               })
               .attr("d", path);
+
+            return loadTerrainMap();
+          })
+          .then(function () {
+            if (myGen !== loadGen) return;
+            renderTerrainCanvas(w, h);
             clearHover();
           })
           .catch(function () {});
       }
+
+      loadTerrainMap().then(function () {
+        build();
+      });
 
       window.addEventListener(
         "resize",
@@ -4352,8 +5179,6 @@
       window.addEventListener("mousemove", onPointerMove, { passive: true });
       window.addEventListener("touchmove", onPointerMove, { passive: true });
       window.addEventListener("blur", onPointerLeave);
-
-      build();
     })();
 
     (function initCityMarkers() {
@@ -4438,6 +5263,8 @@
           el.classList.add("fade-in-section");
           io.observe(el);
         });
+        const curatedSection = document.getElementById("curated-section");
+        if (curatedSection) io.observe(curatedSection);
       }
       if (contactSection && contactContainer && "IntersectionObserver" in window) {
         const formObserver = new IntersectionObserver(
@@ -4534,6 +5361,398 @@
       throw new Error(data.error || fallback);
     }
 
+    const CURATED_CONFIG = {
+      cityBasePrice: {
+        amsterdam: 590,
+        rotterdam: 540
+      },
+      pricePerExtraDay: 110,
+      addonPrice: 110,
+      cityImages: {
+        amsterdam: "https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=1200&auto=format&fit=crop",
+        rotterdam: "https://images.unsplash.com/photo-1580996378027-23090c1ef58a?w=1200&auto=format&fit=crop",
+        both: "https://images.unsplash.com/photo-1459679749680-18eb1eb37418?w=1200&auto=format&fit=crop"
+      },
+      cityDetails: {
+        amsterdam: {
+          title: { tr: "Amsterdam", en: "Amsterdam" },
+          subtitle: { tr: "Kanallar, müzeler, bisiklet turları", en: "Canals, museums, bike tours" }
+        },
+        rotterdam: {
+          title: { tr: "Rotterdam", en: "Rotterdam" },
+          subtitle: { tr: "Modern mimari, liman, sanat", en: "Modern architecture, port, art" }
+        },
+        both: {
+          title: { tr: "Amsterdam & Rotterdam", en: "Amsterdam & Rotterdam" },
+          subtitle: {
+            tr: "Klasik ve modern Hollanda deneyimi",
+            en: "Classic and modern Netherlands experience"
+          }
+        }
+      },
+      addonsPerCity: {
+        amsterdam: [
+          { id: "zaandam", emoji: "🏘️", name: "Zaandam", desc: { tr: "Tarihi yel değirmenleri", en: "Historic windmills" } },
+          { id: "giethoorn", emoji: "🚣", name: "Giethoorn", desc: { tr: "Hollanda'nın Venedik'i", en: "Venice of the Netherlands" } },
+          { id: "keukenhof", emoji: "🌷", name: "Keukenhof", desc: { tr: "Lale bahçeleri (Mart–Mayıs)", en: "Tulip gardens (Mar–May)" } },
+          { id: "volendam", emoji: "⚓", name: "Volendam", desc: { tr: "Balıkçı köyü ve kostüm", en: "Fishing village and costumes" } }
+        ],
+        rotterdam: [
+          { id: "kinderdijk", emoji: "💨", name: "Kinderdijk", desc: { tr: "UNESCO yel değirmenleri", en: "UNESCO windmills" } },
+          { id: "delft", emoji: "🎨", name: "Delft", desc: { tr: "Vermeer ve Delft çinileri", en: "Vermeer and Delft pottery" } },
+          { id: "denhaag", emoji: "🏛️", name: "Den Haag", desc: { tr: "Uluslararası şehir ve sahil", en: "International city and coast" } },
+          { id: "gouda", emoji: "🧀", name: "Gouda", desc: { tr: "Peynir pazarı ve tarih", en: "Cheese market and history" } }
+        ]
+      }
+    };
+
+    let selectedCities = ["amsterdam"];
+    let selectedAddons = [];
+
+    function curatedLangText(value) {
+      if (!value) return "";
+      if (typeof value === "string") return value;
+      const lang = L();
+      return value[lang] || value.tr || "";
+    }
+
+    function getCuratedCityKey() {
+      return selectedCities.length === 2 ? "both" : selectedCities[0];
+    }
+
+    function getCuratedCityName() {
+      const lang = L();
+      if (selectedCities.length === 2) {
+        return lang === "en" ? "Amsterdam + Rotterdam" : "Amsterdam + Rotterdam";
+      }
+      return selectedCities[0] === "amsterdam" ? "Amsterdam" : "Rotterdam";
+    }
+
+    function getCuratedAddonCatalog() {
+      return [].concat(
+        CURATED_CONFIG.addonsPerCity.amsterdam || [],
+        CURATED_CONFIG.addonsPerCity.rotterdam || []
+      );
+    }
+
+    function updateCuratedCard() {
+      const cityKey = getCuratedCityKey();
+      const cityImage = document.getElementById("cityImage");
+      const cityTitle = document.getElementById("cityTitle");
+      const citySubtitle = document.getElementById("citySubtitle");
+      const details = CURATED_CONFIG.cityDetails[cityKey];
+
+      if (cityImage && CURATED_CONFIG.cityImages[cityKey]) {
+        cityImage.src = CURATED_CONFIG.cityImages[cityKey];
+        cityImage.alt = curatedLangText(details && details.title);
+      }
+      if (cityTitle && details) {
+        cityTitle.textContent = curatedLangText(details.title);
+      }
+      if (citySubtitle && details) {
+        citySubtitle.textContent = curatedLangText(details.subtitle);
+      }
+
+      renderAddons();
+      updateCuratedSummary();
+    }
+
+    function renderAddons() {
+      const grid = document.getElementById("addonsGrid");
+      if (!grid) return;
+
+      const addons = [];
+      selectedCities.forEach(function (city) {
+        if (CURATED_CONFIG.addonsPerCity[city]) {
+          CURATED_CONFIG.addonsPerCity[city].forEach(function (addon) {
+            if (!addons.find(function (a) {
+              return a.id === addon.id;
+            })) {
+              addons.push(addon);
+            }
+          });
+        }
+      });
+
+      const validAddonIds = addons.map(function (a) {
+        return a.id;
+      });
+      selectedAddons = selectedAddons.filter(function (a) {
+        return validAddonIds.indexOf(a) !== -1;
+      });
+
+      grid.innerHTML = "";
+      addons.forEach(function (addon) {
+        const isChecked = selectedAddons.indexOf(addon.id) !== -1;
+        const label = document.createElement("label");
+        label.className = "addon-card";
+        label.dataset.addon = addon.id;
+        label.innerHTML =
+          '<input type="checkbox" ' +
+          (isChecked ? "checked" : "") +
+          "/>" +
+          '<div class="addon-content">' +
+          '<span class="addon-emoji" aria-hidden="true">' +
+          addon.emoji +
+          "</span>" +
+          "<div>" +
+          '<span class="addon-name">' +
+          addon.name +
+          "</span>" +
+          '<span class="addon-desc">' +
+          curatedLangText(addon.desc) +
+          "</span>" +
+          "</div>" +
+          '<span class="addon-price">+€' +
+          CURATED_CONFIG.addonPrice +
+          "</span>" +
+          "</div>";
+
+        const input = label.querySelector("input");
+        input.addEventListener("change", function () {
+          if (input.checked) {
+            if (selectedAddons.indexOf(addon.id) === -1) selectedAddons.push(addon.id);
+          } else {
+            const idx = selectedAddons.indexOf(addon.id);
+            if (idx !== -1) selectedAddons.splice(idx, 1);
+          }
+          updateCuratedSummary();
+        });
+
+        grid.appendChild(label);
+      });
+    }
+
+    function updateCuratedSummary() {
+      const basePrice = selectedCities.reduce(function (sum, city) {
+        return sum + (CURATED_CONFIG.cityBasePrice[city] || 0);
+      }, 0);
+      const cityBasePrice = selectedCities.length === 2 ? Math.round(basePrice * 0.85) : basePrice;
+      const addonsPrice = selectedAddons.length * CURATED_CONFIG.addonPrice;
+      const total = cityBasePrice + addonsPrice;
+
+      const summaryCityEl = document.getElementById("summaryCity");
+      const summaryDaysEl = document.getElementById("summaryDays");
+      const addonsRow = document.getElementById("summaryAddonsRow");
+      const addonsSummary = document.getElementById("summaryAddons");
+      const totalEl = document.getElementById("summaryTotal");
+
+      if (summaryCityEl) summaryCityEl.textContent = getCuratedCityName();
+      if (summaryDaysEl) summaryDaysEl.textContent = "€" + cityBasePrice;
+
+      const addonNameMap = {};
+      getCuratedAddonCatalog().forEach(function (a) {
+        addonNameMap[a.id] = a.name;
+      });
+
+      if (addonsRow && addonsSummary) {
+        if (selectedAddons.length === 0) {
+          addonsRow.style.display = "none";
+          addonsSummary.textContent = "";
+        } else {
+          const names = selectedAddons
+            .map(function (a) {
+              return addonNameMap[a] || a;
+            })
+            .join(", ");
+          addonsSummary.textContent = names + " · €" + addonsPrice;
+          addonsRow.style.display = "flex";
+        }
+      }
+
+      if (totalEl) totalEl.textContent = "€" + total;
+    }
+
+    function getCuratedDateText(lang) {
+      const startDateInput = document.getElementById("tripStartDate");
+      const endDateInput = document.getElementById("tripEndDate");
+      const startDate = startDateInput ? startDateInput.value : "";
+      const endDate = endDateInput ? endDateInput.value : "";
+      const locale = lang === "en" ? "en-GB" : "tr-TR";
+      const formatDate = function (d) {
+        return new Date(d + "T12:00:00").toLocaleDateString(locale, {
+          day: "numeric",
+          month: "long",
+          year: "numeric"
+        });
+      };
+
+      if (startDate && endDate) {
+        return formatDate(startDate) + " - " + formatDate(endDate);
+      }
+      if (startDate) {
+        return lang === "en"
+          ? "From " + formatDate(startDate)
+          : formatDate(startDate) + " tarihinden itibaren";
+      }
+      return lang === "en" ? "Flexible" : "Esnek";
+    }
+
+    function reserveCurated() {
+      const lang = L();
+      const dateText = getCuratedDateText(lang);
+      const cityName = getCuratedCityName();
+      const addonNameMap = {};
+      getCuratedAddonCatalog().forEach(function (a) {
+        addonNameMap[a.id] = a.name;
+      });
+      const addonNames =
+        selectedAddons.length > 0
+          ? selectedAddons
+              .map(function (a) {
+                return addonNameMap[a] || a;
+              })
+              .join(", ")
+          : lang === "en"
+            ? "None"
+            : "Yok";
+
+      const basePrice = selectedCities.reduce(function (sum, city) {
+        return sum + (CURATED_CONFIG.cityBasePrice[city] || 0);
+      }, 0);
+      const cityBasePrice = selectedCities.length === 2 ? Math.round(basePrice * 0.85) : basePrice;
+      const addonsPrice = selectedAddons.length * CURATED_CONFIG.addonPrice;
+      const total = cityBasePrice + addonsPrice;
+
+      const subject =
+        lang === "en" ? "Netherlands Tour — Booking Request" : "Hollanda Turu - Rezervasyon Talebi";
+      const body =
+        lang === "en"
+          ? "Hello,\n\nI'm sending a booking request for a Netherlands tour:\n\n" +
+            "📍 Destination: " +
+            cityName +
+            "\n" +
+            "📅 Dates: " +
+            dateText +
+            "\n" +
+            "➕ Optional day trips: " +
+            addonNames +
+            "\n\n" +
+            "💰 Estimated total: €" +
+            total +
+            "\n\n" +
+            "Please get in touch with a detailed program and final price.\n\nThank you."
+          : "Merhaba,\n\nHollanda turu için rezervasyon talebi:\n\n" +
+            "📍 Destinasyon: " +
+            cityName +
+            "\n" +
+            "📅 Tarih: " +
+            dateText +
+            "\n" +
+            "➕ Ekstra Turlar: " +
+            addonNames +
+            "\n\n" +
+            "💰 Tahmini Toplam: €" +
+            total +
+            "\n\n" +
+            "Detaylı program ve kesin fiyat için lütfen dönüş yapınız.\n\nTeşekkürler.";
+
+      window.location.href =
+        "mailto:" +
+        INQUIRY_EMAIL +
+        "?subject=" +
+        encodeURIComponent(subject) +
+        "&body=" +
+        encodeURIComponent(body);
+    }
+
+    (function initCuratedTourBuilder() {
+      const startDateInput = document.getElementById("tripStartDate");
+      const endDateInput = document.getElementById("tripEndDate");
+      const reserveBtn = document.getElementById("curatedReserveBtn");
+
+      document.querySelectorAll(".city-btn").forEach(function (btn) {
+        btn.addEventListener("click", function (e) {
+          e.preventDefault();
+          const city = btn.dataset.city;
+          const input = btn.querySelector("input");
+          const idx = selectedCities.indexOf(city);
+
+          if (idx !== -1) {
+            if (selectedCities.length === 1) return;
+            selectedCities.splice(idx, 1);
+            btn.classList.remove("active");
+            if (input) input.checked = false;
+          } else {
+            selectedCities.push(city);
+            btn.classList.add("active");
+            if (input) input.checked = true;
+          }
+
+          updateCuratedCard();
+        });
+      });
+
+      if (startDateInput && endDateInput) {
+        const today = new Date();
+        today.setDate(today.getDate() + 14);
+        const minDate = today.toISOString().split("T")[0];
+        startDateInput.min = minDate;
+        endDateInput.min = minDate;
+
+        startDateInput.addEventListener("change", function () {
+          if (startDateInput.value) {
+            endDateInput.min = startDateInput.value;
+            if (endDateInput.value && endDateInput.value < startDateInput.value) {
+              endDateInput.value = startDateInput.value;
+            }
+          }
+        });
+      }
+
+      if (reserveBtn) reserveBtn.addEventListener("click", reserveCurated);
+
+      updateCuratedCard();
+    })();
+
+    (function initDatePickerInteraction() {
+      function openDatePicker(input) {
+        if (!input) return;
+        if (typeof input.showPicker === "function") {
+          try {
+            input.showPicker();
+          } catch (err) {
+            input.focus();
+            input.click();
+          }
+        } else {
+          input.focus();
+          input.click();
+        }
+      }
+
+      document.querySelectorAll(".date-field").forEach(function (field) {
+        field.addEventListener("click", function (e) {
+          const input = field.querySelector(".date-input");
+          if (input && e.target !== input) {
+            openDatePicker(input);
+          }
+        });
+      });
+
+      document.querySelectorAll(".date-input").forEach(function (input) {
+        input.addEventListener("click", function () {
+          if (typeof this.showPicker === "function") {
+            try {
+              this.showPicker();
+            } catch (err) {
+              // Ignore errors
+            }
+          }
+        });
+
+        input.addEventListener("focus", function () {
+          if (typeof this.showPicker === "function") {
+            try {
+              this.showPicker();
+            } catch (err) {
+              // Ignore errors
+            }
+          }
+        });
+      });
+    })();
+
     const TOUR_BOOKING_LABELS = {
       backpacking: { tr: "Phuket & Bangkok · Backpacking", en: "Phuket & Bangkok · Backpacking" },
       phuket: { tr: "Phuket & Bangkok · Comfort", en: "Phuket & Bangkok · Comfort" },
@@ -4606,14 +5825,20 @@
     function populateReserveTourSelect() {
       const sel = document.getElementById("reserve-tour");
       if (!sel) return;
-      const keys = ["backpacking", "phuket", "tomorrowland"];
+      const keys = ["backpacking", "phuket", "tomorrowland"].filter(function (key) {
+        return !isTourSoldOut(key);
+      });
+      const activeTour =
+        !isTourSoldOut(currentTour) && keys.indexOf(currentTour) !== -1
+          ? currentTour
+          : keys[0];
       sel.innerHTML = keys
         .map(function (key) {
           return (
             '<option value="' +
             key +
             '"' +
-            (key === currentTour ? " selected" : "") +
+            (key === activeTour ? " selected" : "") +
             ">" +
             escapeHtml(getTourBookingLabel(key)) +
             "</option>"
@@ -8381,6 +9606,7 @@
           london:   { eur: 1199 },
           berlin:   { eur: 1399 }
         },
+        availability: { capacity: 10, booked: 2 },
         emailSubject: 'Phuket%20Backpacking%20Style%20Rezervasyonu'
       },
       phuket: {
@@ -8412,6 +9638,7 @@
           berlin:   { eur: 1790 },
           amsterdam: { eur: 1690 }
         },
+        availability: { capacity: 10, booked: 4 },
         emailSubject: 'Phuket%20%26%20Bangkok%20Tur%20Rezervasyonu'
       },
       tomorrowland: {
@@ -8444,12 +9671,86 @@
           berlin:   { eur: 2790 },
           amsterdam: { eur: 2690 }
         },
+        availability: { capacity: 10, booked: 10, soldOut: true },
         emailSubject: 'Tomorrowland%20Thailand%20Paketi'
       }
     };
 
     function formatMoneyDots(n) {
       return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+    function getTourAvailability(tourKey) {
+      const t = TOURS[tourKey];
+      const a = t && t.availability ? t.availability : { capacity: 10, booked: 0 };
+      const capacity = a.capacity || 10;
+      const booked = a.booked || 0;
+      return {
+        capacity: capacity,
+        booked: booked,
+        soldOut: !!a.soldOut || booked >= capacity
+      };
+    }
+    function isTourSoldOut(tourKey) {
+      return getTourAvailability(tourKey).soldOut;
+    }
+    function getAvailabilityCardLabel(tourKey, lang) {
+      const a = getTourAvailability(tourKey);
+      if (a.soldOut) {
+        return lang === "en" ? "Sold out" : "Tükendi";
+      }
+      return lang === "en"
+        ? a.booked + "/" + a.capacity + " booked"
+        : a.booked + "/" + a.capacity + " kişi rezerve";
+    }
+    function getTourKeyFromHash(hash) {
+      if (hash === "#tur-backpacking") return "backpacking";
+      if (hash === "#tur") return "phuket";
+      if (hash === "#tomorrowland") return "tomorrowland";
+      return null;
+    }
+    function renderTourCardAvailability() {
+      const lang = L();
+      ["backpacking", "phuket", "tomorrowland"].forEach(function (key) {
+        const el = document.getElementById("tour-card-availability-" + key);
+        if (!el) return;
+        const soldOut = isTourSoldOut(key);
+        el.textContent = getAvailabilityCardLabel(key, lang);
+        el.classList.toggle("tour-card__availability--sold-out", soldOut);
+        el.classList.toggle("tour-card__availability--open", !soldOut);
+      });
+      if (openTomorrowlandBtn) {
+        const tmlSoldOut = isTourSoldOut("tomorrowland");
+        openTomorrowlandBtn.disabled = tmlSoldOut;
+        openTomorrowlandBtn.setAttribute("aria-disabled", tmlSoldOut ? "true" : "false");
+        openTomorrowlandBtn.classList.toggle("tour-card--sold-out", tmlSoldOut);
+      }
+    }
+    function syncReserveButtonState() {
+      const reserveBtn = document.getElementById("open-reserve");
+      const soldOut = isTourSoldOut(currentTour);
+      let soldOutEl = document.getElementById("price-card-sold-out");
+      if (soldOut) {
+        if (!soldOutEl) {
+          soldOutEl = document.createElement("p");
+          soldOutEl.id = "price-card-sold-out";
+          soldOutEl.className = "price-card__sold-out";
+          if (reserveBtn && reserveBtn.parentNode) {
+            reserveBtn.parentNode.insertBefore(soldOutEl, reserveBtn);
+          }
+        }
+        soldOutEl.textContent = L() === "en" ? "Sold out" : "Tükendi";
+        soldOutEl.hidden = false;
+        if (reserveBtn) {
+          reserveBtn.disabled = true;
+          reserveBtn.classList.add("is-sold-out");
+        }
+      } else {
+        if (soldOutEl) soldOutEl.hidden = true;
+        if (reserveBtn) {
+          reserveBtn.disabled = false;
+          reserveBtn.classList.remove("is-sold-out");
+        }
+      }
     }
     function formatEurDisplay(n) {
       return "€ " + formatMoneyDots(n);
@@ -9082,6 +10383,7 @@
       // Update reserve button email subject
       const reserveBtn = document.getElementById('open-reserve');
       if (reserveBtn) reserveBtn.setAttribute('data-email-subject', t.emailSubject);
+      syncReserveButtonState();
     }
 
     /* ─── Nationality / Thailand visa info ─────────────────────────────── */
@@ -9705,6 +11007,7 @@
     const modalError = document.getElementById("modal-error");
 
     function openModal() {
+      if (isTourSoldOut(currentTour)) return;
       overlay.hidden = false;
       overlay.classList.add("is-open");
       document.body.classList.add("modal-open");
@@ -9848,6 +11151,8 @@
     } catch (e) {}
 
     function openDepartureModal(hash) {
+      const tourKey = getTourKeyFromHash(hash);
+      if (tourKey && isTourSoldOut(tourKey)) return;
       pendingTourHash = hash;
       if (!departureModal) {
         navigateToTourHash(hash);
@@ -9925,7 +11230,11 @@
       const hash = location.hash;
       const isBackpacking = hash === "#tur-backpacking";
       const isComfort = hash === "#tur";
-      const isTml = hash === "#tomorrowland";
+      let isTml = hash === "#tomorrowland";
+      if (isTml && isTourSoldOut("tomorrowland")) {
+        history.replaceState(null, "", location.pathname + location.search);
+        isTml = false;
+      }
       const showTour = isBackpacking || isComfort || isTml;
 
       if (isTml) currentTour = "tomorrowland";
@@ -9969,6 +11278,7 @@
     if (openTomorrowlandBtn) {
       openTomorrowlandBtn.addEventListener("click", function (e) {
         e.preventDefault();
+        if (isTourSoldOut("tomorrowland")) return;
         openDepartureModal("#tomorrowland");
       });
     }
@@ -10006,6 +11316,7 @@
     // Initial render — sync route first so price matrix visibility matches view
     syncPricingModeButtons();
     syncViewFromHash();
+    renderTourCardAvailability();
     updateTourMeta();
     renderTimeline(L());
     fillLists();
@@ -10065,6 +11376,8 @@
       });
       // Re-render tour-specific content (hero, sidebar, timeline, panels) for new language
       if (typeof updateTourMeta === "function") updateTourMeta();
+      if (typeof renderTourCardAvailability === "function") renderTourCardAvailability();
+      if (typeof updateCuratedCard === "function") updateCuratedCard();
       if (typeof refreshChatPriceSummary === "function") refreshChatPriceSummary();
       if (typeof renderTimeline === "function") renderTimeline(lang);
       if (typeof fillLists === "function") fillLists();

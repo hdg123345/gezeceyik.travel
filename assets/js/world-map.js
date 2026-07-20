@@ -1,12 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
 (function initWorldMapBackground() {
   const DATA_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+  const TERRAIN_MAP_URL = "world-terrain-map.jpg?v=2";
   const ISO_COUNTRY = { 792: "Turkey", 196: "Cyprus", 764: "Thailand" };
 
   const mapSvg = document.getElementById("world-map");
+  const terrainCanvas = document.getElementById("world-map-terrain");
   const tooltipEl = document.getElementById("country-tooltip");
-  if (!mapSvg || !window.d3 || !window.topojson) return;
+  if (!mapSvg || !terrainCanvas || !window.d3 || !window.topojson) return;
 
+  let terrainMapPixels = null;
+  let terrainMapW = 0;
+  let terrainMapH = 0;
+  let terrainMapReady = null;
   let resizeTimer = 0;
   let loadGen = 0;
   let features = [];
@@ -32,6 +38,95 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function countryKey(d) {
     return d && d.id != null ? String(d.id) : "";
+  }
+
+  function clamp(v, min, max) {
+    return Math.max(min, Math.min(max, v));
+  }
+
+  function loadTerrainMap() {
+    if (terrainMapReady) return terrainMapReady;
+    terrainMapReady = new Promise(function (resolve) {
+      if (terrainMapPixels) {
+        resolve();
+        return;
+      }
+      const img = new Image();
+      img.onload = function () {
+        const off = document.createElement("canvas");
+        off.width = img.naturalWidth;
+        off.height = img.naturalHeight;
+        const offCtx = off.getContext("2d");
+        if (!offCtx) {
+          resolve();
+          return;
+        }
+        offCtx.drawImage(img, 0, 0);
+        terrainMapPixels = offCtx.getImageData(0, 0, off.width, off.height).data;
+        terrainMapW = off.width;
+        terrainMapH = off.height;
+        resolve();
+      };
+      img.onerror = function () {
+        resolve();
+      };
+      img.src = TERRAIN_MAP_URL;
+    });
+    return terrainMapReady;
+  }
+
+  function sampleTerrainFromMap(lon, lat) {
+    if (!terrainMapPixels || !terrainMapW || !terrainMapH) {
+      return [90, 118, 72];
+    }
+    const u = (lon + 180) / 360;
+    const v = (90 - lat) / 180;
+    const x = clamp(Math.floor(u * (terrainMapW - 1)), 0, terrainMapW - 1);
+    const y = clamp(Math.floor(v * (terrainMapH - 1)), 0, terrainMapH - 1);
+    const i = (y * terrainMapW + x) * 4;
+    return [
+      terrainMapPixels[i],
+      terrainMapPixels[i + 1],
+      terrainMapPixels[i + 2]
+    ];
+  }
+
+  function renderTerrainCanvas(w, h) {
+    if (!terrainMapPixels) return;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    terrainCanvas.width = Math.round(w * dpr);
+    terrainCanvas.height = Math.round(h * dpr);
+    terrainCanvas.style.width = w + "px";
+    terrainCanvas.style.height = h + "px";
+
+    const ctx = terrainCanvas.getContext("2d");
+    if (!ctx || !path || !features.length) return;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    const canvasPath = d3.geoPath().projection(projection).context(ctx);
+    const step = Math.max(2, Math.floor(w / 720));
+
+    ctx.save();
+    ctx.beginPath();
+    features.forEach(function (feature) {
+      canvasPath(feature);
+    });
+    ctx.clip();
+
+    for (let y = 0; y < h; y += step) {
+      for (let x = 0; x < w; x += step) {
+        const ll = projection.invert([x + step * 0.5, y + step * 0.5]);
+        if (!ll || !isFinite(ll[0]) || !isFinite(ll[1])) continue;
+        const rgb = sampleTerrainFromMap(ll[0], ll[1]);
+        ctx.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
+        ctx.fillRect(x, y, step + 1, step + 1);
+      }
+    }
+
+    ctx.restore();
   }
 
   function clearHover() {
@@ -145,6 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
     projection.scale(w / 6.5).center([0, 20]).translate([w / 2, h / 2]);
     d3.select(mapSvg).attr("viewBox", "0 0 " + w + " " + h);
     countrySelection.attr("d", path);
+    renderTerrainCanvas(w, h);
     clearHover();
   }
 
@@ -185,10 +281,20 @@ document.addEventListener("DOMContentLoaded", function () {
             return v || null;
           })
           .attr("d", path);
+
+        return loadTerrainMap();
+      })
+      .then(function () {
+        if (myGen !== loadGen) return;
+        renderTerrainCanvas(w, h);
         clearHover();
       })
       .catch(function () {});
   }
+
+  loadTerrainMap().then(function () {
+    build();
+  });
 
   window.addEventListener(
     "resize",
@@ -210,8 +316,6 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener("mousemove", onPointerMove, { passive: true });
   window.addEventListener("touchmove", onPointerMove, { passive: true });
   window.addEventListener("blur", onPointerLeave);
-
-  build();
 })();
 
 (function initCityMarkers() {

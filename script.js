@@ -378,3 +378,345 @@ function resetChat() {
   chatHistory = [];
   showChatStep("start");
 }
+
+const CURATED_CONFIG = {
+  cityBasePrice: {
+    amsterdam: 590,
+    rotterdam: 540
+  },
+  pricePerExtraDay: 110,
+  addonPrice: 110,
+  cityImages: {
+    amsterdam: "https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=1200&auto=format&fit=crop",
+    rotterdam: "https://images.unsplash.com/photo-1580996378027-23090c1ef58a?w=1200&auto=format&fit=crop",
+    both: "https://images.unsplash.com/photo-1459679749680-18eb1eb37418?w=1200&auto=format&fit=crop"
+  },
+  cityDetails: {
+    amsterdam: {
+      title: "Amsterdam",
+      subtitle: "Kanallar, müzeler, bisiklet turları"
+    },
+    rotterdam: {
+      title: "Rotterdam",
+      subtitle: "Modern mimari, liman, sanat"
+    },
+    both: {
+      title: "Amsterdam & Rotterdam",
+      subtitle: "Klasik ve modern Hollanda deneyimi"
+    }
+  },
+  addonsPerCity: {
+    amsterdam: [
+      { id: "zaandam", emoji: "🏘️", name: "Zaandam", desc: "Tarihi yel değirmenleri" },
+      { id: "giethoorn", emoji: "🚣", name: "Giethoorn", desc: "Hollanda'nın Venedik'i" },
+      { id: "keukenhof", emoji: "🌷", name: "Keukenhof", desc: "Lale bahçeleri (Mart-Mayıs)" },
+      { id: "volendam", emoji: "⚓", name: "Volendam", desc: "Balıkçı köyü ve kostüm" }
+    ],
+    rotterdam: [
+      { id: "kinderdijk", emoji: "💨", name: "Kinderdijk", desc: "UNESCO yel değirmenleri" },
+      { id: "delft", emoji: "🎨", name: "Delft", desc: "Vermeer ve Delft çinileri" },
+      { id: "denhaag", emoji: "🏛️", name: "Den Haag", desc: "Uluslararası şehir ve sahil" },
+      { id: "gouda", emoji: "🧀", name: "Gouda", desc: "Peynir pazarı ve tarih" }
+    ]
+  }
+};
+
+const CURATED_INQUIRY_EMAIL = "gezeceyik1travel@gmail.com";
+
+let selectedCities = ["amsterdam"];
+let selectedAddons = [];
+
+function updateCuratedCard() {
+  const cityKey = selectedCities.length === 2 ? "both" : selectedCities[0];
+  const cityImage = document.getElementById("cityImage");
+  const cityTitle = document.getElementById("cityTitle");
+  const citySubtitle = document.getElementById("citySubtitle");
+
+  if (cityImage && CURATED_CONFIG.cityImages[cityKey]) {
+    cityImage.src = CURATED_CONFIG.cityImages[cityKey];
+  }
+  if (cityTitle && CURATED_CONFIG.cityDetails[cityKey]) {
+    cityTitle.textContent = CURATED_CONFIG.cityDetails[cityKey].title;
+  }
+  if (citySubtitle && CURATED_CONFIG.cityDetails[cityKey]) {
+    citySubtitle.textContent = CURATED_CONFIG.cityDetails[cityKey].subtitle;
+  }
+
+  renderAddons();
+  updateCuratedSummary();
+}
+
+function renderAddons() {
+  const grid = document.getElementById("addonsGrid");
+  if (!grid) return;
+
+  const addons = [];
+  selectedCities.forEach(function (city) {
+    if (CURATED_CONFIG.addonsPerCity[city]) {
+      CURATED_CONFIG.addonsPerCity[city].forEach(function (addon) {
+        if (!addons.find(function (a) {
+          return a.id === addon.id;
+        })) {
+          addons.push(addon);
+        }
+      });
+    }
+  });
+
+  const validAddonIds = addons.map(function (a) {
+    return a.id;
+  });
+  selectedAddons = selectedAddons.filter(function (a) {
+    return validAddonIds.indexOf(a) !== -1;
+  });
+
+  grid.innerHTML = "";
+  addons.forEach(function (addon) {
+    const isChecked = selectedAddons.indexOf(addon.id) !== -1;
+    const label = document.createElement("label");
+    label.className = "addon-card";
+    label.dataset.addon = addon.id;
+    label.innerHTML =
+      '<input type="checkbox" ' +
+      (isChecked ? "checked" : "") +
+      "/>" +
+      '<div class="addon-content">' +
+      '<span class="addon-emoji">' +
+      addon.emoji +
+      "</span>" +
+      "<div>" +
+      '<span class="addon-name">' +
+      addon.name +
+      "</span>" +
+      '<span class="addon-desc">' +
+      addon.desc +
+      "</span>" +
+      "</div>" +
+      '<span class="addon-price">+€' +
+      CURATED_CONFIG.addonPrice +
+      "</span>" +
+      "</div>";
+
+    const input = label.querySelector("input");
+    input.addEventListener("change", function () {
+      if (input.checked) {
+        if (selectedAddons.indexOf(addon.id) === -1) selectedAddons.push(addon.id);
+      } else {
+        const idx = selectedAddons.indexOf(addon.id);
+        if (idx !== -1) selectedAddons.splice(idx, 1);
+      }
+      updateCuratedSummary();
+    });
+
+    grid.appendChild(label);
+  });
+}
+
+function updateCuratedSummary() {
+  const basePrice = selectedCities.reduce(function (sum, city) {
+    return sum + (CURATED_CONFIG.cityBasePrice[city] || 0);
+  }, 0);
+  const cityBasePrice = selectedCities.length === 2 ? Math.round(basePrice * 0.85) : basePrice;
+  const addonsPrice = selectedAddons.length * CURATED_CONFIG.addonPrice;
+  const total = cityBasePrice + addonsPrice;
+
+  const cityName =
+    selectedCities.length === 2
+      ? "Amsterdam + Rotterdam"
+      : selectedCities[0] === "amsterdam"
+        ? "Amsterdam"
+        : "Rotterdam";
+
+  const summaryCityEl = document.getElementById("summaryCity");
+  const summaryDaysEl = document.getElementById("summaryDays");
+  const addonsRow = document.getElementById("summaryAddonsRow");
+  const addonsSummary = document.getElementById("summaryAddons");
+  const totalEl = document.getElementById("summaryTotal");
+
+  if (summaryCityEl) summaryCityEl.textContent = cityName;
+
+  if (summaryDaysEl) summaryDaysEl.textContent = "€" + cityBasePrice;
+
+  const allAddons = [].concat(
+    CURATED_CONFIG.addonsPerCity.amsterdam || [],
+    CURATED_CONFIG.addonsPerCity.rotterdam || []
+  );
+  const addonNameMap = {};
+  allAddons.forEach(function (a) {
+    addonNameMap[a.id] = a.name;
+  });
+
+  if (addonsRow && addonsSummary) {
+    if (selectedAddons.length === 0) {
+      addonsRow.style.display = "none";
+      addonsSummary.textContent = "";
+    } else {
+      const names = selectedAddons
+        .map(function (a) {
+          return addonNameMap[a] || a;
+        })
+        .join(", ");
+      addonsSummary.textContent = names + " · €" + addonsPrice;
+      addonsRow.style.display = "flex";
+    }
+  }
+
+  if (totalEl) totalEl.textContent = "€" + total;
+}
+
+document.querySelectorAll(".city-btn").forEach(function (btn) {
+  btn.addEventListener("click", function (e) {
+    e.preventDefault();
+    const city = btn.dataset.city;
+    const input = btn.querySelector("input");
+    const idx = selectedCities.indexOf(city);
+
+    if (idx !== -1) {
+      if (selectedCities.length === 1) return;
+      selectedCities.splice(idx, 1);
+      btn.classList.remove("active");
+      if (input) input.checked = false;
+    } else {
+      selectedCities.push(city);
+      btn.classList.add("active");
+      if (input) input.checked = true;
+    }
+
+    updateCuratedCard();
+  });
+});
+
+const startDateInput = document.getElementById("tripStartDate");
+const endDateInput = document.getElementById("tripEndDate");
+if (startDateInput && endDateInput) {
+  const today = new Date();
+  today.setDate(today.getDate() + 14);
+  const minDate = today.toISOString().split("T")[0];
+  startDateInput.min = minDate;
+  endDateInput.min = minDate;
+
+  startDateInput.addEventListener("change", function () {
+    if (startDateInput.value) {
+      endDateInput.min = startDateInput.value;
+      if (endDateInput.value && endDateInput.value < startDateInput.value) {
+        endDateInput.value = startDateInput.value;
+      }
+    }
+  });
+}
+
+function reserveCurated() {
+  const startDate = document.getElementById("tripStartDate").value;
+  const endDate = document.getElementById("tripEndDate").value;
+  const formatDate = function (d) {
+    return new Date(d + "T12:00:00").toLocaleDateString("tr-TR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+  };
+  const dateText =
+    startDate && endDate
+      ? formatDate(startDate) + " - " + formatDate(endDate)
+      : startDate
+        ? formatDate(startDate) + " tarihinden itibaren"
+        : "Esnek";
+
+  const cityName =
+    selectedCities.length === 2
+      ? "Amsterdam + Rotterdam"
+      : selectedCities[0] === "amsterdam"
+        ? "Amsterdam"
+        : "Rotterdam";
+
+  const allAddons = [].concat(
+    CURATED_CONFIG.addonsPerCity.amsterdam || [],
+    CURATED_CONFIG.addonsPerCity.rotterdam || []
+  );
+  const addonNameMap = {};
+  allAddons.forEach(function (a) {
+    addonNameMap[a.id] = a.name;
+  });
+
+  const addonNames =
+    selectedAddons.length > 0
+      ? selectedAddons
+          .map(function (a) {
+            return addonNameMap[a] || a;
+          })
+          .join(", ")
+      : "Yok";
+
+  const basePrice = selectedCities.reduce(function (sum, city) {
+    return sum + (CURATED_CONFIG.cityBasePrice[city] || 0);
+  }, 0);
+  const cityBasePrice = selectedCities.length === 2 ? Math.round(basePrice * 0.85) : basePrice;
+  const addonsPrice = selectedAddons.length * CURATED_CONFIG.addonPrice;
+  const total = cityBasePrice + addonsPrice;
+
+  const subject = encodeURIComponent("Hollanda Turu - Rezervasyon Talebi");
+  const body = encodeURIComponent(
+    "Merhaba,\n\nHollanda turu için rezervasyon talebi:\n\n" +
+      "📍 Destinasyon: " +
+      cityName +
+      "\n" +
+      "📅 Tarih: " +
+      dateText +
+      "\n" +
+      "➕ Ekstra Turlar: " +
+      addonNames +
+      "\n\n" +
+      "💰 Tahmini Toplam: €" +
+      total +
+      "\n\n" +
+      "Detaylı program ve kesin fiyat için lütfen dönüş yapınız.\n\nTeşekkürler."
+  );
+
+  window.location.href = "mailto:" + CURATED_INQUIRY_EMAIL + "?subject=" + subject + "&body=" + body;
+}
+
+const curatedReserveBtn = document.getElementById("curatedReserveBtn");
+if (curatedReserveBtn) curatedReserveBtn.addEventListener("click", reserveCurated);
+
+updateCuratedCard();
+
+document.querySelectorAll(".date-field").forEach((field) => {
+  field.addEventListener("click", (e) => {
+    const input = field.querySelector(".date-input");
+    if (input && e.target !== input) {
+      if (typeof input.showPicker === "function") {
+        try {
+          input.showPicker();
+        } catch (err) {
+          input.focus();
+          input.click();
+        }
+      } else {
+        input.focus();
+        input.click();
+      }
+    }
+  });
+});
+
+document.querySelectorAll(".date-input").forEach((input) => {
+  input.addEventListener("click", function (e) {
+    if (typeof this.showPicker === "function") {
+      try {
+        this.showPicker();
+      } catch (err) {
+        // Ignore errors
+      }
+    }
+  });
+
+  input.addEventListener("focus", function () {
+    if (typeof this.showPicker === "function") {
+      try {
+        this.showPicker();
+      } catch (err) {
+        // Ignore errors
+      }
+    }
+  });
+});
