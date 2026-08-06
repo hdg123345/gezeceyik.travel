@@ -164,6 +164,7 @@ body.view-tour .price-card select {
   height: 100%;
   display: block;
   z-index: 0;
+  filter: saturate(1.06) contrast(1.03);
 }
 
 #world-map {

@@ -203,6 +203,7 @@
       height: 100%;
       display: block;
       z-index: 0;
+      filter: saturate(1.06) contrast(1.03);
     }
 
     #world-map {
@@ -3332,14 +3333,14 @@
       flex-shrink: 0;
     }
 
-    .chat-option.contact {
+    .chat-option.chat-option--action {
       background: var(--terracotta);
       color: white;
       border-color: var(--terracotta);
       justify-content: center;
     }
 
-    .chat-option.contact:hover {
+    .chat-option.chat-option--action:hover {
       background: var(--teal);
       border-color: var(--teal);
       transform: none;
@@ -4870,7 +4871,8 @@
       const tooltipEl = document.getElementById("country-tooltip");
       if (!mapSvg || !terrainCanvas || !window.d3 || !window.topojson) return;
 
-      const TERRAIN_MAP_URL = "world-terrain-map.jpg?v=2";
+      const TERRAIN_MAP_URL = "world-terrain-map.jpg?v=3";
+      const TERRAIN_TEX_MAX = 4096;
       let terrainMapPixels = null;
       let terrainMapW = 0;
       let terrainMapH = 0;
@@ -4917,14 +4919,17 @@
           const img = new Image();
           img.onload = function () {
             const off = document.createElement("canvas");
-            off.width = img.naturalWidth;
-            off.height = img.naturalHeight;
+            const scale = Math.min(1, TERRAIN_TEX_MAX / img.naturalWidth);
+            off.width = Math.round(img.naturalWidth * scale);
+            off.height = Math.round(img.naturalHeight * scale);
             const offCtx = off.getContext("2d");
             if (!offCtx) {
               resolve();
               return;
             }
-            offCtx.drawImage(img, 0, 0);
+            offCtx.imageSmoothingEnabled = true;
+            offCtx.imageSmoothingQuality = "high";
+            offCtx.drawImage(img, 0, 0, off.width, off.height);
             terrainMapPixels = offCtx.getImageData(0, 0, off.width, off.height).data;
             terrainMapW = off.width;
             terrainMapH = off.height;
@@ -4944,14 +4949,41 @@
         }
         const u = (lon + 180) / 360;
         const v = (90 - lat) / 180;
-        const x = clamp(Math.floor(u * (terrainMapW - 1)), 0, terrainMapW - 1);
-        const y = clamp(Math.floor(v * (terrainMapH - 1)), 0, terrainMapH - 1);
-        const i = (y * terrainMapW + x) * 4;
+        const fx = clamp(u * (terrainMapW - 1), 0, terrainMapW - 1);
+        const fy = clamp(v * (terrainMapH - 1), 0, terrainMapH - 1);
+        const x0 = Math.floor(fx);
+        const y0 = Math.floor(fy);
+        const x1 = Math.min(x0 + 1, terrainMapW - 1);
+        const y1 = Math.min(y0 + 1, terrainMapH - 1);
+        const tx = fx - x0;
+        const ty = fy - y0;
+
+        function readPx(x, y) {
+          const i = (y * terrainMapW + x) * 4;
+          return [terrainMapPixels[i], terrainMapPixels[i + 1], terrainMapPixels[i + 2]];
+        }
+
+        const c00 = readPx(x0, y0);
+        const c10 = readPx(x1, y0);
+        const c01 = readPx(x0, y1);
+        const c11 = readPx(x1, y1);
+        const w00 = (1 - tx) * (1 - ty);
+        const w10 = tx * (1 - ty);
+        const w01 = (1 - tx) * ty;
+        const w11 = tx * ty;
+
         return [
-          terrainMapPixels[i],
-          terrainMapPixels[i + 1],
-          terrainMapPixels[i + 2]
+          Math.round(c00[0] * w00 + c10[0] * w10 + c01[0] * w01 + c11[0] * w11),
+          Math.round(c00[1] * w00 + c10[1] * w10 + c01[1] * w01 + c11[1] * w11),
+          Math.round(c00[2] * w00 + c10[2] * w10 + c01[2] * w01 + c11[2] * w11)
         ];
+      }
+
+      function terrainRenderStep(w, h) {
+        const pixels = w * h;
+        if (pixels <= 1920 * 1080) return 1;
+        if (pixels <= 2560 * 1440) return 1;
+        return 2;
       }
 
       function renderTerrainCanvas(w, h) {
@@ -4968,9 +5000,11 @@
 
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.clearRect(0, 0, w, h);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
 
         const canvasPath = d3.geoPath().projection(projection).context(ctx);
-        const step = Math.max(2, Math.floor(w / 720));
+        const step = terrainRenderStep(w, h);
 
         ctx.save();
         ctx.beginPath();
@@ -4985,7 +5019,7 @@
             if (!ll || !isFinite(ll[0]) || !isFinite(ll[1])) continue;
             const rgb = sampleTerrainFromMap(ll[0], ll[1]);
             ctx.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
-            ctx.fillRect(x, y, step + 1, step + 1);
+            ctx.fillRect(x, y, step, step);
           }
         }
 
@@ -11473,11 +11507,13 @@
       hotelDetails: { message: "🏨 Phuket'te Thanthip Beach Resort (4★) ve Bangkok'ta Solitaire Sukhumvit 11 (4★) - her ikisi de merkezi konumda.",
         options: [ { text: "Daha fazla soru", next: "contact" }, { text: "← Geri dön", next: "flight" } ] },
       reservation: { message: "📅 Rezervasyon için bize ulaşın - sizinle birebir ilgilenelim. Hangi kanalı tercih edersiniz?",
-        options: [ { text: "📧 E-posta gönder", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Instagram'dan yaz", action: "instagram" }, { text: "← Ana menü", next: "start" } ] },
+        options: [ { text: "📧 E-posta gönder", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Instagram'dan yaz", action: "instagram" }, { text: "📞 Sizi arayalım", next: "callback" }, { text: "← Ana menü", next: "start" } ] },
       other: { message: "Başka bir sorunuz var mı? Doğrudan bize ulaşın, hemen dönüş yapalım.",
-        options: [ { text: "📧 E-posta gönder", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Instagram'dan yaz", action: "instagram" }, { text: "← Ana menü", next: "start" } ] },
+        options: [ { text: "📧 E-posta gönder", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Instagram'dan yaz", action: "instagram" }, { text: "📞 Sizi arayalım", next: "callback" }, { text: "← Ana menü", next: "start" } ] },
       contact: { message: "Sizinle birebir konuşalım! Hangi kanalı tercih edersiniz?",
-        options: [ { text: "📧 E-posta gönder", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Instagram'dan yaz", action: "instagram" }, { text: "← Ana menü", next: "start" } ] }
+        options: [ { text: "📧 E-posta gönder", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Instagram'dan yaz", action: "instagram" }, { text: "📞 Sizi arayalım", next: "callback" }, { text: "← Ana menü", next: "start" } ] },
+      callback: { message: "📞 Sizi ne zaman arayalım? Müsait olduğunuz gün ve saati WhatsApp'tan yazın, o saatte sizi arayalım.",
+        options: [ { text: "💬 Müsait saatimi WhatsApp'tan yaz", action: "whatsappCallback" }, { text: "← Ana menü", next: "start" } ] }
     };
 
     const chatFlow_en = {
@@ -11517,14 +11553,14 @@
       hotelDetails: { message: "🏨 Thanthip Beach Resort (4★) in Phuket and Solitaire Sukhumvit 11 (4★) in Bangkok — both in central locations.",
         options: [ { text: "More questions", next: "contact" }, { text: "← Back", next: "flight" } ] },
       reservation: { message: "📅 Reach out for booking — we'll personally take care of you. Which channel do you prefer?",
-        options: [ { text: "📧 Send email", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Message on Instagram", action: "instagram" }, { text: "← Main menu", next: "start" } ] },
+        options: [ { text: "📧 Send email", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Message on Instagram", action: "instagram" }, { text: "📞 Have us call you", next: "callback" }, { text: "← Main menu", next: "start" } ] },
       other: { message: "Got another question? Reach out directly — we'll reply quickly.",
-        options: [ { text: "📧 Send email", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Message on Instagram", action: "instagram" }, { text: "← Main menu", next: "start" } ] },
+        options: [ { text: "📧 Send email", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Message on Instagram", action: "instagram" }, { text: "📞 Have us call you", next: "callback" }, { text: "← Main menu", next: "start" } ] },
       contact: { message: "Let's talk one-on-one! Which channel do you prefer?",
-        options: [ { text: "📧 Send email", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Message on Instagram", action: "instagram" }, { text: "← Main menu", next: "start" } ] }
+        options: [ { text: "📧 Send email", action: "email" }, { text: "💬 WhatsApp", action: "whatsapp" }, { text: "📱 Message on Instagram", action: "instagram" }, { text: "📞 Have us call you", next: "callback" }, { text: "← Main menu", next: "start" } ] },
+      callback: { message: "📞 When should we call you? Send us your available day and time on WhatsApp and we'll call you then.",
+        options: [ { text: "💬 Share my availability on WhatsApp", action: "whatsappCallback" }, { text: "← Main menu", next: "start" } ] }
     };
-
-    refreshChatPriceSummary();
 
     function chatFlowCur() {
       return document.documentElement.getAttribute('data-lang') === 'en' ? chatFlow_en : chatFlow_tr;
@@ -11540,6 +11576,8 @@
     });
 
     let chatHistory = [];
+
+    refreshChatPriceSummary();
 
     function toggleChat() {
       const widget = document.getElementById("chatWidget");
@@ -11583,7 +11621,7 @@
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "chat-option";
-        if (option.action) btn.classList.add("contact");
+        if (option.action) btn.classList.add("chat-option--action");
         btn.textContent = option.text;
         btn.onclick = function () {
           handleOptionClick(option);
@@ -11616,6 +11654,13 @@
       } else if (option.action === "whatsapp") {
         setTimeout(function () {
           window.open("https://wa.me/905338386102", "_blank");
+        }, 400);
+      } else if (option.action === "whatsappCallback") {
+        setTimeout(function () {
+          const msg = document.documentElement.getAttribute('data-lang') === 'en'
+            ? "Hi! Could you call me back? I'm available: "
+            : "Merhaba! Beni geri arayabilir misiniz? Müsait olduğum saat: ";
+          window.open("https://wa.me/905338386102?text=" + encodeURIComponent(msg), "_blank");
         }, 400);
       } else if (option.next) {
         setTimeout(function () {

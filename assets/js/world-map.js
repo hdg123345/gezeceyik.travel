@@ -1,7 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
 (function initWorldMapBackground() {
   const DATA_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
-  const TERRAIN_MAP_URL = "world-terrain-map.jpg?v=2";
+  const TERRAIN_MAP_URL = "world-terrain-map.jpg?v=3";
+  const TERRAIN_TEX_MAX = 4096;
   const ISO_COUNTRY = { 792: "Turkey", 196: "Cyprus", 764: "Thailand" };
 
   const mapSvg = document.getElementById("world-map");
@@ -54,14 +55,17 @@ document.addEventListener("DOMContentLoaded", function () {
       const img = new Image();
       img.onload = function () {
         const off = document.createElement("canvas");
-        off.width = img.naturalWidth;
-        off.height = img.naturalHeight;
+        const scale = Math.min(1, TERRAIN_TEX_MAX / img.naturalWidth);
+        off.width = Math.round(img.naturalWidth * scale);
+        off.height = Math.round(img.naturalHeight * scale);
         const offCtx = off.getContext("2d");
         if (!offCtx) {
           resolve();
           return;
         }
-        offCtx.drawImage(img, 0, 0);
+        offCtx.imageSmoothingEnabled = true;
+        offCtx.imageSmoothingQuality = "high";
+        offCtx.drawImage(img, 0, 0, off.width, off.height);
         terrainMapPixels = offCtx.getImageData(0, 0, off.width, off.height).data;
         terrainMapW = off.width;
         terrainMapH = off.height;
@@ -81,14 +85,41 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     const u = (lon + 180) / 360;
     const v = (90 - lat) / 180;
-    const x = clamp(Math.floor(u * (terrainMapW - 1)), 0, terrainMapW - 1);
-    const y = clamp(Math.floor(v * (terrainMapH - 1)), 0, terrainMapH - 1);
-    const i = (y * terrainMapW + x) * 4;
+    const fx = clamp(u * (terrainMapW - 1), 0, terrainMapW - 1);
+    const fy = clamp(v * (terrainMapH - 1), 0, terrainMapH - 1);
+    const x0 = Math.floor(fx);
+    const y0 = Math.floor(fy);
+    const x1 = Math.min(x0 + 1, terrainMapW - 1);
+    const y1 = Math.min(y0 + 1, terrainMapH - 1);
+    const tx = fx - x0;
+    const ty = fy - y0;
+
+    function readPx(x, y) {
+      const i = (y * terrainMapW + x) * 4;
+      return [terrainMapPixels[i], terrainMapPixels[i + 1], terrainMapPixels[i + 2]];
+    }
+
+    const c00 = readPx(x0, y0);
+    const c10 = readPx(x1, y0);
+    const c01 = readPx(x0, y1);
+    const c11 = readPx(x1, y1);
+    const w00 = (1 - tx) * (1 - ty);
+    const w10 = tx * (1 - ty);
+    const w01 = (1 - tx) * ty;
+    const w11 = tx * ty;
+
     return [
-      terrainMapPixels[i],
-      terrainMapPixels[i + 1],
-      terrainMapPixels[i + 2]
+      Math.round(c00[0] * w00 + c10[0] * w10 + c01[0] * w01 + c11[0] * w11),
+      Math.round(c00[1] * w00 + c10[1] * w10 + c01[1] * w01 + c11[1] * w11),
+      Math.round(c00[2] * w00 + c10[2] * w10 + c01[2] * w01 + c11[2] * w11)
     ];
+  }
+
+  function terrainRenderStep(w, h) {
+    const pixels = w * h;
+    if (pixels <= 1920 * 1080) return 1;
+    if (pixels <= 2560 * 1440) return 1;
+    return 2;
   }
 
   function renderTerrainCanvas(w, h) {
@@ -105,9 +136,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
 
     const canvasPath = d3.geoPath().projection(projection).context(ctx);
-    const step = Math.max(2, Math.floor(w / 720));
+    const step = terrainRenderStep(w, h);
 
     ctx.save();
     ctx.beginPath();
@@ -122,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!ll || !isFinite(ll[0]) || !isFinite(ll[1])) continue;
         const rgb = sampleTerrainFromMap(ll[0], ll[1]);
         ctx.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
-        ctx.fillRect(x, y, step + 1, step + 1);
+        ctx.fillRect(x, y, step, step);
       }
     }
 
