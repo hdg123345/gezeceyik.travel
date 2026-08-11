@@ -813,10 +813,10 @@
       border-top: 1px solid var(--border);
     }
     @media (min-width: 900px) {
-      .tour-cards-grid { grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+      .tour-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
     }
-    @media (min-width: 960px) {
-      .tour-cards-grid { gap: 1.5rem; }
+    @media (min-width: 1200px) {
+      .tour-cards-grid { grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
     }
 
     .tour-card--backpacking .landing-preview__media.backpacking-media {
@@ -843,6 +843,11 @@
       background-image: url("tomorrowland-card.jpg");
       background-size: cover;
       background-position: center;
+    }
+    .tour-card--private .landing-preview__media.private-media {
+      background-image: url("phi-phi-island.jpg");
+      background-size: cover;
+      background-position: center 58%;
     }
     .tour-card--festival:hover {
       box-shadow: var(--shadow-lg), var(--shadow-glow);
@@ -1494,34 +1499,26 @@
       white-space: nowrap;
     }
     .day-modal__optional-notice {
-      display: flex;
-      gap: 0.75rem;
-      align-items: flex-start;
+      display: inline-flex;
+      gap: 0.4rem;
+      align-items: center;
       background: linear-gradient(135deg, rgba(231, 111, 81, 0.10), rgba(244, 162, 97, 0.10));
       border: 1px solid rgba(231, 111, 81, 0.25);
-      border-radius: 12px;
-      padding: 0.75rem 1rem;
+      border-radius: 999px;
+      padding: 0.35rem 0.8rem;
       margin: 0;
+      white-space: nowrap;
     }
     .day-modal__optional-notice svg {
       flex-shrink: 0;
       color: var(--accent);
-      margin-top: 2px;
     }
     .day-modal__optional-notice strong {
-      display: block;
       font-size: 0.8rem;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 0.35rem;
-    }
-    .day-modal__optional-notice p {
-      margin: 0;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      color: var(--text);
     }
     .timeline__text {
       margin: 0;
@@ -1788,6 +1785,25 @@
       font-size: 0.875rem;
       background: rgba(255, 255, 255, 0.55);
     }
+    #reserve-custom-dates {
+      margin-top: -0.5rem;
+      margin-bottom: 1.1rem;
+    }
+    .custom-date-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    .custom-date-field input[type="date"] {
+      width: 100%;
+      padding: 0.5rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      background: rgba(255, 255, 255, 0.55);
+      color: var(--text);
+      box-sizing: border-box;
+    }
     .departure-overlay {
       position: fixed;
       inset: 0;
@@ -1870,6 +1886,9 @@
       background: #fff;
       box-shadow: 0 4px 16px rgba(15, 76, 92, 0.1);
     }
+    .departure-option[hidden] {
+      display: none;
+    }
     .departure-option strong {
       font-size: 0.95rem;
       color: var(--primary);
@@ -1904,6 +1923,43 @@
       color: #fff;
       background: linear-gradient(135deg, var(--primary), var(--primary-light));
       box-shadow: 0 4px 12px rgba(15, 76, 92, 0.22);
+    }
+    .group-size-mode {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.35rem;
+      margin-bottom: 0.5rem;
+      padding: 0.2rem;
+      border-radius: 10px;
+      background: rgba(15, 76, 92, 0.06);
+      border: 1px solid rgba(15, 76, 92, 0.1);
+    }
+    .group-size-mode__option {
+      border: none;
+      border-radius: 8px;
+      padding: 0.5rem 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1.25;
+      text-align: center;
+      cursor: pointer;
+      color: var(--text-muted);
+      background: transparent;
+      transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+    }
+    .group-size-mode__option:hover {
+      color: var(--primary);
+    }
+    .group-size-mode__option.is-active {
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      box-shadow: 0 4px 12px rgba(15, 76, 92, 0.22);
+    }
+    .group-size-note {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin: 0 0 0.65rem;
+      line-height: 1.4;
     }
     .price-card__eur-wrap {
       position: relative;
@@ -2876,7 +2932,7 @@
     .day-modal__scale-wrap {
       flex: 1 1 auto;
       min-height: 0;
-      padding: 0.5rem 2.15rem 1.6rem;
+      padding: 0.5rem 2.15rem 2rem;
       padding-right: calc(2.15rem + 4px);
       display: flex;
       flex-direction: column;
@@ -2934,14 +2990,24 @@
       margin-bottom: 0.85rem;
       flex-shrink: 0;
     }
+    .day-modal__title-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin: 0 0 0.35rem;
+      padding-right: 2.5rem;
+    }
+    .day-modal__title-row .day-modal__optional-slot {
+      margin-left: auto;
+    }
     .day-modal__container .day-modal__title {
       font-family: var(--font-display);
       font-size: 1.75rem;
       font-weight: 600;
-      margin: 0 0 0.35rem;
+      margin: 0;
       color: #1a1a1a;
       line-height: 1.2;
-      padding-right: 2.5rem;
       flex-shrink: 0;
     }
     .day-modal__date {
@@ -3002,7 +3068,9 @@
     }
     .day-modal__optional-slot {
       flex-shrink: 0;
-      margin-top: 0.75rem;
+    }
+    .day-modal__optional-notice {
+      box-sizing: border-box;
     }
     .day-modal__optional-slot[hidden] {
       display: none;
@@ -3104,8 +3172,8 @@
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
       }
       .day-modal__scale-wrap {
-        padding: 0.35rem 1.15rem 1.25rem;
-        padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+        padding: 0.35rem 1.15rem 1.75rem;
+        padding-bottom: max(1.75rem, env(safe-area-inset-bottom));
       }
       .day-modal__container .day-modal__title {
         font-size: 1.45rem;
@@ -3115,7 +3183,7 @@
 
     @media (max-height: 720px) {
       .day-modal__scale-wrap {
-        padding: 0.35rem 1.65rem 1.2rem;
+        padding: 0.35rem 1.65rem 1.75rem;
         padding-right: calc(1.65rem + 4px);
       }
       .day-modal__container {
@@ -3130,11 +3198,7 @@
         height: clamp(100px, 18dvh, 150px);
       }
       .day-modal__optional-notice {
-        padding: 0.6rem 0.8rem;
-      }
-      .day-modal__optional-notice p {
-        font-size: 0.8rem;
-        line-height: 1.45;
+        padding: 0.45rem 0.8rem;
       }
     }
 
@@ -4089,7 +4153,7 @@
   <script>
     (function () {
       var hash = location.hash;
-      var tour = (hash === "#tur" || hash === "#tur-backpacking" || hash === "#tomorrowland");
+      var tour = (hash === "#tur" || hash === "#tur-backpacking" || hash === "#tomorrowland" || hash === "#tur-private");
       document.body.classList.toggle("view-tour", tour);
       document.body.classList.toggle("view-home", !tour);
       document.body.classList.toggle("tour-detail-page", tour);
@@ -4253,6 +4317,31 @@
           <div class="landing-preview__price">
             <span class="tour-card__availability tour-card__availability--sold-out" id="tour-card-availability-tomorrowland" aria-live="polite"></span>
             <span class="landing-preview__hint tour-link" data-tr="Tükendi" data-en="Sold out">Tükendi</span>
+          </div>
+        </div>
+      </button>
+
+      <button
+        type="button"
+        class="landing-preview tour-card tour-card--private"
+        id="open-tour-private"
+        data-tour="private"
+        aria-expanded="false"
+        aria-controls="tour-full"
+      >
+        <div class="landing-preview__media private-media" role="img" data-tr-aria-label="Özel villa paketi tur kartı — Phi Phi Adaları" data-en-aria-label="Private villa package tour card — Phi Phi Islands" aria-label="Özel villa paketi tur kartı — Phi Phi Adaları"></div>
+        <div class="landing-preview__body">
+          <div class="landing-preview__badge" data-tr="02 – 11 Aralık" data-en="02 – 11 December">02 – 11 Aralık</div>
+          <p class="landing-preview__tier" data-tr="Özel Grup · 1-4 Kişi" data-en="Private Group · 1-4 People">Özel Grup · 1-4 Kişi</p>
+          <h3 class="landing-preview__title" data-tr="Phuket &amp; Bangkok" data-en="Phuket &amp; Bangkok">Phuket &amp; Bangkok</h3>
+          <div class="landing-preview__meta">
+            <span class="landing-preview__meta-line" data-tr="02 – 11 Aralık 2026" data-en="02 – 11 December 2026">02 – 11 Aralık 2026</span>
+            <span class="landing-preview__meta-line" data-tr="9 gece 10 gün" data-en="9 nights 10 days">9 gece 10 gün</span>
+            <span class="landing-preview__meta-line" data-tr="Özel villa + özel tekne" data-en="Private villa + private boat">Özel villa + özel tekne</span>
+          </div>
+          <div class="landing-preview__price">
+            <span class="tour-card__availability tour-card__availability--open" id="tour-card-availability-private" aria-live="polite"></span>
+            <span class="landing-preview__hint tour-link" data-tr="Tur sayfasını aç →" data-en="Open tour page →">Tur sayfasını aç →</span>
           </div>
         </div>
       </button>
@@ -4489,6 +4578,16 @@
                   <button type="button" class="price-mode__option is-active" data-pricing-mode="solo" data-tr="Tek kişi" data-en="Single">Tek kişi</button>
                   <button type="button" class="price-mode__option" data-pricing-mode="shared" data-tr="Çift kişi" data-en="Couple">Çift kişi</button>
                 </div>
+              </div>
+              <div id="private-group-size-wrap" hidden>
+                <div class="price-card__label" data-tr="Kaç kişisiniz?" data-en="How many people?">Kaç kişisiniz?</div>
+                <div class="group-size-mode" id="private-group-size" role="radiogroup" aria-label="Group size">
+                  <button type="button" class="group-size-mode__option" data-group-size="1">1</button>
+                  <button type="button" class="group-size-mode__option is-active" data-group-size="2">2</button>
+                  <button type="button" class="group-size-mode__option" data-group-size="3">3</button>
+                  <button type="button" class="group-size-mode__option" data-group-size="4">4</button>
+                </div>
+                <p class="group-size-note" data-tr="Sadece uçuş ücreti kişi sayısına göre değişir; villa, özel araç ve özel tekne turları grup için sabittir." data-en="Only the flight cost changes with group size — the villa, private car and private boat tours are a flat cost for the whole group.">Sadece uçuş ücreti kişi sayısına göre değişir; villa, özel araç ve özel tekne turları grup için sabittir.</p>
               </div>
               <div class="price-card__per" data-tr="Kişi başı" data-en="Per person">Kişi başı</div>
               <div class="price-card__eur-wrap">
@@ -4795,6 +4894,20 @@
           <label class="modal__field-label" for="reserve-tour" data-tr="Tur paketi" data-en="Tour package">Tur paketi</label>
           <select id="reserve-tour" name="tour" required></select>
         </div>
+        <div class="modal__field" id="reserve-custom-dates" hidden>
+          <label class="modal__field-label" data-tr="Tercih ettiğiniz tarihler" data-en="Your preferred dates">Tercih ettiğiniz tarihler</label>
+          <div class="custom-date-row">
+            <div class="custom-date-field">
+              <label class="visually-hidden" for="customDateStart" data-tr="Başlangıç tarihi" data-en="Start date">Başlangıç tarihi</label>
+              <input type="date" id="customDateStart" />
+            </div>
+            <div class="custom-date-field">
+              <label class="visually-hidden" for="customDateEnd" data-tr="Bitiş tarihi" data-en="End date">Bitiş tarihi</label>
+              <input type="date" id="customDateEnd" />
+            </div>
+          </div>
+          <p class="group-size-note" id="customDateNote"></p>
+        </div>
         <div class="modal__field">
           <label class="modal__field-label" for="reserve-payment" data-tr="Tercih edilen ödeme" data-en="Preferred payment">Tercih edilen ödeme</label>
           <select id="reserve-payment" name="payment" required></select>
@@ -4834,7 +4947,10 @@
       </div>
       <div class="day-modal__scale-wrap" id="dayModalScaleWrap">
       <div class="day-modal__badge"><span id="modalDayLabel" data-tr="GÜN" data-en="DAY">GÜN</span> <span id="modalDayNumber">1</span></div>
-      <h2 class="day-modal__title" id="modalTitle"></h2>
+      <div class="day-modal__title-row">
+        <h2 class="day-modal__title" id="modalTitle"></h2>
+        <div class="day-modal__optional-slot" id="modalOptionalNotice" hidden></div>
+      </div>
       <p class="day-modal__date" id="modalDate"></p>
       <div class="day-modal__divider" aria-hidden="true"></div>
       <div class="day-modal__body" id="modalContent"></div>
@@ -4851,7 +4967,6 @@
       <div class="day-modal__figure" id="modalFigure" hidden>
           <img id="modalImage" alt="Tur programı gün görseli" width="960" height="200" decoding="async" loading="lazy" />
         </div>
-        <div class="day-modal__optional-slot" id="modalOptionalNotice" hidden></div>
       </div>
     </div>
   </div>
@@ -4865,6 +4980,59 @@
     (function initWorldMapBackground() {
       const DATA_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
       const ISO_COUNTRY = { 792: "Turkey", 196: "Cyprus", 764: "Thailand" };
+      const COUNTRY_NAME_TR = {
+        "Fiji": "Fiji", "Tanzania": "Tanzanya", "W. Sahara": "Batı Sahra", "Canada": "Kanada",
+        "United States of America": "Amerika Birleşik Devletleri", "Kazakhstan": "Kazakistan",
+        "Uzbekistan": "Özbekistan", "Papua New Guinea": "Papua Yeni Gine", "Indonesia": "Endonezya",
+        "Argentina": "Arjantin", "Chile": "Şili", "Dem. Rep. Congo": "Kongo Demokratik Cumhuriyeti",
+        "Somalia": "Somali", "Kenya": "Kenya", "Sudan": "Sudan", "Chad": "Çad", "Haiti": "Haiti",
+        "Dominican Rep.": "Dominik Cumhuriyeti", "Russia": "Rusya", "Bahamas": "Bahamalar",
+        "Falkland Is.": "Falkland Adaları", "Norway": "Norveç", "Greenland": "Grönland",
+        "Fr. S. Antarctic Lands": "Fransız Güney ve Antarktika Toprakları", "Timor-Leste": "Doğu Timor",
+        "South Africa": "Güney Afrika", "Lesotho": "Lesotho", "Mexico": "Meksika", "Uruguay": "Uruguay",
+        "Brazil": "Brezilya", "Bolivia": "Bolivya", "Peru": "Peru", "Colombia": "Kolombiya",
+        "Panama": "Panama", "Costa Rica": "Kosta Rika", "Nicaragua": "Nikaragua", "Honduras": "Honduras",
+        "El Salvador": "El Salvador", "Guatemala": "Guatemala", "Belize": "Belize", "Venezuela": "Venezuela",
+        "Guyana": "Guyana", "Suriname": "Surinam", "France": "Fransa", "Ecuador": "Ekvador",
+        "Puerto Rico": "Porto Riko", "Jamaica": "Jamaika", "Cuba": "Küba", "Zimbabwe": "Zimbabve",
+        "Botswana": "Botsvana", "Namibia": "Namibya", "Senegal": "Senegal", "Mali": "Mali",
+        "Mauritania": "Moritanya", "Benin": "Benin", "Niger": "Nijer", "Nigeria": "Nijerya",
+        "Cameroon": "Kamerun", "Togo": "Togo", "Ghana": "Gana", "Côte d'Ivoire": "Fildişi Sahili",
+        "Guinea": "Gine", "Guinea-Bissau": "Gine-Bissau", "Liberia": "Liberya",
+        "Sierra Leone": "Sierra Leone", "Burkina Faso": "Burkina Faso",
+        "Central African Rep.": "Orta Afrika Cumhuriyeti", "Congo": "Kongo", "Gabon": "Gabon",
+        "Eq. Guinea": "Ekvator Ginesi", "Zambia": "Zambiya", "Malawi": "Malavi", "Mozambique": "Mozambik",
+        "eSwatini": "Esvatini", "Angola": "Angola", "Burundi": "Burundi", "Israel": "İsrail",
+        "Lebanon": "Lübnan", "Madagascar": "Madagaskar", "Palestine": "Filistin", "Gambia": "Gambiya",
+        "Tunisia": "Tunus", "Algeria": "Cezayir", "Jordan": "Ürdün",
+        "United Arab Emirates": "Birleşik Arap Emirlikleri", "Qatar": "Katar", "Kuwait": "Kuveyt",
+        "Iraq": "Irak", "Oman": "Umman", "Vanuatu": "Vanuatu", "Cambodia": "Kamboçya",
+        "Thailand": "Tayland", "Laos": "Laos", "Myanmar": "Myanmar", "Vietnam": "Vietnam",
+        "North Korea": "Kuzey Kore", "South Korea": "Güney Kore", "Mongolia": "Moğolistan",
+        "India": "Hindistan", "Bangladesh": "Bangladeş", "Bhutan": "Bhutan", "Nepal": "Nepal",
+        "Pakistan": "Pakistan", "Afghanistan": "Afganistan", "Tajikistan": "Tacikistan",
+        "Kyrgyzstan": "Kırgızistan", "Turkmenistan": "Türkmenistan", "Iran": "İran", "Syria": "Suriye",
+        "Armenia": "Ermenistan", "Sweden": "İsveç", "Belarus": "Belarus", "Ukraine": "Ukrayna",
+        "Poland": "Polonya", "Austria": "Avusturya", "Hungary": "Macaristan", "Moldova": "Moldova",
+        "Romania": "Romanya", "Lithuania": "Litvanya", "Latvia": "Letonya", "Estonia": "Estonya",
+        "Germany": "Almanya", "Bulgaria": "Bulgaristan", "Greece": "Yunanistan", "Turkey": "Türkiye",
+        "Albania": "Arnavutluk", "Croatia": "Hırvatistan", "Switzerland": "İsviçre",
+        "Luxembourg": "Lüksemburg", "Belgium": "Belçika", "Netherlands": "Hollanda",
+        "Portugal": "Portekiz", "Spain": "İspanya", "Ireland": "İrlanda",
+        "New Caledonia": "Yeni Kaledonya", "Solomon Is.": "Solomon Adaları",
+        "New Zealand": "Yeni Zelanda", "Australia": "Avustralya", "Sri Lanka": "Sri Lanka",
+        "China": "Çin", "Taiwan": "Tayvan", "Italy": "İtalya", "Denmark": "Danimarka",
+        "United Kingdom": "Birleşik Krallık", "Iceland": "İzlanda", "Azerbaijan": "Azerbaycan",
+        "Georgia": "Gürcistan", "Philippines": "Filipinler", "Malaysia": "Malezya", "Brunei": "Brunei",
+        "Slovenia": "Slovenya", "Finland": "Finlandiya", "Slovakia": "Slovakya", "Czechia": "Çekya",
+        "Eritrea": "Eritre", "Japan": "Japonya", "Paraguay": "Paraguay", "Yemen": "Yemen",
+        "Saudi Arabia": "Suudi Arabistan", "Antarctica": "Antarktika", "N. Cyprus": "Kuzey Kıbrıs",
+        "Cyprus": "Kıbrıs", "Morocco": "Fas", "Egypt": "Mısır", "Libya": "Libya",
+        "Ethiopia": "Etiyopya", "Djibouti": "Cibuti", "Somaliland": "Somaliland", "Uganda": "Uganda",
+        "Rwanda": "Ruanda", "Bosnia and Herz.": "Bosna Hersek", "Macedonia": "Kuzey Makedonya",
+        "Serbia": "Sırbistan", "Montenegro": "Karadağ", "Kosovo": "Kosova",
+        "Trinidad and Tobago": "Trinidad ve Tobago", "S. Sudan": "Güney Sudan"
+      };
 
       const mapSvg = document.getElementById("world-map");
       const terrainCanvas = document.getElementById("world-map-terrain");
@@ -4884,7 +5052,7 @@
       let projection = null;
       let path = null;
       let countrySelection = null;
-      let mapHiddenForTour = /#tur(-backpacking)?|#tomorrowland/.test(location.hash);
+      let mapHiddenForTour = /#tur(-backpacking|-private)?|#tomorrowland/.test(location.hash);
       let hoveredKey = null;
       let rafPick = 0;
       let pendingPick = null;
@@ -4896,9 +5064,11 @@
 
       function countryLabel(d) {
         const id = d.id != null ? Number(d.id) : NaN;
-        if (ISO_COUNTRY[id]) return ISO_COUNTRY[id];
-        const n = d.properties && (d.properties.name || d.properties.NAME);
-        return n || "";
+        const en = ISO_COUNTRY[id] || (d.properties && (d.properties.name || d.properties.NAME)) || "";
+        if (!en) return "";
+        const isEnglish = document.documentElement.getAttribute('data-lang') === 'en';
+        if (isEnglish) return en;
+        return COUNTRY_NAME_TR[en] || en;
       }
 
       function countryKey(d) {
@@ -5793,6 +5963,10 @@
       tomorrowland: {
         tr: "Phuket, Bangkok & Tomorrowland · Luxury",
         en: "Phuket, Bangkok & Tomorrowland · Luxury"
+      },
+      private: {
+        tr: "Phuket & Bangkok · Özel Villa Paketi",
+        en: "Phuket & Bangkok · Private Villa Package"
       }
     };
 
@@ -5824,7 +5998,7 @@
         days = withDeparturePort(
           lang === "en" ? programDays_en : programDays,
           lang,
-          "phuket"
+          tourKey
         );
       }
       return applyNarrativeFlightTokens(
@@ -5859,7 +6033,7 @@
     function populateReserveTourSelect() {
       const sel = document.getElementById("reserve-tour");
       if (!sel) return;
-      const keys = ["backpacking", "phuket", "tomorrowland"].filter(function (key) {
+      const keys = ["backpacking", "phuket", "tomorrowland", "private"].filter(function (key) {
         return !isTourSoldOut(key);
       });
       const activeTour =
@@ -5960,7 +6134,19 @@
         PRICING_MODE_LABELS[getEffectivePricingMode(key)][lang === "en" ? "en" : "tr"];
       const displayed = getDisplayedPriceEur(key, portKey);
       const dateSel = document.getElementById("tour-date-select");
-      const tourDates = dateSel ? dateSel.options[dateSel.selectedIndex]?.textContent?.trim() : "";
+      let tourDates = dateSel ? dateSel.options[dateSel.selectedIndex]?.textContent?.trim() : "";
+      if (key === "private") {
+        const customWrap = document.getElementById("reserve-custom-dates");
+        const startEl = document.getElementById("customDateStart");
+        const endEl = document.getElementById("customDateEnd");
+        if (customWrap && !customWrap.hidden && startEl && startEl.value && endEl && endEl.value) {
+          tourDates =
+            formatCustomDate(startEl.value, lang) +
+            " – " +
+            formatCustomDate(endEl.value, lang) +
+            (lang === "en" ? " (requested)" : " (talep)");
+        }
+      }
       let lines =
         (lang === "en" ? "Package: " : "Paket: ") +
         tourLabel +
@@ -5970,12 +6156,17 @@
       if (tourDates) {
         lines += "\n" + (lang === "en" ? "Tour dates: " : "Tur tarihi: ") + tourDates;
       }
+      if (key !== "private") {
+        lines +=
+          "\n" +
+          (lang === "en" ? "Pricing: " : "Fiyatlandırma: ") +
+          modeLabel;
+      }
       lines +=
         "\n" +
-        (lang === "en" ? "Pricing: " : "Fiyatlandırma: ") +
-        modeLabel +
-        "\n" +
-        (lang === "en" ? "Package price (per person): " : "Paket fiyatı (kişi başı): ") +
+        (key === "private"
+          ? (lang === "en" ? "Package price (total for group, 1-4 people): " : "Paket fiyatı (grup toplam, 1-4 kişi): ")
+          : (lang === "en" ? "Package price (per person): " : "Paket fiyatı (kişi başı): ")) +
         formatEurDisplay(displayed);
       return lines;
     }
@@ -6342,6 +6533,47 @@
       "Seyahat sigortası (önerilir, ayrıca alınabilir)"
     ];
 
+    const sidebarIncluded_private = [
+      "Gidiş-dönüş uluslararası uçuşlar + Phuket–Bangkok iç hat (kalkış limanına göre, kişi başı)",
+      "Phuket'te özel villa (Airbnb) — 2–7 Aralık",
+      "Bangkok'ta özel villa (Airbnb) — 7–11 Aralık",
+      "Grubunuza özel araç ve şoför (1 kiralık araç Phuket'te + özel şoför, 1 kiralık araç Bangkok'ta + özel şoför)",
+      "7/24 destek hizmeti"
+    ];
+    const sidebarIncluded_private_en = [
+      "Round-trip international flights + Phuket–Bangkok domestic leg (by departure airport, per person)",
+      "Private villa in Phuket (Airbnb) — 2–7 Dec",
+      "Private villa in Bangkok (Airbnb) — 7–11 Dec",
+      "Private car and driver for your group (1 rental car in Phuket + private driver, 1 rental car in Bangkok + private driver)",
+      "24/7 support service"
+    ];
+    const includedBottom_private = [
+      "Uluslararası ve iç hat uçuşlar (kişi sayısına göre)",
+      "Özel villa konaklama (Phuket + Bangkok)",
+      "Özel araç ve şoför",
+      "7/24 destek hizmeti"
+    ];
+    const includedBottom_private_en = [
+      "International and domestic flights (per group size)",
+      "Private villa accommodation (Phuket + Bangkok)",
+      "Private car and driver",
+      "24/7 support service"
+    ];
+    const excludedBottom_private = [
+      "Yemekler",
+      "Opsiyonel tur ücretleri (Phi Phi, James Bond, Khao Sok, Bangkok şehir turu — talep üzerine, ayrıca ücretlendirilir)",
+      "Bangkok alışveriş gününde harcamalar",
+      "Kişisel harcamalar ve bahşişler",
+      "Seyahat sigortası (önerilir, ayrıca alınabilir)"
+    ];
+    const excludedBottom_private_en = [
+      "Meals",
+      "Optional tour fees (Phi Phi, James Bond, Khao Sok, Bangkok city tour — available on request, priced separately)",
+      "Spending on the Bangkok shopping day",
+      "Personal expenses and tips",
+      "Travel insurance (recommended, available separately)"
+    ];
+
     const TDAC_ARRIVAL_CARD_URL = "https://tdac.immigration.go.th/arrival-card/#/home";
     const THAILAND_EVISA_URL = "https://www.thaievisa.go.th/";
 
@@ -6368,6 +6600,24 @@
     `;
 
     const generalHtml = `
+      <h3>Tayland geneli</h3>
+      <ul>
+        <li><strong>Para birimi:</strong> Thai Baht (THB) — 1€ ≈ 38-40 THB</li>
+        <li><strong>İklim:</strong> Aralık ayında 25-32°C, kuru sezon</li>
+        <li><strong>Saat farkı:</strong> Türkiye'den +4 saat ileri</li>
+        <li><strong>Dil:</strong> Tay dili (Thai); turistik bölgelerde İngilizce yaygın</li>
+        <li><strong>Elektrik:</strong> 220V, çoğunlukla A/B/C tipi prizler</li>
+        <li><strong>Aşılar:</strong> Sarı humma önerilir (zorunlu değil)</li>
+      </ul>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem">Ülkeye özel vize gereklilikleri için yukarıdan pasaport ülkenizi seçin.</p>
+    `;
+
+    const generalHtml_private = `
+      <div class="terms-item" style="margin-bottom:1rem">
+        <h3>Özel, ayrıcalıklı bir tur</h3>
+        <p>Bu paket <strong>yalnızca sizin grubunuza özeldir</strong> — başka misafirlerle paylaşılmaz. Phuket'te 1 kiralık araç ve size özel şoförünüz olacak (bizzat rehberiniz); Bangkok'ta da 1 kiralık araç ve özel şoförünüzle programınızı yönetirsiniz. Tekne turlarında da sadece siz ve rehberiniz olacak.</p>
+        <p>Program esnektir: varışınızda müsaitliğe bağlı olarak günlerin sırası, saatleri veya içeriği grubunuzun isteğine göre değiştirilebilir.</p>
+      </div>
       <h3>Tayland geneli</h3>
       <ul>
         <li><strong>Para birimi:</strong> Thai Baht (THB) — 1€ ≈ 38-40 THB</li>
@@ -6501,6 +6751,40 @@
       </ul>
       <p style="font-size:0.85rem;color:var(--text-muted)">Backpacking package includes shared hostel rooms only.</p>
       ${accommodationNotesHtml_en}`;
+
+    const accommodationHtml_private = `
+      <h3>Phuket (2–7 Aralık) — Airbnb villa</h3>
+      <p>Konaklama, grubunuzun kendisinin seçip Airbnb üzerinden ayırtacağı özel bir villadır — otel değil, tamamı size ait bir ev.</p>
+      <ul>
+        <li><strong>Kimin seçtiği:</strong> Villayı ve rezervasyonu siz yaparsınız; biz bölge/konum önerisiyle yardımcı oluruz</li>
+        <li><strong>Kapasite:</strong> 1–4 kişilik gruplara uygun villalar</li>
+        <li><strong>Konum önerisi:</strong> Patong / Kata / Karon çevresi — plaja yakın</li>
+      </ul>
+      <h3>Bangkok (7–11 Aralık) — Airbnb villa</h3>
+      <p>Bangkok'ta da aynı şekilde grubunuza özel bir villa veya özel daire (Sukhumvit çevresi önerilir).</p>
+      <ul>
+        <li><strong>Kimin seçtiği:</strong> Villayı ve rezervasyonu siz yaparsınız</li>
+        <li><strong>Konum önerisi:</strong> Sukhumvit — BTS hattına yakın</li>
+      </ul>
+      <p style="font-size:0.85rem;color:var(--text-muted)">Villa maliyeti paket toplam fiyatına dahildir; Kıbrıslı Gezgin size uygun ilanları önerir, son seçim ve rezervasyon grubunuza aittir.</p>
+    `;
+
+    const accommodationHtml_private_en = `
+      <h3>Phuket (2–7 Dec) — Airbnb villa</h3>
+      <p>Accommodation is a private villa that your group selects and books yourselves via Airbnb — not a hotel, the whole place is yours.</p>
+      <ul>
+        <li><strong>Who books it:</strong> You choose and book the villa; we help suggest the area/location</li>
+        <li><strong>Capacity:</strong> Villas suited to groups of 1–4 people</li>
+        <li><strong>Suggested area:</strong> Patong / Kata / Karon — close to the beach</li>
+      </ul>
+      <h3>Bangkok (7–11 Dec) — Airbnb villa</h3>
+      <p>Same setup in Bangkok — a private villa or private apartment for your group (Sukhumvit area recommended).</p>
+      <ul>
+        <li><strong>Who books it:</strong> You choose and book the villa yourselves</li>
+        <li><strong>Suggested area:</strong> Sukhumvit — close to the BTS line</li>
+      </ul>
+      <p style="font-size:0.85rem;color:var(--text-muted)">Villa cost is included in the total package price; Kıbrıslı Gezgin suggests suitable listings, but the final choice and booking is your group's.</p>
+    `;
 
     const flightsHtml = `
       <h3>Gidiş uçuşları</h3>
@@ -7122,6 +7406,24 @@
     ];
 
     const generalHtml_en = `
+      <h3>About Thailand</h3>
+      <ul>
+        <li><strong>Currency:</strong> Thai Baht (THB) — 1€ ≈ 38-40 THB</li>
+        <li><strong>Climate:</strong> 25-32°C in December, dry season</li>
+        <li><strong>Time difference:</strong> +4 hours ahead of Turkey (GMT+7)</li>
+        <li><strong>Language:</strong> Thai; English widely used in tourist areas</li>
+        <li><strong>Electricity:</strong> 220V, mostly type A/B/C plugs</li>
+        <li><strong>Vaccinations:</strong> Yellow fever recommended (not mandatory)</li>
+      </ul>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem">Select your passport country above for country-specific visa requirements.</p>
+    `;
+
+    const generalHtml_private_en = `
+      <div class="terms-item" style="margin-bottom:1rem">
+        <h3>A private, exclusive tour</h3>
+        <p>This package is <strong>exclusive to your group</strong> — it is not shared with other travelers. In Phuket you'll have 1 rental car with your own private driver (your guide, in person); in Bangkok you'll likewise have 1 rental car with a private driver to run your schedule. On the boat tours, it's just you and your guide too.</p>
+        <p>The itinerary is flexible: on arrival, subject to availability, the order, timing, or content of the days can be adjusted to your group's requests.</p>
+      </div>
       <h3>About Thailand</h3>
       <ul>
         <li><strong>Currency:</strong> Thai Baht (THB) — 1€ ≈ 38-40 THB</li>
@@ -8810,6 +9112,182 @@
       }
     };
 
+    /* ─── PRIVATE VILLA PACKAGE — day overrides (villa + private boat charter) ── */
+    const PROGRAM_DAY_OVERRIDES_PRIVATE = {
+      tr: {
+        2: {
+          summary: "Phuket Havalimanı'na varış; özel transfer ile Airbnb üzerinden ayarlayacağınız villanıza (2–7 Aralık). Check-in ve Patong'da serbest zaman.",
+          content: `
+      <p>Phuket Uluslararası Havalimanı'na varışımızın ardından özel transfer ile grubunuza özel <strong>Airbnb villanıza</strong> ulaşım (villayı siz seçer, rezervasyonunu siz yaparsınız).</p>
+      <p>Villaya yerleşim sonrası serbest zaman:</p>
+      <ul>
+        <li>Plajda dinlenme</li>
+        <li>Şehir keşfi</li>
+        <li>Yerel restoranlar</li>
+        <li>Patong gece hayatı</li>
+      </ul>
+      <p>Geceleme Phuket'teki villanızda.</p>`
+        },
+        3: {
+          summary: "Tam günlük özel tekne turu (sadece grubunuza özel): Maya Bay, lagünler, snorkel ve öğle yemekli büfe. Akşam serbest.",
+          content: `
+      <p>Kahvaltı sonrası <strong>tam günlük, yalnızca sizin grubunuza ait özel tekne ile Phi Phi Adaları turu</strong> için hareket — başka misafirlerle paylaşılmaz.</p>
+      <p><strong>Program:</strong></p>
+      <ul>
+        <li>Maya Bay (<em>The Beach</em> filmi)</li>
+        <li>Pileh Lagoon</li>
+        <li>Viking Cave</li>
+        <li>Monkey Beach</li>
+        <li>Bamboo Island</li>
+        <li>Khai Island (snorkel)</li>
+      </ul>
+      <p><strong>Dahil olanlar:</strong> Özel tekne, snorkel ekipmanı, yaşam yeleği, tekne üzerinde Tayland büfesi öğle yemeği, ulusal park ücretleri, İngilizce rehber.</p>
+      <p>Akşam Patong'da serbest zaman. Geceleme villanızda.</p>`
+        },
+        4: {
+          summary: "Phang Nga Körfezi: kano, James Bond Adası, yüzen köy — sadece grubunuza özel tekne ile tam gün tur.",
+          content: `
+      <p>Kahvaltı sonrası <strong>tam günlük, yalnızca grubunuza özel tekne ile James Bond Adası ve Phang Nga Körfezi</strong> turu.</p>
+      <p><strong>Program:</strong></p>
+      <ul>
+        <li>Hong Island deniz mağaralarında kanoyla keşif</li>
+        <li>Panak buz mağarası</li>
+        <li>James Bond Adası (Koh Tapu)</li>
+        <li>Koh Panyee yüzen balıkçı köyü</li>
+        <li>Naka Yai plajında yüzme</li>
+      </ul>
+      <p><strong>Dahil olanlar:</strong> Özel tekne, kano, yaşam yeleği, kask, öğle yemeği, ulusal park ücretleri, rehber.</p>
+      <p>Geceleme Phuket'teki villanızda.</p>`
+        },
+        5: {
+          summary: "Tam gün Khao Sok: yağmur ormanı, Cheow Lan Gölü'nde özel tekne turu ve yüzen bungalovlar.",
+          content: `
+      <p>Kahvaltı sonrası <strong>Khao Sok Milli Parkı tam gün turu</strong> — Cheow Lan Gölü'ndeki tekne turu yalnızca grubunuza özeldir.</p>
+      <p><strong>Program:</strong></p>
+      <ul>
+        <li>Tapınak ormanı ve kireçtaşı zirveleri</li>
+        <li>Özel tekne ile <strong>Cheow Lan Gölü</strong> turu</li>
+        <li>Yüzen bungalovlar ve mağara keşifleri</li>
+        <li>Paddle board / kano veya yüzme molaları</li>
+        <li>Öğle yemeği (göl kenarı restoran veya tekne üzerinde)</li>
+      </ul>
+      <p><strong>Dahil olanlar:</strong> Milli park girişi, özel tekne/göl turu, öğle yemeği, rehber.</p>
+      <p>Akşam Patong'da serbest zaman. Geceleme villanızda.</p>`
+        },
+        6: {
+          summary: "Sabah serbest; öğleden sonra Thai AirAsia ile Bangkok. Bangkok'taki villanıza transfer (7–11 Aralık).",
+          content: `
+      <p>Kahvaltı sonrası serbest zaman: Patong'da yüzme, alışveriş, spa veya <strong>Jungceylon AVM</strong>.</p>
+      <p>Öğleden sonra Phuket Havalimanı'na transfer. <strong>Thai AirAsia FD3014</strong> ile Bangkok'a hareket.</p>
+      <p><strong>Uçuş:</strong> 07.12.2026 Phuket 14:00 → Bangkok 15:25.</p>
+      <p>Suvarnabhumi'ye varışta özel transfer ile <strong>Bangkok'taki Airbnb villanıza</strong> ulaşım (7–11 Aralık konaklama).</p>
+      <p>Akşam Soi 11 çevresinde hoş geldin yemeği önerisi.</p>`
+        },
+        8: {
+          optional: false,
+          route: "Bangkok · Alışveriş günü",
+          summary: "Serbest gün: Bangkok'un ünlü AVM'lerinde alışveriş (ICONSIAM, Siam Paragon, MBK Center gibi).",
+          content: `
+      <p>Bu gün programda sabit bir aktivite yok — <strong>Bangkok'ta serbest alışveriş günü</strong>.</p>
+      <p><strong>Önerilen duraklar:</strong></p>
+      <ul>
+        <li><strong>ICONSIAM</strong> — Chao Phraya nehri kenarında lüks AVM</li>
+        <li><strong>Siam Paragon</strong> — merkezi lüks AVM</li>
+        <li><strong>MBK Center</strong> — uygun fiyatlı çok katlı çarşı</li>
+        <li><strong>Chatuchak</strong> (hafta sonuna denk gelirse) — hafta sonu pazarı</li>
+      </ul>
+      <p>Program grubunuzun tercihine göre esnektir; özel şoförünüz/rehberiniz size eşlik edip önerilerde bulunabilir.</p>
+      <p>Geceleme villanızda.</p>`
+        }
+      },
+      en: {
+        2: {
+          summary: "Arrive at Phuket Airport; private transfer to your own Airbnb villa (2–7 Dec). Check-in and free time in Patong.",
+          content: `
+      <p>After arrival at Phuket International Airport, private transfer to your group's own <strong>Airbnb villa</strong> (you choose and book the villa yourselves).</p>
+      <p>After check-in, free time:</p>
+      <ul>
+        <li>Relax on the beach</li>
+        <li>Explore the city</li>
+        <li>Local restaurants</li>
+        <li>Patong nightlife</li>
+      </ul>
+      <p>Overnight at your Phuket villa.</p>`
+        },
+        3: {
+          summary: "Full-day private boat tour (just for your group): Maya Bay, lagoons, snorkeling and buffet lunch. Evening free.",
+          content: `
+      <p>After breakfast, departure for a <strong>full-day Phi Phi Islands tour on a boat chartered privately for your group only</strong> — not shared with other travelers.</p>
+      <p><strong>Program:</strong></p>
+      <ul>
+        <li>Maya Bay (<em>The Beach</em> film location)</li>
+        <li>Pileh Lagoon</li>
+        <li>Viking Cave</li>
+        <li>Monkey Beach</li>
+        <li>Bamboo Island</li>
+        <li>Khai Island (snorkeling)</li>
+      </ul>
+      <p><strong>Included:</strong> Private boat, snorkeling equipment, life vest, Thai buffet lunch on board, national park fees, English-speaking guide.</p>
+      <p>Evening free time in Patong. Overnight at your villa.</p>`
+        },
+        4: {
+          summary: "Phang Nga Bay: canoeing, James Bond Island, floating village — full-day tour on a boat private to your group.",
+          content: `
+      <p>After breakfast, <strong>full-day James Bond Island and Phang Nga Bay tour on a privately chartered boat</strong>, just for your group.</p>
+      <p><strong>Program:</strong></p>
+      <ul>
+        <li>Canoe exploration of Hong Island sea caves</li>
+        <li>Panak ice cave</li>
+        <li>James Bond Island (Koh Tapu)</li>
+        <li>Koh Panyee floating fishing village</li>
+        <li>Swimming at Naka Yai beach</li>
+      </ul>
+      <p><strong>Included:</strong> Private boat, canoe, life vest, helmet, lunch, national park fees, guide.</p>
+      <p>Overnight at your Phuket villa.</p>`
+        },
+        5: {
+          summary: "Full-day Khao Sok: rainforest, a private boat tour on Cheow Lan Lake and floating bungalows.",
+          content: `
+      <p>After breakfast, <strong>full-day Khao Sok National Park tour</strong> — the Cheow Lan Lake boat is chartered privately for your group only.</p>
+      <p><strong>Program:</strong></p>
+      <ul>
+        <li>Rainforest and limestone peaks</li>
+        <li>Private boat tour of <strong>Cheow Lan Lake</strong></li>
+        <li>Floating bungalows and cave exploration</li>
+        <li>Paddle board / canoe or swimming stops</li>
+        <li>Lunch (lakeside restaurant or on board)</li>
+      </ul>
+      <p><strong>Included:</strong> National park entry, private boat/lake tour, lunch, guide.</p>
+      <p>Evening free time in Patong. Overnight at your villa.</p>`
+        },
+        6: {
+          summary: "Morning free; afternoon Thai AirAsia to Bangkok. Transfer to your Bangkok villa (7–11 Dec).",
+          content: `
+      <p>After breakfast, free time: swimming in Patong, shopping, spa or <strong>Jungceylon Mall</strong>.</p>
+      <p>Afternoon transfer to Phuket Airport. Departure with <strong>Thai AirAsia FD3014</strong> to Bangkok.</p>
+      <p><strong>Flight:</strong> 07.12.2026 Phuket 14:00 → Bangkok 15:25.</p>
+      <p>On arrival at Suvarnabhumi, private transfer to <strong>your Airbnb villa in Bangkok</strong> (7–11 December stay).</p>
+      <p>Evening welcome dinner suggestion around Soi 11.</p>`
+        },
+        8: {
+          optional: false,
+          route: "Bangkok · Shopping day",
+          summary: "Free day: shopping at Bangkok's well-known malls (ICONSIAM, Siam Paragon, MBK Center and similar).",
+          content: `
+      <p>No fixed activity today — a <strong>free shopping day in Bangkok</strong>.</p>
+      <p><strong>Suggested stops:</strong></p>
+      <ul>
+        <li><strong>ICONSIAM</strong> — riverside luxury mall on the Chao Phraya</li>
+        <li><strong>Siam Paragon</strong> — central luxury mall</li>
+        <li><strong>MBK Center</strong> — affordable multi-floor shopping center</li>
+        <li><strong>Chatuchak</strong> (if it falls on a weekend) — the weekend market</li>
+      </ul>
+      <p>The plan is flexible based on your group's preference; your private driver/guide can join and make suggestions.</p>
+      <p>Overnight at your villa.</p>`
+        }
+      }
+    };
+
     function withDeparturePort(days, lang, tour) {
       let overrides = {};
       const port = currentDeparturePort;
@@ -8817,6 +9295,8 @@
         overrides = Object.assign({}, PROGRAM_DAY_OVERRIDES_BACKPACK[lang] || {});
       } else if (tour === "phuket" && port === "istanbul") {
         overrides = Object.assign({}, overrides, PROGRAM_DAY_OVERRIDES_COMFORT_IST[lang] || {});
+      } else if (tour === "private") {
+        overrides = Object.assign({}, overrides, PROGRAM_DAY_OVERRIDES_PRIVATE[lang] || {});
       }
       if (port === "larnaca") {
         const lcaShared = PROGRAM_DAY_OVERRIDES_LCA_SHARED[lang] || {};
@@ -8825,14 +9305,14 @@
           overrides = Object.assign({}, lcaShared, lcaReturn, overrides, PROGRAM_DAY_OVERRIDES_BACKPACK_LCA[lang] || {});
         } else if (tour === "phuket") {
           overrides = Object.assign({}, lcaReturn, overrides, PROGRAM_DAY_OVERRIDES_LCA_COMFORT[lang] || {});
-        } else {
+        } else if (tour !== "private") {
           overrides = Object.assign({}, lcaShared, overrides, lcaReturn);
         }
       } else if (port === "ercan") {
         const er = PROGRAM_DAY_OVERRIDES_ERCAN[lang] || {};
         if (tour === "backpacking") {
           overrides = Object.assign({}, er, overrides, PROGRAM_DAY_OVERRIDES_BACKPACK_ERCAN[lang] || {});
-        } else {
+        } else if (tour !== "private") {
           overrides = Object.assign({}, overrides, er);
         }
       } else if (port === "helsinki") {
@@ -8844,7 +9324,7 @@
           overrides = Object.assign({}, helReturn, overrides, PROGRAM_DAY_OVERRIDES_HEL_COMFORT[lang] || {});
         } else if (tour === "backpacking") {
           overrides = Object.assign({}, overrides, PROGRAM_DAY_OVERRIDES_BACKPACK_HEL[lang] || {});
-        } else {
+        } else if (tour !== "private") {
           overrides = Object.assign({}, helShared, overrides, helReturn);
         }
       } else if (port === "london") {
@@ -9707,6 +10187,36 @@
         },
         availability: { capacity: 10, booked: 10, soldOut: true },
         emailSubject: 'Tomorrowland%20Thailand%20Paketi'
+      },
+      private: {
+        badge:    { tr: 'Özel Grup · 1-4 Kişi', en: 'Private Group · 1-4 People' },
+        title:    { tr: 'Phuket & Bangkok · Özel Villa Paketi',
+                    en: 'Phuket & Bangkok · Private Villa Package' },
+        heroImg:  'phi-phi-island.jpg',
+        heroAlt:  { tr: 'Özel tekne ile Phi Phi Adaları', en: 'Private boat to Phi Phi Islands' },
+        // Only these 3 departure airports are offered for this package (see
+        // getAllowedDeparturePorts) — flight costs for the others aren't priced in.
+        routesByPort: {
+          istanbul: { tr: 'İstanbul → Phuket, Bangkok', en: 'Istanbul → Phuket, Bangkok' },
+          ercan:    { tr: 'Ercan → Phuket, Bangkok', en: 'Ercan → Phuket, Bangkok' },
+          larnaca:  { tr: 'Larnaca → Phuket, Bangkok', en: 'Larnaca → Phuket, Bangkok' }
+        },
+        duration: { tr: '9 gece 10 gün', en: '9 nights 10 days' },
+        dates:    { tr: '02 Aralık 2026 – 11 Aralık 2026 · özel villa konaklama',
+                    en: '02 December 2026 – 11 December 2026 · private villa stay' },
+        breadcrumb: { tr: 'Phuket & Bangkok · Özel Grup', en: 'Phuket & Bangkok · Private Group' },
+        dateOptions: { tr: ['02 – 11 Aralık 2026'], en: ['02 – 11 December 2026'] },
+        // NOTE: these per-port values are NOT used for display — the real price is computed
+        // dynamically in getDisplayedPriceEur()/getPrivateTotalEur() from the fixed villa/car
+        // costs plus a per-person flight fare (see PRIVATE_FLIGHT_BY_PORT_EUR). This object only
+        // supplies the port keys the price selector iterates over.
+        pricesByPort: {
+          istanbul: { eur: 2500 },
+          ercan:    { eur: 2500 },
+          larnaca:  { eur: 2500 }
+        },
+        availability: { capacity: 4, booked: 0 },
+        emailSubject: 'Ozel%20Villa%20Grup%20Rezervasyonu'
       }
     };
 
@@ -9738,13 +10248,14 @@
     }
     function getTourKeyFromHash(hash) {
       if (hash === "#tur-backpacking") return "backpacking";
+      if (hash === "#tur-private") return "private";
       if (hash === "#tur") return "phuket";
       if (hash === "#tomorrowland") return "tomorrowland";
       return null;
     }
     function renderTourCardAvailability() {
       const lang = L();
-      ["backpacking", "phuket", "tomorrowland"].forEach(function (key) {
+      ["backpacking", "phuket", "tomorrowland", "private"].forEach(function (key) {
         const el = document.getElementById("tour-card-availability-" + key);
         if (!el) return;
         const soldOut = isTourSoldOut(key);
@@ -9811,13 +10322,90 @@
       return getTourPriceFor(tourKey, port).eur;
     }
     function supportsCouplePricing(tourKey) {
-      return tourKey !== "backpacking";
+      return tourKey !== "backpacking" && tourKey !== "private";
     }
     function getEffectivePricingMode(tourKey) {
       if (!supportsCouplePricing(tourKey)) return "solo";
       return currentPricingMode;
     }
+    // PRIVATE VILLA PACKAGE — flat per-group costs (villa, private car).
+    // Only the flight scales with how many people are in the group: raw outbound + return
+    // international fares (no markup) plus the domestic Phuket-Bangkok leg.
+    // Phi Phi / James Bond / Khao Sok boat days and the Bangkok city tour are complimentary —
+    // included at no cost, not priced into the package.
+    const PRIVATE_VILLA_PHUKET_EUR = 800;
+    const PRIVATE_VILLA_BANGKOK_EUR = 500;
+    const PRIVATE_TRANSPORT_EUR = 500; // 1 rental car + private driver in Phuket, 1 rental car + private driver in Bangkok
+    const PRIVATE_DOMESTIC_FLIGHT_EUR = 100; // Phuket -> Bangkok, per person
+    const PRIVATE_FIXED_TOTAL_EUR =
+      PRIVATE_VILLA_PHUKET_EUR +
+      PRIVATE_VILLA_BANGKOK_EUR +
+      PRIVATE_TRANSPORT_EUR;
+    // Custom date request — minimum trip length matches the package's own duration (9 gece 10 gün).
+    const PRIVATE_MIN_NIGHTS = 9;
+    const CUSTOM_DATE_MONTHS_TR = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+    const CUSTOM_DATE_MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    function formatCustomDate(isoStr, lang) {
+      if (!isoStr) return '';
+      const d = new Date(isoStr + 'T00:00:00');
+      if (isNaN(d.getTime())) return '';
+      const months = lang === 'en' ? CUSTOM_DATE_MONTHS_EN : CUSTOM_DATE_MONTHS_TR;
+      const day = String(d.getDate()).padStart(2, '0');
+      return day + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+    }
+    function addDaysIso(isoStr, days) {
+      const parts = isoStr.split('-').map(Number);
+      const d = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+      d.setUTCDate(d.getUTCDate() + days);
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      return y + '-' + m + '-' + day;
+    }
+    function updateCustomDateNote() {
+      const noteEl = document.getElementById('customDateNote');
+      if (!noteEl) return;
+      const lang = L();
+      noteEl.textContent = lang === 'en'
+        ? ('Minimum ' + PRIVATE_MIN_NIGHTS + ' nights / ' + (PRIVATE_MIN_NIGHTS + 1) + ' days. These dates are a request — confirmation depends on availability.')
+        : ('Minimum ' + PRIVATE_MIN_NIGHTS + ' gece ' + (PRIVATE_MIN_NIGHTS + 1) + ' gün. Bu tarihler bir taleptir; kesinleşmesi müsaitliğe bağlıdır.');
+    }
+    function syncReserveCustomDatesVisibility() {
+      const tourSel = document.getElementById('reserve-tour');
+      const wrap = document.getElementById('reserve-custom-dates');
+      if (!tourSel || !wrap) return;
+      const isPrivate = tourSel.value === 'private';
+      wrap.hidden = !isPrivate;
+      if (isPrivate) updateCustomDateNote();
+    }
+    // Raw international round-trip fares per person, no markup (outbound + return leg).
+    const PRIVATE_FLIGHT_BY_PORT_EUR = {
+      istanbul: 300 + 300,  // Istanbul -> Phuket 300, Bangkok -> Istanbul 300
+      ercan:    361 + 400,  // Ercan -> Phuket 361, Bangkok -> Ercan 400
+      larnaca:  450 + 447   // Larnaca -> Phuket 450, Bangkok -> Larnaca 447
+    };
+    // Departure airports actually offered for a given tour package.
+    function getAllowedDeparturePorts(tourKey) {
+      return ["istanbul", "ercan", "larnaca"];
+    }
+    function getPrivateFlightPerPersonEur(port) {
+      const p = normalizeDeparturePort(port);
+      const intl = PRIVATE_FLIGHT_BY_PORT_EUR[p] != null ? PRIVATE_FLIGHT_BY_PORT_EUR[p] : PRIVATE_FLIGHT_BY_PORT_EUR.istanbul;
+      return intl + PRIVATE_DOMESTIC_FLIGHT_EUR;
+    }
+    // Round up to the nearest "...90" (matches the site's charm pricing, e.g. 1.690, 2.190).
+    function roundUpToNinety(n) {
+      let base = Math.floor(n / 100) * 100 + 90;
+      if (base < n) base += 100;
+      return base;
+    }
+    function getPrivateTotalEur(port, groupSize) {
+      const size = Math.max(1, Math.min(4, groupSize || currentGroupSize || 1));
+      const raw = PRIVATE_FIXED_TOTAL_EUR + getPrivateFlightPerPersonEur(port) * size;
+      return roundUpToNinety(raw);
+    }
     function getDisplayedPriceEur(tourKey, port) {
+      if (tourKey === "private") return getPrivateTotalEur(port, currentGroupSize);
       const solo = getSoloPriceEur(tourKey, port);
       if (getEffectivePricingMode(tourKey) === "solo") return solo;
       return calculateSharedRoomPrice(normalizePackageType(tourKey), solo);
@@ -9836,6 +10424,7 @@
       shared: { tr: "Çift kişi", en: "Couple" }
     };
     let currentPricingMode = "solo";
+    let currentGroupSize = 2;
     function normalizeDeparturePort(port) {
       if (port === "ercan" || port === "larnaca" || port === "helsinki" || port === "london" || port === "berlin" || port === "amsterdam") return port;
       return "istanbul";
@@ -10075,6 +10664,8 @@
         currentPricingMode = "solo";
         syncPricingModeButtons();
       }
+      const groupSizeWrap = document.getElementById("private-group-size-wrap");
+      if (groupSizeWrap) groupSizeWrap.hidden = currentTour !== "private";
     }
     function setPricingMode(mode) {
       if (mode !== "solo" && mode !== "shared") return;
@@ -10083,6 +10674,23 @@
       currentPricingMode = mode;
       syncPricingModeButtons();
       updatePriceDisplays();
+      if (typeof refreshChatPriceSummary === "function") refreshChatPriceSummary();
+    }
+    function syncGroupSizeButtons() {
+      document.querySelectorAll("[data-group-size]").forEach(function (btn) {
+        const active = Number(btn.getAttribute("data-group-size")) === currentGroupSize;
+        btn.classList.toggle("is-active", active);
+        btn.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+    }
+    function setGroupSize(size) {
+      const n = Math.max(1, Math.min(4, Number(size) || 1));
+      if (currentGroupSize === n) return;
+      currentGroupSize = n;
+      syncGroupSizeButtons();
+      updatePriceDisplays();
+      const reserveGuestsEl = document.getElementById("reserve-guests");
+      if (reserveGuestsEl && currentTour === "private") reserveGuestsEl.value = String(n);
       if (typeof refreshChatPriceSummary === "function") refreshChatPriceSummary();
     }
     function updatePriceDisplays() {
@@ -10094,6 +10702,23 @@
       if (tmlPriceEl) {
         const tmlDisplayed = getDisplayedPriceEur("tomorrowland", currentDeparturePort);
         animatePriceElement(tmlPriceEl, formatEurDisplay(tmlDisplayed));
+      }
+      const lang = L();
+      const perEl = document.querySelector(".price-card__per");
+      if (perEl) {
+        const trText = currentTour === "private" ? "Grup toplam (1-4 kişi)" : "Kişi başı";
+        const enText = currentTour === "private" ? "Total for group (1-4 people)" : "Per person";
+        perEl.setAttribute("data-tr", trText);
+        perEl.setAttribute("data-en", enText);
+        perEl.textContent = lang === "en" ? enText : trText;
+      }
+      const fromEl = document.querySelector(".price-card__from");
+      if (fromEl) {
+        const trText = currentTour === "private" ? "sabit paket fiyatı" : "’dan itibaren";
+        const enText = currentTour === "private" ? "flat package price" : "starting from";
+        fromEl.setAttribute("data-tr", trText);
+        fromEl.setAttribute("data-en", enText);
+        fromEl.textContent = lang === "en" ? enText : trText;
       }
     }
     const PRICE_DISCLAIMER = {
@@ -10107,6 +10732,7 @@
       const bp = getMinTourPriceEur("backpacking");
       const cf = getMinTourPriceEur("phuket");
       const tml = getMinTourPriceEur("tomorrowland");
+      const priv = getMinTourPriceEur("private");
       const disc = getPriceDisclaimer(lang);
       const modeSuffix =
         supportsCouplePricing(currentTour) && currentPricingMode === "shared"
@@ -10124,7 +10750,9 @@
           formatEurDisplay(tml) +
           " per person" +
           modeSuffix +
-          ".\n\n" +
+          ". Private villa group package (1-4 people): " +
+          formatEurDisplay(priv) +
+          " flat, for the whole group.\n\n" +
           disc +
           "\n\nWant more details?"
         );
@@ -10138,7 +10766,9 @@
         formatEurDisplay(tml) +
         " kişi başı ’dan itibaren" +
         modeSuffix +
-        ".\n\n" +
+        ". Özel villa grup paketi (1-4 kişi): " +
+        formatEurDisplay(priv) +
+        " — grup için sabit toplam fiyat.\n\n" +
         disc +
         "\n\nDetaylı bilgi ister misiniz?"
       );
@@ -10325,7 +10955,7 @@
         days = withDeparturePort(
           lang === "en" ? programDays_en : programDays,
           lang,
-          "phuket"
+          currentTour
         );
       }
       return applyNarrativeFlightTokens(
@@ -10338,18 +10968,22 @@
     function sidebarIncList() {
       if (currentTour === "tomorrowland") return L() === "en" ? sidebarIncluded_tml_en : sidebarIncluded_tml;
       if (currentTour === "backpacking") return L() === "en" ? sidebarIncluded_backpack_en : sidebarIncluded_backpack;
+      if (currentTour === "private") return L() === "en" ? sidebarIncluded_private_en : sidebarIncluded_private;
       return L() === "en" ? sidebarIncluded_en : sidebarIncluded;
     }
     function incBottomList() {
       if (currentTour === 'tomorrowland') return L() === 'en' ? includedBottom_tml_en : includedBottom_tml;
+      if (currentTour === "private") return L() === "en" ? includedBottom_private_en : includedBottom_private;
       return L() === 'en' ? includedBottom_en : includedBottom;
     }
     function excBottomList() {
       if (currentTour === 'tomorrowland') return L() === 'en' ? excludedBottom_tml_en : excludedBottom_tml;
+      if (currentTour === "private") return L() === "en" ? excludedBottom_private_en : excludedBottom_private;
       return L() === 'en' ? excludedBottom_en : excludedBottom;
     }
     function generalHtmlGet() {
       if (currentTour === 'tomorrowland') return L() === 'en' ? generalHtml_tml_en : generalHtml_tml;
+      if (currentTour === 'private') return L() === 'en' ? generalHtml_private_en : generalHtml_private;
       return L() === 'en' ? generalHtml_en : generalHtml;
     }
     function importantInfoGet() {
@@ -10358,6 +10992,7 @@
     function hotelsHtmlGet() {
       if (currentTour === "tomorrowland") return L() === "en" ? accommodationHtml_tml_en : accommodationHtml_tml;
       if (currentTour === "backpacking") return L() === "en" ? accommodationHtml_backpack_en : accommodationHtml_backpack;
+      if (currentTour === "private") return L() === "en" ? accommodationHtml_private_en : accommodationHtml_private;
       return L() === "en" ? accommodationHtml_en : accommodationHtml;
     }
     function flightsHtmlGet() {
@@ -10394,10 +11029,23 @@
       if (dateSel) {
         dateSel.innerHTML = t.dateOptions[lang]
           .map((d) => '<option>' + d + '</option>').join('');
+        if (currentTour === 'private') {
+          const customLabel = lang === 'en' ? "I'd like to choose my own dates" : 'Kendi tarihlerimi belirlemek istiyorum';
+          dateSel.innerHTML += '<option value="custom">' + customLabel + '</option>';
+        }
       }
 
-      updatePriceDisplays();
       const portSel = document.getElementById('departure-port-select');
+      const allowedPorts = getAllowedDeparturePorts(currentTour);
+      if (portSel) {
+        Array.from(portSel.options).forEach(function (opt) {
+          opt.hidden = allowedPorts.indexOf(opt.value) === -1;
+        });
+      }
+      if (allowedPorts.indexOf(currentDeparturePort) === -1) {
+        setDeparturePort(allowedPorts[0]);
+      }
+      updatePriceDisplays();
       if (portSel) portSel.value = currentDeparturePort;
 
       // Flight block
@@ -10750,11 +11398,13 @@
       const openLabel = lang === "en" ? "open details" : "detayları aç";
       const dayNounLong = lang === "en" ? "Day" : "Gün";
       const optPill = lang === "en" ? "Optional · extra" : "Opsiyonel · ek ücret";
+      const flexPill = lang === "en" ? "Flexible · included" : "Esnek · dahil";
       root.innerHTML = days
         .map((d) => {
           const summaryHtml = escapeHtml(d.summary).replace(/\n/g, "<br>");
           const label = `${dayNounLong} ${d.n}: ${d.route} — ${openLabel}`;
-          const pill = d.optional ? `<span class="timeline__optional-pill">${optPill}</span>` : '';
+          const pillText = d.optional ? optPill : (d.flexible ? flexPill : '');
+          const pill = pillText ? `<span class="timeline__optional-pill">${pillText}</span>` : '';
           return `
             <li class="timeline__item">
               <div class="timeline__marker">${d.n}.<br>${dayWord}</div>
@@ -10867,10 +11517,7 @@
 
       if (day.optional) {
         const isEn = L() === 'en';
-        const title   = isEn ? 'Optional tour — extra cost' : 'Opsiyonel tur — ek ücretli';
-        const message = isEn
-          ? "This day's tour is optional. Guests who'd like to join can attend for an additional cost. Those who prefer free time can stay at the hotel or explore on their own."
-          : 'Bu günün turu opsiyoneldir. Katılmak isteyen misafirler ek ücretle katılabilir. Serbest zaman tercih edenler otelde kalabilir veya kendi başlarına şehri keşfedebilir.';
+        const title = isEn ? 'Optional tour — extra cost' : 'Opsiyonel tur — ek ücretli';
         modalOptionalEl.innerHTML = `
           <div class="day-modal__optional-notice">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
@@ -10878,10 +11525,7 @@
               <line x1="12" y1="8" x2="12" y2="12"/>
               <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
-            <div>
-              <strong>${title}</strong>
-              <p>${message}</p>
-            </div>
+            <strong>${title}</strong>
           </div>`;
         modalOptionalEl.hidden = false;
       } else {
@@ -11057,6 +11701,7 @@
       populateReservePaymentSelect();
       const tourSel = document.getElementById("reserve-tour");
       renderReserveAddons(tourSel ? tourSel.value : currentTour);
+      syncReserveCustomDatesVisibility();
     }
     function closeModal() {
       overlay.classList.remove("is-open");
@@ -11073,6 +11718,7 @@
     if (reserveTourSel) {
       reserveTourSel.addEventListener("change", function () {
         renderReserveAddons(reserveTourSel.value);
+        syncReserveCustomDatesVisibility();
       });
     }
     modalClose.addEventListener("click", closeModal);
@@ -11173,21 +11819,30 @@
     const siteBrand = document.getElementById("site-brand");
 
     const openTomorrowlandBtn = document.getElementById("open-tomorrowland-detail");
+    const openPrivateBtn = document.getElementById("open-tour-private");
     const departureModal = document.getElementById("departure-modal");
     const departureClose = document.getElementById("departure-close");
     const departurePortSelect = document.getElementById("departure-port-select");
 
     try {
       const savedPort = localStorage.getItem('gezeceyik-departure');
-      if (savedPort === 'ercan' || savedPort === 'larnaca' || savedPort === 'helsinki' || savedPort === 'istanbul' || savedPort === 'london' || savedPort === 'berlin' || savedPort === 'amsterdam') {
+      if (savedPort === 'ercan' || savedPort === 'larnaca' || savedPort === 'istanbul') {
         currentDeparturePort = savedPort;
       }
     } catch (e) {}
 
+    function syncDepartureModalOptions(tourKey) {
+      if (!departureModal) return;
+      const allowed = getAllowedDeparturePorts(tourKey);
+      departureModal.querySelectorAll('.departure-option').forEach(function (btn) {
+        btn.hidden = allowed.indexOf(btn.getAttribute('data-port')) === -1;
+      });
+    }
     function openDepartureModal(hash) {
       const tourKey = getTourKeyFromHash(hash);
       if (tourKey && isTourSoldOut(tourKey)) return;
       pendingTourHash = hash;
+      syncDepartureModalOptions(tourKey);
       if (!departureModal) {
         navigateToTourHash(hash);
         return;
@@ -11251,6 +11906,51 @@
       });
     }
 
+    const tourDateSelectEl = document.getElementById('tour-date-select');
+    if (tourDateSelectEl) {
+      tourDateSelectEl.addEventListener('change', function () {
+        if (tourDateSelectEl.value !== 'custom') return;
+        tourDateSelectEl.selectedIndex = 0;
+        openModal();
+        const reserveTourSel = document.getElementById('reserve-tour');
+        if (reserveTourSel) {
+          reserveTourSel.value = 'private';
+          renderReserveAddons('private');
+          syncReserveCustomDatesVisibility();
+        }
+      });
+    }
+    const customDateStartEl = document.getElementById('customDateStart');
+    const customDateEndEl = document.getElementById('customDateEnd');
+    if (customDateStartEl && customDateEndEl) {
+      const todayIso = new Date().toISOString().slice(0, 10);
+      customDateStartEl.min = todayIso;
+      [customDateStartEl, customDateEndEl].forEach(function (el) {
+        el.addEventListener('click', function () {
+          if (typeof el.showPicker === 'function') {
+            try { el.showPicker(); } catch (e) {}
+          }
+        });
+      });
+      customDateStartEl.addEventListener('change', function () {
+        if (!customDateStartEl.value) return;
+        const minEnd = addDaysIso(customDateStartEl.value, PRIVATE_MIN_NIGHTS);
+        customDateEndEl.min = minEnd;
+        if (!customDateEndEl.value || customDateEndEl.value < minEnd) {
+          customDateEndEl.value = minEnd;
+        }
+        updateCustomDateNote();
+      });
+      customDateEndEl.addEventListener('change', function () {
+        if (!customDateStartEl.value) return;
+        const minEnd = addDaysIso(customDateStartEl.value, PRIVATE_MIN_NIGHTS);
+        if (customDateEndEl.value < minEnd) {
+          customDateEndEl.value = minEnd;
+        }
+        updateCustomDateNote();
+      });
+    }
+
     document.addEventListener("click", function (e) {
       const modeBtn = e.target.closest("[data-pricing-mode]");
       if (!modeBtn || !modeBtn.classList.contains("price-mode__option")) return;
@@ -11260,19 +11960,28 @@
       setPricingMode(mode);
     });
 
+    document.addEventListener("click", function (e) {
+      const sizeBtn = e.target.closest("[data-group-size]");
+      if (!sizeBtn) return;
+      e.preventDefault();
+      setGroupSize(sizeBtn.getAttribute("data-group-size"));
+    });
+
     function syncViewFromHash() {
       const hash = location.hash;
       const isBackpacking = hash === "#tur-backpacking";
       const isComfort = hash === "#tur";
+      const isPrivate = hash === "#tur-private";
       let isTml = hash === "#tomorrowland";
       if (isTml && isTourSoldOut("tomorrowland")) {
         history.replaceState(null, "", location.pathname + location.search);
         isTml = false;
       }
-      const showTour = isBackpacking || isComfort || isTml;
+      const showTour = isBackpacking || isComfort || isTml || isPrivate;
 
       if (isTml) currentTour = "tomorrowland";
       else if (isBackpacking) currentTour = "backpacking";
+      else if (isPrivate) currentTour = "private";
       else currentTour = "phuket";
 
       landingEl.hidden = showTour;
@@ -11281,12 +11990,14 @@
       if (openBackpackingBtn) openBackpackingBtn.setAttribute("aria-expanded", isBackpacking ? "true" : "false");
       openTourBtn.setAttribute("aria-expanded", isComfort ? "true" : "false");
       if (openTomorrowlandBtn) openTomorrowlandBtn.setAttribute("aria-expanded", isTml ? "true" : "false");
+      if (openPrivateBtn) openPrivateBtn.setAttribute("aria-expanded", isPrivate ? "true" : "false");
       document.body.classList.toggle("view-tour", showTour);
       document.body.classList.toggle("view-home", !showTour);
       document.body.classList.toggle("tour-detail-page", showTour);
       document.body.classList.toggle("on-detail-page", showTour);
       document.body.classList.toggle("tour-tml", isTml);
       document.body.classList.toggle("tour-backpacking", isBackpacking);
+      document.body.classList.toggle("tour-private", isPrivate);
 
       if (showTour) {
         updateTourMeta();
@@ -11314,6 +12025,13 @@
         e.preventDefault();
         if (isTourSoldOut("tomorrowland")) return;
         openDepartureModal("#tomorrowland");
+      });
+    }
+
+    if (openPrivateBtn) {
+      openPrivateBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        openDepartureModal("#tur-private");
       });
     }
 
@@ -11349,6 +12067,7 @@
 
     // Initial render — sync route first so price matrix visibility matches view
     syncPricingModeButtons();
+    syncGroupSizeButtons();
     syncViewFromHash();
     renderTourCardAvailability();
     updateTourMeta();
