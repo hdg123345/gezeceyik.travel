@@ -4404,11 +4404,11 @@
       >
         <div class="landing-preview__media private-media" role="img" data-tr-aria-label="Özel Aile Turu tur kartı — Phi Phi Adaları" data-en-aria-label="Private Family Escape tour card — Phi Phi Islands" aria-label="Özel Aile Turu tur kartı — Phi Phi Adaları"></div>
         <div class="landing-preview__body">
-          <div class="landing-preview__badge" data-tr="02 – 11 Aralık" data-en="02 – 11 December">02 – 11 Aralık</div>
+          <div class="landing-preview__badge" data-tr="Esnek Tarihler" data-en="Flexible Dates">Esnek Tarihler</div>
           <p class="landing-preview__tier" data-tr="Özel Aile Turu" data-en="Private Family Escape">Özel Aile Turu</p>
           <h3 class="landing-preview__title" data-tr="Phuket &amp; Bangkok" data-en="Phuket &amp; Bangkok">Phuket &amp; Bangkok</h3>
           <div class="landing-preview__meta">
-            <span class="landing-preview__meta-line" data-tr="02 – 11 Aralık 2026" data-en="02 – 11 December 2026">02 – 11 Aralık 2026</span>
+            <span class="landing-preview__meta-line" data-tr="Esnek tarihler — size uygun tarihi siz seçin" data-en="Flexible dates — you choose what works for you">Esnek tarihler — size uygun tarihi siz seçin</span>
             <span class="landing-preview__meta-line" data-tr="9 gece 10 gün" data-en="9 nights 10 days">9 gece 10 gün</span>
             <span class="landing-preview__meta-line" data-tr="Özel villa + özel araç" data-en="Private villa + private vehicle">Özel villa + özel araç</span>
           </div>
@@ -7001,12 +7001,6 @@
         html += addons
           .map(function (d) {
             const id = "addon-day-" + tourKey + "-" + d.n;
-            const addonKey = tourKey === "private" ? getPrivateAddonKeyByDayNum(d.n) : null;
-            const priceTag = addonKey
-              ? ' <span class="modal__addon-price">+' +
-                formatEurDisplay(PRIVATE_PRICING_CONFIG.addons[addonKey].priceEur) +
-                "</span>"
-              : "";
             return (
               '<label class="modal__addon-option">' +
               '<input type="checkbox" name="addon" value="' +
@@ -7020,7 +7014,6 @@
               d.n +
               "</strong> — " +
               escapeHtml(d.route) +
-              priceTag +
               "</span></label>"
             );
           })
@@ -10250,7 +10243,7 @@
         },
         7: {
           optional: true,
-          route: "Bangkok Wellness",
+          route: "Bangkok / Wellness",
           summary: "Tam gün Bangkok Wellness: geleneksel Tay masajı, spa ve aileniz için ayrılmış bir dinlenme programı.",
           content: `
       <p>Kahvaltı sonrası <strong>tam günlük Bangkok Wellness</strong> — yalnızca aileniz için ayrılmış bir spa ve dinlenme programı.</p>
@@ -10352,7 +10345,7 @@
         },
         7: {
           optional: true,
-          route: "Bangkok Wellness",
+          route: "Bangkok / Wellness",
           summary: "Full-day Bangkok Wellness: traditional Thai massage, spa and a relaxation program just for your family.",
           content: `
       <p>After breakfast, a <strong>full-day Bangkok Wellness experience</strong> — a spa and relaxation program reserved just for your family.</p>
@@ -11291,7 +11284,7 @@
                     en: 'Phuket & Bangkok · Private Family Escape' },
         heroImg:  'phi-phi-island.jpg',
         heroAlt:  { tr: 'Özel tekne ile Phi Phi Adaları', en: 'Private boat to Phi Phi Islands' },
-        // Only these 3 departure airports are offered for this package (see
+        // Only these departure airports are offered for this package (see
         // getAllowedDeparturePorts) — flight costs for the others aren't priced in.
         routesByPort: {
           istanbul: { tr: 'İstanbul → Phuket, Bangkok', en: 'Istanbul → Phuket, Bangkok' },
@@ -11299,10 +11292,14 @@
           larnaca:  { tr: 'Larnaca → Phuket, Bangkok', en: 'Larnaca → Phuket, Bangkok' }
         },
         duration: { tr: '9 gece 10 gün', en: '9 nights 10 days' },
-        dates:    { tr: '02 Aralık 2026 – 11 Aralık 2026 · özel villa konaklama',
-                    en: '02 December 2026 – 11 December 2026 · private villa stay' },
+        // No fixed calendar date: this package is flexible-dates — the customer
+        // requests their own start date (see the custom-date flow in the
+        // reservation modal). Don't reintroduce a fixed "02 – 11 Aralık"-style
+        // date here or in dateOptions below.
+        dates:    { tr: 'Esnek tarihler · özel villa konaklama',
+                    en: 'Flexible dates · private villa stay' },
         breadcrumb: { tr: 'Phuket & Bangkok · Özel Aile Turu', en: 'Phuket & Bangkok · Private Family Escape' },
-        dateOptions: { tr: ['02 – 11 Aralık 2026'], en: ['02 – 11 December 2026'] },
+        dateOptions: { tr: [], en: [] },
         // NOTE: these per-port values are NOT used for display — the real price is a
         // flat family price computed by getPrivateFamilyPriceEur()/getPrivateTotalEur()
         // (see PRIVATE_PRICING_CONFIG.familyPriceByPort). This object only supplies the
@@ -11616,7 +11613,7 @@
     }
     // Departure airports actually offered for a given tour package.
     function getAllowedDeparturePorts(tourKey) {
-      return ["istanbul", "ercan", "larnaca"];
+      return ["istanbul", "ercan"];
     }
     function getDisplayedPriceEur(tourKey, port) {
       if (tourKey === "private") return getPrivateTotalEur(port, currentPrivateGuests);
@@ -13170,7 +13167,7 @@
 
     try {
       const savedPort = localStorage.getItem('gezeceyik-departure');
-      if (savedPort === 'ercan' || savedPort === 'larnaca' || savedPort === 'istanbul') {
+      if (savedPort === 'ercan' || savedPort === 'istanbul') {
         currentDeparturePort = savedPort;
       }
     } catch (e) {}
