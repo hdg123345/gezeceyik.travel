@@ -4408,8 +4408,7 @@
           <p class="landing-preview__tier" data-tr="Özel Aile Turu" data-en="Private Family Escape">Özel Aile Turu</p>
           <h3 class="landing-preview__title" data-tr="Phuket &amp; Bangkok" data-en="Phuket &amp; Bangkok">Phuket &amp; Bangkok</h3>
           <div class="landing-preview__meta">
-            <span class="landing-preview__meta-line" data-tr="Esnek tarihler — size uygun tarihi siz seçin" data-en="Flexible dates — you choose what works for you">Esnek tarihler — size uygun tarihi siz seçin</span>
-            <span class="landing-preview__meta-line" data-tr="9 gece 10 gün" data-en="9 nights 10 days">9 gece 10 gün</span>
+            <span class="landing-preview__meta-line" data-tr="Esnek tarihler" data-en="Flexible dates">Esnek tarihler</span>
             <span class="landing-preview__meta-line" data-tr="Özel villa + özel araç" data-en="Private villa + private vehicle">Özel villa + özel araç</span>
           </div>
           <div class="landing-preview__price">
@@ -4421,7 +4420,7 @@
     </div>
   </div>
 
-  <section class="curated-section wrap fade-in-section" id="curated-section" aria-labelledby="curated-title">
+  <section class="curated-section wrap fade-in-section" id="curated-section" aria-labelledby="curated-title" hidden>
     <div class="curated-header">
       <span class="curated-badge" data-tr="KİŞİYE ÖZEL · CURATED" data-en="CURATED · BESPOKE">KİŞİYE ÖZEL · CURATED</span>
       <h2 class="curated-title" id="curated-title">
@@ -4682,7 +4681,6 @@
                     </div>
                   </div>
                 </div>
-                <p class="group-size-note" data-generic-guests-note>1 ödeyen misafir seçili. Çocuk ve bebek sayısında sınır yoktur.</p>
               </div>
               <div id="private-guests-wrap" hidden>
                 <div class="price-card__label" data-tr="Kaç kişi ve kimler geliyor?" data-en="Who's coming?">Kaç kişi ve kimler geliyor?</div>
@@ -11210,7 +11208,7 @@
           london:   { eur: 1199 },
           berlin:   { eur: 1399 }
         },
-        availability: { capacity: 10, booked: 10, soldOut: true },
+        availability: { capacity: 10, booked: 8 },
         emailSubject: 'Phuket%20Backpacking%20Style%20Rezervasyonu'
       },
       phuket: {
@@ -11309,7 +11307,7 @@
           ercan:    { eur: 2500 },
           larnaca:  { eur: 2500 }
         },
-        availability: { capacity: 4, booked: 0 },
+        availability: { capacity: 4, booked: 0, comingSoon: true },
         emailSubject: 'Ozel%20Villa%20Grup%20Rezervasyonu'
       }
     };
@@ -11322,17 +11320,27 @@
       const a = t && t.availability ? t.availability : { capacity: 10, booked: 0 };
       const capacity = a.capacity || 10;
       const booked = a.booked || 0;
+      const comingSoon = !!a.comingSoon;
       return {
         capacity: capacity,
         booked: booked,
-        soldOut: !!a.soldOut || booked >= capacity
+        comingSoon: comingSoon,
+        // Coming-soon packages aren't "sold out" — keep the flag itself
+        // separate, but isTourSoldOut() below still treats both as not
+        // bookable so every existing gate (dropdown, reserve button, card
+        // click) keeps working without touching each call site.
+        soldOut: !comingSoon && (!!a.soldOut || booked >= capacity)
       };
     }
     function isTourSoldOut(tourKey) {
-      return getTourAvailability(tourKey).soldOut;
+      const a = getTourAvailability(tourKey);
+      return a.soldOut || a.comingSoon;
     }
     function getAvailabilityCardLabel(tourKey, lang) {
       const a = getTourAvailability(tourKey);
+      if (a.comingSoon) {
+        return lang === "en" ? "Coming soon" : "Yakında";
+      }
       if (a.soldOut) {
         return lang === "en" ? "Sold out" : "Tükendi";
       }
@@ -11395,7 +11403,7 @@
             reserveBtn.parentNode.insertBefore(soldOutEl, reserveBtn);
           }
         }
-        soldOutEl.textContent = L() === "en" ? "Sold out" : "Tükendi";
+        soldOutEl.textContent = getAvailabilityCardLabel(currentTour, L());
         soldOutEl.hidden = false;
         if (reserveBtn) {
           reserveBtn.disabled = true;
@@ -11880,14 +11888,6 @@
         });
         // Plus buttons are never disabled — no cap on generic-package guest counts.
       });
-      document.querySelectorAll("[data-generic-guests-note]").forEach(function (noteEl) {
-        const lang = L();
-        const payingGuests = g.adults + g.children;
-        const trText = payingGuests + " ödeyen misafir seçili. Çocuk ve bebek sayısında sınır yoktur.";
-        const enText =
-          payingGuests + " paying " + (payingGuests === 1 ? "guest" : "guests") + " selected. No limit on children or infants.";
-        noteEl.textContent = lang === "en" ? enText : trText;
-      });
     }
     function adjustGenericGuests(category, delta) {
       if (category !== "adults" && category !== "children" && category !== "infants") return;
@@ -12336,6 +12336,12 @@
       setText('tour-hero-duration',   t.duration[lang]);
       setText('tour-hero-dates',      t.dates[lang]);
       setText('tour-breadcrumb-title', t.breadcrumb[lang]);
+
+      // Private/family tour is flexible-dates — don't show a fixed duration
+      // chip alongside it on the hero.
+      const durationEl = document.getElementById('tour-hero-duration');
+      const durationItem = durationEl ? durationEl.closest('.tour-hero__meta-item') : null;
+      if (durationItem) durationItem.hidden = currentTour === 'private';
 
       const heroBg = document.getElementById('tour-hero-bg');
       if (heroBg) {
