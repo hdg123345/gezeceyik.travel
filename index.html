@@ -11341,6 +11341,12 @@
       if (a.comingSoon) {
         return lang === "en" ? "Coming soon" : "Yakında";
       }
+      // Backpacking and Comfort always read as limited-capacity — never a
+      // specific booked/capacity count, and never a hard "sold out" label,
+      // regardless of actual availability numbers.
+      if (tourKey === "backpacking" || tourKey === "phuket") {
+        return lang === "en" ? "Limited capacity" : "Sınırlı kontenjan";
+      }
       if (a.soldOut) {
         return lang === "en" ? "Sold out" : "Tükendi";
       }
