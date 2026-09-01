@@ -4644,42 +4644,11 @@
               <select id="tour-date-select"></select>
             </div>
             <div class="price-card__section">
-              <div id="generic-guests-wrap">
-                <div class="price-card__label" data-tr="Kaç kişi ve kimler geliyor?" data-en="Who's coming?">Kaç kişi ve kimler geliyor?</div>
-                <div class="guest-stepper">
-                  <div class="guest-stepper__row">
-                    <div class="guest-stepper__label">
-                      <span data-tr="Yetişkin" data-en="Adults">Yetişkin</span>
-                      <small data-tr="12+ yaş" data-en="Age 12+">12+ yaş</small>
-                    </div>
-                    <div class="guest-stepper__control">
-                      <button type="button" class="guest-stepper__btn" data-generic-guest-btn="adults" data-generic-guest-delta="-1" aria-label="Yetişkin sayısını azalt">−</button>
-                      <span class="guest-stepper__count" data-generic-guest-count="adults">1</span>
-                      <button type="button" class="guest-stepper__btn" data-generic-guest-btn="adults" data-generic-guest-delta="1" aria-label="Yetişkin sayısını artır">+</button>
-                    </div>
-                  </div>
-                  <div class="guest-stepper__row">
-                    <div class="guest-stepper__label">
-                      <span data-tr="Çocuk" data-en="Children">Çocuk</span>
-                      <small data-tr="2-11 yaş" data-en="Age 2-11">2-11 yaş</small>
-                    </div>
-                    <div class="guest-stepper__control">
-                      <button type="button" class="guest-stepper__btn" data-generic-guest-btn="children" data-generic-guest-delta="-1" aria-label="Çocuk sayısını azalt">−</button>
-                      <span class="guest-stepper__count" data-generic-guest-count="children">0</span>
-                      <button type="button" class="guest-stepper__btn" data-generic-guest-btn="children" data-generic-guest-delta="1" aria-label="Çocuk sayısını artır">+</button>
-                    </div>
-                  </div>
-                  <div class="guest-stepper__row">
-                    <div class="guest-stepper__label">
-                      <span data-tr="Bebek" data-en="Infants">Bebek</span>
-                      <small data-tr="0-2 yaş" data-en="Age 0-2 years">0-2 yaş</small>
-                    </div>
-                    <div class="guest-stepper__control">
-                      <button type="button" class="guest-stepper__btn" data-generic-guest-btn="infants" data-generic-guest-delta="-1" aria-label="Bebek sayısını azalt">−</button>
-                      <span class="guest-stepper__count" data-generic-guest-count="infants">0</span>
-                      <button type="button" class="guest-stepper__btn" data-generic-guest-btn="infants" data-generic-guest-delta="1" aria-label="Bebek sayısını artır">+</button>
-                    </div>
-                  </div>
+              <div id="pricing-mode-wrap">
+                <div class="price-card__label" data-tr="Fiyatlandırma" data-en="Pricing">Fiyatlandırma</div>
+                <div class="price-mode" id="sidebar-price-mode" role="radiogroup" aria-label="Pricing mode">
+                  <button type="button" class="price-mode__option is-active" data-pricing-mode="solo" data-tr="Tek kişi" data-en="Single">Tek kişi</button>
+                  <button type="button" class="price-mode__option" data-pricing-mode="shared" data-tr="Çift kişi" data-en="Couple">Çift kişi</button>
                 </div>
               </div>
               <div id="private-guests-wrap" hidden>
@@ -4727,7 +4696,6 @@
               </div>
               <div class="price-card__from" data-tr="’dan itibaren" data-en="starting from">’dan itibaren</div>
               <div class="private-price-breakdown" id="private-price-breakdown" hidden></div>
-              <div class="private-price-breakdown" id="generic-price-breakdown" hidden></div>
               <p class="price-card__notice" data-tr="Gösterilen fiyatlar değişebilir. Kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir." data-en="Prices shown are indicative and may change. Exact accommodation and flight details are shared upon booking / tour confirmation; minor add-ons such as extra baggage or airport taxes may apply.">Gösterilen fiyatlar değişebilir. Kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir.</p>
               <button type="button" class="btn-reserve book-button" id="open-reserve" data-tr="Rezervasyon Yap" data-en="Book Now">Rezervasyon Yap</button>
             </div>
@@ -7154,16 +7122,13 @@
           (lang === "en" ? "Family package price (fixed, per family): " : "Aile paketi fiyatı (sabit, aile başına): ") +
           formatEurDisplay(displayed);
       } else {
-        const quote = getGenericTourQuote(key, portKey, currentGenericGuests);
-        lines += "\n" + (lang === "en" ? "Guests: " : "Misafirler: ") + formatGuestPartsText(quote.guests, lang);
+        const modeLabel = PRICING_MODE_LABELS[getEffectivePricingMode(key)][lang === "en" ? "en" : "tr"];
+        const displayed = getDisplayedPriceEur(key, portKey);
+        lines += "\n" + (lang === "en" ? "Pricing: " : "Fiyatlandırma: ") + modeLabel;
         lines +=
           "\n" +
           (lang === "en" ? "Package price (per person): " : "Paket fiyatı (kişi başı): ") +
-          formatEurDisplay(quote.perPersonEur);
-        lines +=
-          "\n" +
-          (lang === "en" ? "Total price (" + quote.payingGuests + " paying guests): " : "Toplam fiyat (" + quote.payingGuests + " ödeyen misafir): ") +
-          formatEurDisplay(quote.totalEur);
+          formatEurDisplay(displayed);
       }
       return lines;
     }
@@ -11450,46 +11415,17 @@
     function getSoloPriceEur(tourKey, port) {
       return getTourPriceFor(tourKey, port).eur;
     }
-    // ============================================================================
-    // NON-PRIVATE PACKAGES — GUEST-COUNT PRICING (Backpacking / Comfort / Tomorrowland)
-    // Same guest-selector pattern as the Private Villa package (Adults / Children
-    // / Infants steppers), but with two differences:
-    //  - No cap on paying guests — adults and children can be incremented without
-    //    limit (only the Private Villa package keeps the 4-guest cap).
-    //  - Pricing is PER PERSON, not a flat group total: each paying guest (adult
-    //    or child, at the same rate) pays the per-person rate for that tour and
-    //    occupancy; infants are free and never counted or charged.
-    //  - The per-person rate itself is unchanged from before: the solo rate for
-    //    1 paying guest, the existing double-occupancy "shared" rate for 2+.
-    // ============================================================================
-    let currentGenericGuests = { adults: 1, children: 0, infants: 0 };
-    function clampGenericGuestCounts(counts) {
-      const c = counts || {};
-      return {
-        adults: Math.max(1, Math.floor(Number(c.adults) || 1)),
-        children: Math.max(0, Math.floor(Number(c.children) || 0)),
-        infants: Math.max(0, Math.floor(Number(c.infants) || 0))
-      };
+    // Non-private packages (Backpacking / Comfort / Tomorrowland) keep a
+    // simple Solo/Couple pricing mode rather than a guest-count total. A
+    // linear per-head price breaks down past 2 people anyway (3 people don't
+    // cost 1.5x a couple — they need a second room), so this only ever shows
+    // a single per-person rate for the room type the customer picks.
+    function supportsCouplePricing(tourKey) {
+      return tourKey !== "backpacking" && tourKey !== "private";
     }
-    function getGenericPricePerPersonEur(tourKey, port, payingGuests) {
-      const solo = getSoloPriceEur(tourKey, port);
-      return payingGuests <= 1 ? solo : calculateSharedRoomPrice(normalizePackageType(tourKey), solo);
-    }
-    // Core quote builder for the non-private packages — mirrors
-    // getPrivateTourQuote's shape so the UI/booking code can treat both
-    // uniformly. Infants are free and excluded from payingGuests, matching the
-    // Private Villa package's infant rule.
-    function getGenericTourQuote(tourKey, port, guests) {
-      const c = clampGenericGuestCounts(guests);
-      const payingGuests = c.adults + c.children;
-      const perPersonEur = getGenericPricePerPersonEur(tourKey, port, payingGuests);
-      const totalEur = perPersonEur * payingGuests;
-      return {
-        guests: c,
-        payingGuests: payingGuests,
-        perPersonEur: perPersonEur,
-        totalEur: totalEur
-      };
+    function getEffectivePricingMode(tourKey) {
+      if (!supportsCouplePricing(tourKey)) return "solo";
+      return currentPricingMode;
     }
     // ============================================================================
     // PRIVATE FAMILY ESCAPE — PRICING ENGINE
@@ -11631,7 +11567,9 @@
     }
     function getDisplayedPriceEur(tourKey, port) {
       if (tourKey === "private") return getPrivateTotalEur(port, currentPrivateGuests);
-      return getGenericTourQuote(tourKey, port, currentGenericGuests).perPersonEur;
+      const solo = getSoloPriceEur(tourKey, port);
+      if (getEffectivePricingMode(tourKey) === "solo") return solo;
+      return calculateSharedRoomPrice(normalizePackageType(tourKey), solo);
     }
     const DEPARTURE_PORT_LABELS = {
       istanbul: { tr: "İstanbul (SAW)", en: "Istanbul (SAW)" },
@@ -11642,6 +11580,11 @@
       berlin: { tr: "Berlin (BER)", en: "Berlin (BER)" },
       amsterdam: { tr: "Amsterdam (AMS)", en: "Amsterdam (AMS)" }
     };
+    const PRICING_MODE_LABELS = {
+      solo: { tr: "Tek kişi", en: "Single" },
+      shared: { tr: "Çift kişi", en: "Couple" }
+    };
+    let currentPricingMode = "solo";
     let currentPrivateGuests = { adults: 2, children: 0, infants: 0 };
     function normalizeDeparturePort(port) {
       if (port === "ercan" || port === "larnaca" || port === "helsinki" || port === "london" || port === "berlin" || port === "amsterdam") return port;
@@ -11868,42 +11811,30 @@
         el.classList.remove("is-updating");
       }, 140);
     }
-    function updateGuestSelectorVisibility() {
-      const guestsWrap = document.getElementById("private-guests-wrap");
-      if (guestsWrap) guestsWrap.hidden = currentTour !== "private";
-      const genericWrap = document.getElementById("generic-guests-wrap");
-      if (genericWrap) genericWrap.hidden = currentTour === "private";
-    }
-    // Guest steppers (Adults / Children / Infants) for the non-private packages
-    // (Backpacking / Comfort / Tomorrowland) — same UI pattern as the Private
-    // Villa package, but with NO cap on adults or children (only the Private
-    // Villa package keeps the 4-guest limit). Infants are always free and
-    // uncapped. Pricing is per-person (see getGenericTourQuote), not a flat
-    // group total.
-    function genericGuestFloor(category) {
-      return category === "adults" ? 1 : 0;
-    }
-    function syncGenericGuestSteppers() {
-      const g = currentGenericGuests;
-      ["adults", "children", "infants"].forEach(function (cat) {
-        document.querySelectorAll('[data-generic-guest-count="' + cat + '"]').forEach(function (countEl) {
-          countEl.textContent = String(g[cat]);
-        });
-        document.querySelectorAll('[data-generic-guest-btn="' + cat + '"][data-generic-guest-delta="-1"]').forEach(function (btn) {
-          btn.disabled = g[cat] <= genericGuestFloor(cat);
-        });
-        // Plus buttons are never disabled — no cap on generic-package guest counts.
+    function syncPricingModeButtons() {
+      document.querySelectorAll(".price-mode__option").forEach(function (btn) {
+        const active = btn.getAttribute("data-pricing-mode") === currentPricingMode;
+        btn.classList.toggle("is-active", active);
+        btn.setAttribute("aria-pressed", active ? "true" : "false");
       });
     }
-    function adjustGenericGuests(category, delta) {
-      if (category !== "adults" && category !== "children" && category !== "infants") return;
-      const g = currentGenericGuests;
-      const next = g[category] + delta;
-      if (next < genericGuestFloor(category)) return;
-      currentGenericGuests = Object.assign({}, g, { [category]: next });
-      syncGenericGuestSteppers();
+    function updateGuestSelectorVisibility() {
+      const wrap = document.getElementById("pricing-mode-wrap");
+      if (wrap) wrap.hidden = !supportsCouplePricing(currentTour);
+      if (!supportsCouplePricing(currentTour) && currentPricingMode !== "solo") {
+        currentPricingMode = "solo";
+        syncPricingModeButtons();
+      }
+      const guestsWrap = document.getElementById("private-guests-wrap");
+      if (guestsWrap) guestsWrap.hidden = currentTour !== "private";
+    }
+    function setPricingMode(mode) {
+      if (mode !== "solo" && mode !== "shared") return;
+      if (mode === "shared" && !supportsCouplePricing(currentTour)) return;
+      if (currentPricingMode === mode) return;
+      currentPricingMode = mode;
+      syncPricingModeButtons();
       updatePriceDisplays();
-      syncReserveGuestsFromGuestState();
       if (typeof refreshChatPriceSummary === "function") refreshChatPriceSummary();
     }
     // Guest steppers (Adults / Children 2-11 / Babies 0-2) for the Private
@@ -11941,9 +11872,13 @@
       }
     }
     function syncReserveGuestsFromGuestState() {
+      // Only the private/family tour drives this from a guest-count state;
+      // other packages leave "Kişi sayısı" as a free-typed field since their
+      // price is per-person by Solo/Couple mode, not a computed headcount.
+      if (currentTour !== "private") return;
       const reserveGuestsEl = document.getElementById("reserve-guests");
       if (!reserveGuestsEl) return;
-      const g = currentTour === "private" ? currentPrivateGuests : currentGenericGuests;
+      const g = currentPrivateGuests;
       reserveGuestsEl.value = String(g.adults + g.children + g.infants);
     }
     function adjustPrivateGuests(category, delta) {
@@ -11983,43 +11918,9 @@
           : "En fazla " + cap.maxAdults + " yetişkin, " + cap.maxChildren + " çocuk, " + cap.maxInfants + " bebek.") +
         "</div>";
     }
-    // Same breakdown treatment for the non-private packages: per-person rate,
-    // total for the paying guests, and a note that infants ride free.
-    function renderGenericPriceBreakdown() {
-      const wrap = document.getElementById("generic-price-breakdown");
-      if (!wrap) return;
-      if (currentTour === "private") {
-        wrap.hidden = true;
-        return;
-      }
-      wrap.hidden = false;
-      const lang = L();
-      const quote = getGenericTourQuote(currentTour, currentDeparturePort, currentGenericGuests);
-      const perPersonLabel = lang === "en" ? "Price per person" : "Kişi başı fiyat";
-      let html =
-        '<div class="private-price-breakdown__row"><span>' +
-        escapeHtml(perPersonLabel) +
-        "</span><span>" +
-        formatEurDisplay(quote.perPersonEur) +
-        "</span></div>";
-      html +=
-        '<div class="private-price-breakdown__row private-price-breakdown__row--total"><span>' +
-        (lang === "en" ? "Total (" + quote.payingGuests + (quote.payingGuests === 1 ? " guest" : " guests") + ")" : "Toplam (" + quote.payingGuests + " kişi)") +
-        "</span><span>" +
-        formatEurDisplay(quote.totalEur) +
-        "</span></div>";
-      if (quote.guests.infants > 0) {
-        html +=
-          '<div class="private-price-breakdown__per">' +
-          (lang === "en" ? "Infants travel free and aren't charged" : "Bebekler ücretsiz seyahat eder, ücretlendirilmez") +
-          "</div>";
-      }
-      wrap.innerHTML = html;
-    }
     function updatePriceDisplays() {
       updateGuestSelectorVisibility();
       if (currentTour === "private") syncPrivateGuestSteppers();
-      else syncGenericGuestSteppers();
       const displayed = getDisplayedPriceEur(currentTour, currentDeparturePort);
       const priceText = formatEurDisplay(displayed);
       animatePriceElement(document.getElementById("price-card-eur"), priceText);
@@ -12046,7 +11947,6 @@
         fromEl.textContent = lang === "en" ? enText : trText;
       }
       renderPrivatePriceBreakdown();
-      renderGenericPriceBreakdown();
     }
     const PRICE_DISCLAIMER = {
       tr: "ℹ️ Gösterilen fiyatlar değişebilir. Kesin konaklama ve uçuş bilgileri rezervasyon / tur teyidinde paylaşılır; bagaj, vergi ve benzeri küçük ek ücretler ayrıca yansıyabilir.",
@@ -12061,12 +11961,11 @@
       const tml = getMinTourPriceEur("tomorrowland");
       const priv = getMinTourPriceEur("private");
       const disc = getPriceDisclaimer(lang);
-      const genericPayingGuests = currentGenericGuests.adults + currentGenericGuests.children;
       const modeSuffix =
-        currentTour !== "private" && genericPayingGuests > 1
+        supportsCouplePricing(currentTour) && currentPricingMode === "shared"
           ? lang === "en"
-            ? " · " + genericPayingGuests + " guests"
-            : " · " + genericPayingGuests + " kişi"
+            ? " · Couple"
+            : " · Çift kişi"
           : "";
       if (lang === "en") {
         return (
@@ -13312,13 +13211,12 @@
     });
 
     document.addEventListener("click", function (e) {
-      const genericGuestBtn = e.target.closest("[data-generic-guest-btn]");
-      if (!genericGuestBtn) return;
+      const modeBtn = e.target.closest("[data-pricing-mode]");
+      if (!modeBtn || !modeBtn.classList.contains("price-mode__option")) return;
+      const mode = modeBtn.getAttribute("data-pricing-mode");
+      if (mode === "shared" && modeBtn.closest("#pricing-mode-wrap") && !supportsCouplePricing(currentTour)) return;
       e.preventDefault();
-      adjustGenericGuests(
-        genericGuestBtn.getAttribute("data-generic-guest-btn"),
-        Number(genericGuestBtn.getAttribute("data-generic-guest-delta"))
-      );
+      setPricingMode(mode);
     });
 
     function syncViewFromHash() {
@@ -13420,8 +13318,8 @@
     })();
 
     // Initial render — sync route first so price matrix visibility matches view
+    syncPricingModeButtons();
     syncPrivateGuestSteppers();
-    syncGenericGuestSteppers();
     syncViewFromHash();
     renderTourCardAvailability();
     updateTourMeta();
