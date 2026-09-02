@@ -1769,6 +1769,35 @@
       border-bottom: 1px solid var(--border);
     }
     .price-card__section:last-child { border-bottom: none; }
+    .price-card__section--download {
+      padding-bottom: 0.9rem;
+    }
+    .itinerary-download-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: inherit;
+      color: var(--primary);
+      background: rgba(15, 76, 92, 0.06);
+      border: 1px solid rgba(15, 76, 92, 0.18);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .itinerary-download-btn:hover {
+      background: rgba(15, 76, 92, 0.1);
+      border-color: rgba(15, 76, 92, 0.3);
+    }
+    .itinerary-download-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    #itinerary-print-sheet { display: none; }
     .price-card__label {
       font-size: 0.7rem;
       font-weight: 600;
@@ -4219,6 +4248,169 @@
         grid-template-columns: 1fr;
       }
     }
+    /* ── Tour itinerary PDF export (window.print() on #itinerary-print-sheet) ── */
+    #itinerary-print-sheet {
+      font-family: var(--font-body, Georgia, serif);
+      color: #1e2224;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    #itinerary-print-sheet .print-header {
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #0f4c5c;
+    }
+    #itinerary-print-sheet .print-brand {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #0f4c5c;
+      margin-bottom: 6px;
+    }
+    #itinerary-print-sheet .print-header h1 {
+      font-size: 24px;
+      margin: 0 0 6px;
+      color: #0f4c5c;
+    }
+    #itinerary-print-sheet .print-meta {
+      font-size: 12.5px;
+      color: #5a6b6f;
+      margin: 0;
+    }
+    #itinerary-print-sheet .print-section-title {
+      font-size: 16px;
+      color: #0f4c5c;
+      margin: 0 0 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #d8dedf;
+    }
+    #itinerary-print-sheet .print-section-title--itinerary {
+      margin-top: 6px;
+    }
+    #itinerary-print-sheet .print-section {
+      background: #f4f7f7;
+      border: 1px solid #d8dedf;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      line-height: 1.55;
+      page-break-inside: avoid;
+    }
+    #itinerary-print-sheet .print-section .print-section-title {
+      background: transparent;
+      border-bottom: 1px solid #c9d3d4;
+      font-size: 13px;
+      margin: 0 0 10px;
+      padding-bottom: 6px;
+    }
+    #itinerary-print-sheet .print-general h3 { display: none; }
+    #itinerary-print-sheet .print-general ul {
+      margin: 0 0 4px;
+      padding-left: 18px;
+    }
+    #itinerary-print-sheet .print-general li { margin-bottom: 3px; }
+    #itinerary-print-sheet .print-general p { margin: 8px 0 0; }
+    #itinerary-print-sheet .print-general .terms-item { margin-top: 10px; }
+    #itinerary-print-sheet .print-general .terms-item h4 {
+      font-size: 12.5px;
+      color: #0f4c5c;
+      margin: 0 0 4px;
+    }
+    #itinerary-print-sheet .print-general .terms-item p {
+      margin: 0 0 6px;
+      font-size: 11.5px;
+    }
+    #itinerary-print-sheet .print-flight-group { margin-bottom: 10px; }
+    #itinerary-print-sheet .print-flight-group h3 {
+      font-size: 12.5px;
+      color: #0f4c5c;
+      margin: 0 0 5px;
+    }
+    #itinerary-print-sheet .print-flight-leg {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 11.5px;
+      padding: 3px 0;
+      border-bottom: 1px dashed #d8dedf;
+    }
+    #itinerary-print-sheet .print-flight-leg:last-child { border-bottom: none; }
+    #itinerary-print-sheet .print-flight-leg__label {
+      flex: 0 0 auto;
+      font-weight: 700;
+      color: #5a6b6f;
+      min-width: 90px;
+    }
+    #itinerary-print-sheet .print-flight-leg__route { flex: 1 1 auto; }
+    #itinerary-print-sheet .print-flight-leg__time {
+      flex: 0 0 auto;
+      color: #5a6b6f;
+      text-align: right;
+    }
+    #itinerary-print-sheet .print-flights p { margin: 8px 0 0; font-size: 11.5px; }
+    #itinerary-print-sheet .print-flight-note { color: #5a6b6f; }
+    #itinerary-print-sheet .print-day {
+      margin-bottom: 22px;
+    }
+    #itinerary-print-sheet .print-day h3 {
+      font-size: 15px;
+      color: #0f4c5c;
+      margin: 0 0 4px;
+    }
+    #itinerary-print-sheet .print-pill {
+      display: inline-block;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #9b1c1c;
+      border: 1px solid #9b1c1c;
+      border-radius: 999px;
+      padding: 1px 7px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    #itinerary-print-sheet .print-date {
+      font-size: 11.5px;
+      color: #5a6b6f;
+      margin: 0 0 8px;
+    }
+    #itinerary-print-sheet .print-day img {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      max-height: 260px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin: 0 0 10px;
+    }
+    #itinerary-print-sheet .print-body { font-size: 12.5px; line-height: 1.5; }
+    #itinerary-print-sheet .print-body p { margin: 0 0 8px; }
+    #itinerary-print-sheet .print-body ul { margin: 0 0 8px; padding-left: 20px; }
+    #itinerary-print-sheet .print-body li { margin-bottom: 3px; }
+    #itinerary-print-sheet .print-footer {
+      margin-top: 20px;
+      padding-top: 12px;
+      border-top: 1px solid #d8dedf;
+      font-size: 10.5px;
+      color: #5a6b6f;
+    }
+    @media print {
+      body * { visibility: hidden; }
+      #itinerary-print-sheet, #itinerary-print-sheet * { visibility: visible; }
+      #itinerary-print-sheet {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+      }
+      #itinerary-print-sheet .print-day { page-break-inside: avoid; }
+      @page { margin: 16mm; }
+    }
   </style>
 </head>
 <body>
@@ -4625,6 +4817,14 @@
       <aside class="tour-sidebar" aria-label="Fiyat ve uçuş bilgisi">
         <div class="tour-sidebar__sticky">
           <div class="price-card">
+            <div class="price-card__section price-card__section--download">
+              <button type="button" class="itinerary-download-btn" id="download-itinerary-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 19h16"/>
+                </svg>
+                <span data-tr="Tur Programını İndir (PDF)" data-en="Download Tour Itinerary (PDF)">Tur Programını İndir (PDF)</span>
+              </button>
+            </div>
             <div class="price-card__section">
               <div class="price-card__label" data-tr="Kalkış havalimanı" data-en="Departure airport">Kalkış havalimanı</div>
               <label class="visually-hidden" for="departure-port-select" data-tr="Kalkış havalimanı seçin" data-en="Choose departure airport">Kalkış havalimanı seçin</label>
@@ -5035,6 +5235,9 @@
       </form>
     </div>
   </div>
+
+  <!-- Populated on demand by downloadItineraryPdf(); only rendered when printing. -->
+  <div id="itinerary-print-sheet"></div>
 
   <div
     id="dayModal"
@@ -12652,6 +12855,157 @@
       root.querySelectorAll(".timeline__card").forEach((btn) => {
         btn.addEventListener("click", () => openDayModal(Number(btn.dataset.day)));
       });
+    }
+
+    // ── Tour itinerary PDF export ───────────────────────────────────────────
+    // Builds a dedicated print-only sheet (one photo + full details per day)
+    // and hands off to the browser's own print-to-PDF — no PDF library, no
+    // image/CORS/font-embedding pitfalls, and Turkish characters render
+    // correctly since it's just normal HTML text.
+    // Flight schedule for the print sheet — reuses the same underlying flight
+    // data as the "Uçuşlar" tab (getTourFlights), but rendered as plain
+    // always-expanded rows instead of the live page's click-to-expand
+    // accordion, since a printed page has no interaction.
+    function buildFlightInfoPrintHtml(lang) {
+      const flights = typeof getTourFlights === "function" ? getTourFlights() : [];
+      if (!flights || !flights.length) return "";
+      const g = groupFlightsByDirection(flights);
+      const groupTitle = {
+        outbound: lang === "en" ? "Outbound flight" : "Gidiş uçuşu",
+        domestic: lang === "en" ? "Domestic flight" : "İç hat uçuşu",
+        return: lang === "en" ? "Return flight" : "Dönüş uçuşu"
+      };
+      function renderGroup(key) {
+        const legs = g[key];
+        if (!legs || !legs.length) return "";
+        const rows = legs
+          .map(function (f) {
+            const label = lang === "en" ? f.titleEn : f.titleTr;
+            const time = lang === "en" ? f.timeEn : f.timeTr;
+            return (
+              '<div class="print-flight-leg">' +
+              '<span class="print-flight-leg__label">' + escapeHtml(label || "") + "</span>" +
+              '<span class="print-flight-leg__route">' + escapeHtml(f.route || "") + "</span>" +
+              '<span class="print-flight-leg__time">' + escapeHtml(time || "") + "</span>" +
+              "</div>"
+            );
+          })
+          .join("");
+        return '<div class="print-flight-group"><h3>' + escapeHtml(groupTitle[key]) + "</h3>" + rows + "</div>";
+      }
+      const baggage =
+        lang === "en"
+          ? "<p><strong>Baggage:</strong> 7 kg cabin baggage is included on every flight · 20 kg checked baggage is extra, on both international and domestic legs.</p>"
+          : "<p><strong>Bagaj:</strong> Her uçuşta 7 kg kabin bagajı dahildir · 20 kg kayıtlı bagaj hem uluslararası hem iç hat uçuşlarında ek ücretlidir.</p>";
+      const note =
+        lang === "en"
+          ? '<p class="print-flight-note">Exact flight times are confirmed at booking and may change.</p>'
+          : '<p class="print-flight-note">Kesin uçuş saatleri rezervasyonda teyit edilir ve değişebilir.</p>';
+      return renderGroup("outbound") + renderGroup("domestic") + renderGroup("return") + baggage + note;
+    }
+    function buildItineraryPrintHtml(tourKey) {
+      const lang = L();
+      const t = TOURS[tourKey];
+      if (!t) return "";
+      const days = getProgramDaysForTour(tourKey);
+      const dayWord = lang === "en" ? "Day" : "Gün";
+      const optLabel = lang === "en" ? "Optional · extra charge" : "Opsiyonel · ek ücret";
+      let html = "";
+      html += '<div class="print-header">';
+      html += '<div class="print-brand">Gezeceyik</div>';
+      html += "<h1>" + escapeHtml(t.title[lang] || "") + "</h1>";
+      html +=
+        '<p class="print-meta">' +
+        escapeHtml([getTourRoute(lang), t.duration[lang], t.dates[lang]].filter(Boolean).join(" · ")) +
+        "</p>";
+      html += "</div>";
+
+      // Gün Gün Program comes right after the cover — that's what people
+      // open the PDF for. Genel Bilgiler / Uçuş Bilgileri (reference info)
+      // follow at the end instead of gating the itinerary behind them.
+      html +=
+        '<h2 class="print-section-title print-section-title--itinerary">' +
+        escapeHtml(lang === "en" ? "Day-by-Day Itinerary" : "Gün Gün Program") +
+        "</h2>";
+      days.forEach(function (d) {
+        html += '<div class="print-day">';
+        html +=
+          "<h3>" +
+          escapeHtml(dayWord + " " + d.n + " — " + (d.route || "")) +
+          (d.optional ? ' <span class="print-pill">' + escapeHtml(optLabel) + "</span>" : "") +
+          "</h3>";
+        if (d.date) html += '<p class="print-date">' + escapeHtml(d.date) + "</p>";
+        if (d.image && d.image.src) {
+          html += '<img src="' + d.image.src + '" alt="' + escapeHtml(d.image.alt || "") + '">';
+        }
+        html += '<div class="print-body">' + (d.content || "<p>" + escapeHtml(d.summary || "") + "</p>") + "</div>";
+        html += "</div>";
+      });
+
+      // Genel Bilgiler — country facts (currency, climate, etc.) plus the
+      // real passport/visa requirements, so it reads as a proper reference
+      // section rather than a short list. Drops the passport-selector
+      // callout, which doesn't exist on a printed page.
+      let generalHtml = (typeof generalHtmlGet === "function" ? generalHtmlGet() : "").trim();
+      generalHtml = generalHtml.replace(
+        /<p[^>]*>\s*(Ülkeye özel vize gereklilikleri için yukarıdan pasaport ülkenizi seçin\.|Select your passport country above for country-specific visa requirements\.)\s*<\/p>/i,
+        ""
+      );
+      const visaHtml = ((lang === "en" ? visaInfoHtml_en : visaInfoHtml) || "").trim();
+      if (generalHtml || visaHtml) {
+        html +=
+          '<div class="print-section print-general">' +
+          '<h2 class="print-section-title">' +
+          escapeHtml(lang === "en" ? "General Info" : "Genel Bilgiler") +
+          "</h2>" +
+          generalHtml +
+          visaHtml +
+          "</div>";
+      }
+
+      // Uçuş Bilgileri — outbound / domestic / return schedule for the
+      // currently selected departure port.
+      const flightHtml = buildFlightInfoPrintHtml(lang);
+      if (flightHtml) {
+        html +=
+          '<div class="print-section print-flights">' +
+          '<h2 class="print-section-title">' +
+          escapeHtml(lang === "en" ? "Flight Information" : "Uçuş Bilgileri") +
+          "</h2>" +
+          flightHtml +
+          "</div>";
+      }
+
+      html += '<div class="print-footer">';
+      html +=
+        escapeHtml(
+          lang === "en"
+            ? "Gezeceyik · @gezeceyik1 · +90 533 838 61 02 · gezeceyik1travel@gmail.com — Itinerary shown is indicative and may change; exact flight and accommodation details are confirmed at booking."
+            : "Gezeceyik · @gezeceyik1 · +90 533 838 61 02 · gezeceyik1travel@gmail.com — Gösterilen program bilgilendirme amaçlıdır ve değişebilir; kesin uçuş ve konaklama bilgileri rezervasyonda teyit edilir."
+        );
+      html += "</div>";
+      return html;
+    }
+    function downloadItineraryPdf() {
+      const sheet = document.getElementById("itinerary-print-sheet");
+      if (!sheet) return;
+      sheet.innerHTML = buildItineraryPrintHtml(currentTour);
+      const lang = L();
+      const t = TOURS[currentTour];
+      const originalTitle = document.title;
+      if (t && t.title && t.title[lang]) {
+        document.title = t.title[lang].replace(/\s*[·|]\s*/g, " - ");
+      }
+      function restoreTitle() {
+        document.title = originalTitle;
+        window.removeEventListener("afterprint", restoreTitle);
+      }
+      window.addEventListener("afterprint", restoreTitle);
+      window.print();
+    }
+    const downloadItineraryBtn = document.getElementById("download-itinerary-btn");
+    if (downloadItineraryBtn) {
+      downloadItineraryBtn.addEventListener("click", downloadItineraryPdf);
     }
 
     const dayModalEl = document.getElementById("dayModal");
