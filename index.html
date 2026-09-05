@@ -4439,14 +4439,6 @@
     <svg id="world-map"></svg>
   </div>
   <svg id="flight-path-svg" aria-hidden="true">
-    <circle id="origin-dot" r="6" fill="#E76F51" opacity="0.8">
-      <animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite" />
-      <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite" />
-    </circle>
-    <circle id="destination-dot" r="6" fill="#2D5F5D" opacity="0.8">
-      <animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite" />
-      <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite" />
-    </circle>
     <text id="origin-label" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Istanbul</text>
     <text id="destination-label" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Bangkok</text>
   </svg>
@@ -5709,7 +5701,7 @@
         filter: drop-shadow(0 2px 3px rgba(40, 50, 60, 0.22));
       }
       .gfx-landmark-bob {
-        animation: lmBob 4.6s ease-in-out infinite;
+        animation: lmBob 6.4s ease-in-out infinite;
       }
       @keyframes lmFadeIn {
         from { opacity: 0; }
@@ -5717,7 +5709,7 @@
       }
       @keyframes lmBob {
         0%, 100% { transform: translateY(0); }
-        50%      { transform: translateY(-4px); }
+        50%      { transform: translateY(-2px); }
       }
 
       /* Cruise ship sailing the oceans */
@@ -6476,11 +6468,9 @@
 
     (function initCityMarkers() {
       const flightSvg = document.getElementById("flight-path-svg");
-      const originDot = document.getElementById("origin-dot");
-      const destinationDot = document.getElementById("destination-dot");
       const originLabel = document.getElementById("origin-label");
       const destinationLabel = document.getElementById("destination-label");
-      if (!flightSvg || !originDot || !destinationDot) return;
+      if (!flightSvg || !originLabel || !destinationLabel) return;
 
       let resizeTimer = 0;
 
@@ -6502,10 +6492,6 @@
         const bangkokCoords = projection(bangkok);
         if (!istanbulCoords || !bangkokCoords) return;
 
-        originDot.setAttribute("cx", istanbulCoords[0]);
-        originDot.setAttribute("cy", istanbulCoords[1]);
-        destinationDot.setAttribute("cx", bangkokCoords[0]);
-        destinationDot.setAttribute("cy", bangkokCoords[1]);
         if (originLabel) {
           originLabel.setAttribute("x", istanbulCoords[0] + 12);
           originLabel.setAttribute("y", istanbulCoords[1] - 8);
