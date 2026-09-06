@@ -126,12 +126,15 @@
     body.view-tour .contact-hint,
     body.on-detail-page .contact-hint,
     body.view-tour .contact-section,
-    body.on-detail-page .contact-section {
+    body.on-detail-page .contact-section,
+    body.view-tour .thailand-zoom-stage,
+    body.on-detail-page .thailand-zoom-stage {
       display: none !important;
     }
     .landing[hidden],
     #tour-full[hidden],
-    .contact[hidden] {
+    .contact[hidden],
+    .thailand-zoom-stage[hidden] {
       display: none !important;
     }
     body.view-tour .site-top {
@@ -160,11 +163,14 @@
 
     /* Physical world map — terrain tones (homepage only; hidden on tour view) */
     #world-map-bg {
+      /* Rendered with a 15% bleed beyond the viewport on every side (see
+         BLEED in the map script) so the camera can shrink it a little between
+         sharp redraws without ever exposing the page around the map. */
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      top: -15vh;
+      left: -15vw;
+      width: 130vw;
+      height: 130vh;
       z-index: -1;
       overflow: hidden;
       background: linear-gradient(180deg, #1b4f68 0%, #123a52 50%, #0a2840 100%);
@@ -236,16 +242,254 @@
       filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.12));
     }
 
-#world-map path.country[data-country="Thailand"] {
-  fill: rgba(255, 210, 120, 0.18);
-  stroke: #e8a860;
-  stroke-width: 1.05;
-  animation: gentlePulse 4s ease-in-out infinite;
+/* Thailand is NOT marked in the opening world view. Once the scroll has
+   completed and the camera is in close (body.th-revealed), its borders light
+   up with a clear gold stroke and a gentle glow pulse — obvious at that zoom,
+   invisible clutter at world scale. The stroke is in CSS px and the map is
+   re-projected rather than scaled, so it stays a crisp 2px line. */
+@media (min-width: 760px) {
+  body.th-revealed #world-map path.country[data-country-id="764"],
+  body.th-noanim #world-map path.country[data-country-id="764"] {
+    fill: rgba(255, 214, 130, 0.16);
+    stroke: #f2a65a;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    /* --th-hl is driven per frame from the scroll: 1 on arrival, easing back
+       to 0 as the pinned scene scrolls away under the contact section. */
+    opacity: var(--th-hl, 1);
+  }
+  body.th-revealed #world-map path.country[data-country-id="764"] {
+    animation: gentlePulse 3.2s ease-in-out infinite;
+  }
 }
 
 @keyframes gentlePulse {
   0%,
   100% {
+    fill: rgba(255, 214, 130, 0.14);
+    filter: drop-shadow(0 0 6px rgba(242, 166, 90, 0.55));
+  }
+  50% {
+    fill: rgba(255, 224, 150, 0.26);
+    filter: drop-shadow(0 0 14px rgba(242, 166, 90, 0.85));
+  }
+}
+
+#world-map path.country[data-country-id="764"].is-hovered {
+  fill: rgba(255, 220, 140, 0.32);
+  stroke: #e87840;
+  stroke-width: 1.45;
+  filter: brightness(1.06) drop-shadow(0 0 11px rgba(199, 120, 71, 0.48));
+  animation: none;
+}
+
+/* Scroll-driven "fly into Thailand" cinematic. The tall stage gives scroll
+   room; its inner viewport is sticky, so ONE downward scroll flies the camera
+   into Thailand: the whole world map scales toward Thailand's real spot and
+   then blurs, while a sharp, high-res terrain render of Thailand (its own
+   canvas, matching the map exactly) grows out of that same spot, lifts toward
+   the viewer, and the package cards slide in beside it — all in the pinned
+   frame, so no second scroll is needed to reach the cards.
+   Driven by thailandHeroZoom() in the scripts below. */
+.thailand-zoom-stage {
+  position: relative;
+  /* 100vh of pin + ~70vh of (fast) zoom + ~260vh of pinned hold — see
+     ZOOM_VH in thailandHeroZoom. The hold is what makes the card view stay
+     put for three or four scrolls before the contact section takes over. */
+  height: 450vh;
+  /* Below the header (z-index 1) so the scene slides under it on the way out,
+     and below the contact section so that scrolls cleanly over the top. */
+  z-index: 0;
+}
+.thailand-zoom-viewport {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  /* NOT hidden: clipping here draws a hard horizontal line across the page as
+     the sticky frame scrolls away. Letting it overflow lets the scene simply
+     scroll out of view. */
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Pins + route drawn straight onto the real map, in viewport space, and moved
+   with the same camera transform as the map so they stay on their cities. */
+#thailand-route-svg {
+  position: fixed;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  z-index: 2;
+  overflow: visible;
+  pointer-events: none;
+  /* Opacity is driven per-frame from the scroll position, so no transition
+     here — a transition would make the fade lag behind the zoom. */
+  opacity: 0;
+}
+body.view-tour #thailand-route-svg,
+body.tour-detail-page #thailand-route-svg { display: none !important; }
+
+/* Dashed "cut line" route between the stops, marching toward the next city */
+.tz-route {
+  fill: none;
+  stroke: #e76f51;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 9 11;
+  filter: drop-shadow(0 1px 2px rgba(20, 40, 25, 0.5));
+  animation: tzRouteDash 1.5s linear infinite;
+}
+@keyframes tzRouteDash {
+  to { stroke-dashoffset: -20; }
+}
+.tz-city-dot {
+  fill: #e76f51;
+  stroke: #fff;
+  stroke-width: 2.5;
+}
+.tz-city-pulse {
+  fill: none;
+  stroke: #e76f51;
+  stroke-width: 2;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: tzCityPulse 2.4s ease-out infinite;
+}
+@keyframes tzCityPulse {
+  0%   { transform: scale(0.6); opacity: 0.75; }
+  70%  { transform: scale(2.1); opacity: 0; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+.tz-city-pill {
+  fill: rgba(255, 255, 255, 0.97);
+  filter: drop-shadow(0 2px 4px rgba(12, 40, 20, 0.35));
+}
+.tz-city-name {
+  fill: #12433a;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  dominant-baseline: middle;
+}
+
+/* Camera zoom applies to the world map itself (scale/translate set inline by
+   JS); the blur + dim is the class-driven end state once we're "close". */
+/* The map is never blurred or dimmed — it stays as crisp on arrival as in
+   the first view (see thailandHeroZoom below).*/
+/* The map's focus-pull (blur/dim) and the landmark fade are driven inline,
+   frame by frame, from the scroll position — see thailandHeroZoom below. */
+
+/* --- Tour cards, now the right-hand panel inside the pinned frame --- */
+/* --- Desktop only: the pinned card panel beside the zoomed map. ------- */
+@media (min-width: 760px) {
+#thailand-zoom-viewport > #landing.upcoming-tour-section {
+  position: absolute;
+  top: 50%;
+  left: clamp(16px, 3.5vw, 56px);
+  right: auto;
+  transform: translateY(calc(-50% + var(--th-drift, 0px))) translateX(-36px);
+  width: min(40vw, 540px);
+  margin: 0;
+  padding: 0;
+  align-items: stretch;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#thailand-zoom-viewport > #landing.upcoming-tour-section::before { display: none; }
+#thailand-zoom-viewport > #landing .landing__intro { margin-bottom: 1rem; text-align: left; }
+#thailand-zoom-viewport > #landing .landing__intro h2 { font-size: clamp(1.2rem, 2.4vw, 1.6rem); }
+#thailand-zoom-viewport > #landing .tour-cards-grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(0.6rem, 1vw, 1rem);
+}
+/* In the narrow pinned panel the cards must stack (photo on top, full width) —
+   the site's ≥540px rule turns them into a 2-column row, which squeezes each
+   photo into a thin sliver. */
+#thailand-zoom-viewport > #landing .landing-preview {
+  grid-template-columns: 1fr;
+  max-width: none;
+}
+#thailand-zoom-viewport > #landing .landing-preview__media {
+  height: 104px;
+  min-height: 104px;
+  width: 100%;
+  background-position: center;
+  background-size: cover;
+}
+/* Trimmed so a 2×2 of stacked cards still fits the pinned frame */
+#thailand-zoom-viewport > #landing .landing-preview__body {
+  padding: 0.7rem 0.8rem 0.8rem;
+}
+#thailand-zoom-viewport > #landing .landing-preview__title {
+  font-size: 0.95rem;
+  margin-bottom: 0.35rem;
+}
+#thailand-zoom-viewport > #landing .landing-preview__meta {
+  font-size: 0.72rem;
+  gap: 0.1rem;
+  margin-bottom: 0.45rem;
+}
+#thailand-zoom-viewport > #landing .landing-preview__price {
+  padding-top: 0.5rem;
+  gap: 0.3rem;
+}
+#thailand-zoom-viewport > #landing .tour-cards-grid { gap: 0.75rem; }
+#thailand-zoom-viewport > #landing .landing__intro { margin-bottom: 0.7rem; }
+body.th-revealed #thailand-zoom-viewport > #landing.upcoming-tour-section,
+body.th-noanim #thailand-zoom-viewport > #landing.upcoming-tour-section {
+  opacity: 1;
+  transform: translateY(calc(-50% + var(--th-drift, 0px))) translateX(0);
+  pointer-events: auto;
+}
+}
+
+/* No cinematic (phones, and reduced-motion users): collapse the stage so the
+   cards flow normally over the untouched map. */
+body.th-noanim .thailand-zoom-stage { height: auto; }
+body.th-noanim .thailand-zoom-viewport { position: static; height: auto; overflow: visible; pointer-events: auto; }
+body.th-noanim #thailand-route-svg { display: none; }
+@media (min-width: 760px) {
+  /* Reduced-motion on desktop: a plain centred grid instead of the panel. */
+  body.th-noanim #thailand-zoom-viewport > #landing.upcoming-tour-section {
+    position: static;
+    transform: none;
+    width: auto;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    right: auto;
+  }
+  body.th-noanim #thailand-zoom-viewport > #landing .landing__intro { text-align: center; }
+  body.th-noanim #thailand-zoom-viewport > #landing .tour-cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}
+
+/* --- Phones: the site exactly as it was at the manu-derby checkpoint. ----
+   The zoom stage collapses (even before JS runs), the route overlay is off,
+   #landing keeps its original styling, and Thailand's original always-on
+   pulse highlight is back in the world view. */
+@media (max-width: 759px) {
+  .thailand-zoom-stage { height: auto; }
+  .thailand-zoom-viewport { position: static; height: auto; overflow: visible; pointer-events: auto; }
+  #thailand-route-svg { display: none !important; }
+  #landing.upcoming-tour-section {
+    opacity: 0;
+    animation: pageLoadFade 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation-delay: 0.18s;
+  }
+  #world-map path.country[data-country-id="764"] {
+    fill: rgba(255, 210, 120, 0.18);
+    stroke: #e8a860;
+    stroke-width: 1.05;
+    opacity: 1;
+    animation: gentlePulseWorld 4s ease-in-out infinite;
+  }
+}
+@keyframes gentlePulseWorld {
+  0%, 100% {
     fill: rgba(255, 210, 120, 0.18);
     filter: drop-shadow(0 0 5px rgba(231, 111, 81, 0.32));
   }
@@ -255,13 +499,6 @@
   }
 }
 
-#world-map path.country[data-country="Thailand"].is-hovered {
-  fill: rgba(255, 220, 140, 0.32);
-  stroke: #e87840;
-  stroke-width: 1.45;
-  filter: brightness(1.06) drop-shadow(0 0 11px rgba(199, 120, 71, 0.48));
-  animation: none;
-}
     #flight-path-svg {
       position: fixed;
       top: 0;
@@ -271,6 +508,7 @@
       z-index: 1;
       pointer-events: none;
       overflow: visible;
+      transition: opacity 0.4s ease, filter 0.5s ease;
     }
     #country-tooltip {
       position: fixed;
@@ -316,7 +554,6 @@
     }
 
     header.site-top,
-    .page-layer > #landing,
     .page-layer > #tour-full,
     .page-layer > footer.contact {
       opacity: 0;
@@ -324,9 +561,6 @@
     }
     header.site-top {
       animation-delay: 0.08s;
-    }
-    .page-layer > #landing {
-      animation-delay: 0.18s;
     }
     .page-layer > #tour-full {
       animation-delay: 0.28s;
@@ -4442,6 +4676,7 @@
     <text id="origin-label" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Istanbul</text>
     <text id="destination-label" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Bangkok</text>
   </svg>
+  <svg id="thailand-route-svg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>
   <div class="page-layer">
   <header class="site-top">
     <div class="site-top__inner">
@@ -4494,6 +4729,9 @@
       </div>
     </div>
   </div>
+
+  <div class="thailand-zoom-stage" id="thailand-zoom-stage">
+    <div class="thailand-zoom-viewport" id="thailand-zoom-viewport">
 
   <div class="landing wrap upcoming-tour-section" id="landing">
     <div class="landing__intro upcoming-tour-title-group">
@@ -4603,6 +4841,8 @@
       </button>
     </div>
   </div>
+    </div><!-- /thailand-zoom-viewport -->
+  </div><!-- /thailand-zoom-stage -->
 
   <section class="curated-section wrap fade-in-section" id="curated-section" aria-labelledby="curated-title" hidden>
     <div class="curated-header">
@@ -5338,10 +5578,9 @@
       if (!mapSvg || !terrainCanvas || !window.d3 || !window.topojson) return;
 
       const TERRAIN_MAP_URL = "world-terrain-map.jpg?v=3";
-      const TERRAIN_TEX_MAX = 4096;
-      let terrainMapPixels = null;
-      let terrainMapW = 0;
-      let terrainMapH = 0;
+      // The terrain is drawn straight from the full 8192px source image, so
+      // it never loses detail no matter how far the camera pushes in.
+      let terrainImg = null;
       let terrainMapReady = null;
 
       let resizeTimer = 0;
@@ -5380,27 +5619,13 @@
       function loadTerrainMap() {
         if (terrainMapReady) return terrainMapReady;
         terrainMapReady = new Promise(function (resolve) {
-          if (terrainMapPixels) {
+          if (terrainImg) {
             resolve();
             return;
           }
           const img = new Image();
           img.onload = function () {
-            const off = document.createElement("canvas");
-            const scale = Math.min(1, TERRAIN_TEX_MAX / img.naturalWidth);
-            off.width = Math.round(img.naturalWidth * scale);
-            off.height = Math.round(img.naturalHeight * scale);
-            const offCtx = off.getContext("2d");
-            if (!offCtx) {
-              resolve();
-              return;
-            }
-            offCtx.imageSmoothingEnabled = true;
-            offCtx.imageSmoothingQuality = "high";
-            offCtx.drawImage(img, 0, 0, off.width, off.height);
-            terrainMapPixels = offCtx.getImageData(0, 0, off.width, off.height).data;
-            terrainMapW = off.width;
-            terrainMapH = off.height;
+            terrainImg = img;
             resolve();
           };
           img.onerror = function () {
@@ -5411,86 +5636,95 @@
         return terrainMapReady;
       }
 
-      function sampleTerrainFromMap(lon, lat) {
-        if (!terrainMapPixels || !terrainMapW || !terrainMapH) {
-          return [90, 118, 72];
-        }
-        const u = (lon + 180) / 360;
-        const v = (90 - lat) / 180;
-        const fx = clamp(u * (terrainMapW - 1), 0, terrainMapW - 1);
-        const fy = clamp(v * (terrainMapH - 1), 0, terrainMapH - 1);
-        const x0 = Math.floor(fx);
-        const y0 = Math.floor(fy);
-        const x1 = Math.min(x0 + 1, terrainMapW - 1);
-        const y1 = Math.min(y0 + 1, terrainMapH - 1);
-        const tx = fx - x0;
-        const ty = fy - y0;
+      // The terrain is drawn from the 8K image with the GPU (drawImage), not a
+      // per-pixel JavaScript loop. Mercator is separable: longitude is linear
+      // in x, so the whole view shares one source column range; latitude is
+      // NOT linear in y, so we draw thin horizontal strips, each one linear
+      // inside itself. Full source resolution, and fast enough to redraw
+      // while scrolling instead of once it stops.
+      let terrainScratch = null;
 
-        function readPx(x, y) {
-          const i = (y * terrainMapW + x) * 4;
-          return [terrainMapPixels[i], terrainMapPixels[i + 1], terrainMapPixels[i + 2]];
-        }
-
-        const c00 = readPx(x0, y0);
-        const c10 = readPx(x1, y0);
-        const c01 = readPx(x0, y1);
-        const c11 = readPx(x1, y1);
-        const w00 = (1 - tx) * (1 - ty);
-        const w10 = tx * (1 - ty);
-        const w01 = (1 - tx) * ty;
-        const w11 = tx * ty;
-
-        return [
-          Math.round(c00[0] * w00 + c10[0] * w10 + c01[0] * w01 + c11[0] * w11),
-          Math.round(c00[1] * w00 + c10[1] * w10 + c01[1] * w01 + c11[1] * w11),
-          Math.round(c00[2] * w00 + c10[2] * w10 + c01[2] * w01 + c11[2] * w11)
-        ];
-      }
-
-      function terrainRenderStep(w, h) {
-        const pixels = w * h;
-        if (pixels <= 1920 * 1080) return 1;
-        if (pixels <= 2560 * 1440) return 1;
-        return 2;
-      }
-
-      function renderTerrainCanvas(w, h) {
-        if (!terrainMapPixels) return;
+      function renderTerrainCanvas(w, h, bx, by) {
+        if (!(w > 1) || !(h > 1)) return;
+        if (!terrainImg || !terrainImg.naturalWidth) return;
+        bx = bx || 0; by = by || 0;
+        const W = w + 2 * bx, H = h + 2 * by;      // the bled box we draw
 
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        terrainCanvas.width = Math.round(w * dpr);
-        terrainCanvas.height = Math.round(h * dpr);
-        terrainCanvas.style.width = w + "px";
-        terrainCanvas.style.height = h + "px";
+        const cw = Math.max(1, Math.round(W * dpr));
+        const ch = Math.max(1, Math.round(H * dpr));
+        terrainCanvas.width = cw;
+        terrainCanvas.height = ch;
+        // Deliberately NOT setting an inline CSS size: the stylesheet keeps it
+        // at 100% of the full-viewport backdrop. Pinning it to a px snapshot
+        // meant any viewport change (browser zoom!) left the map as a small
+        // box with the page showing around it.
+        terrainCanvas.style.removeProperty("width");
+        terrainCanvas.style.removeProperty("height");
 
         const ctx = terrainCanvas.getContext("2d");
         if (!ctx || !path || !features.length) return;
 
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, w, h);
+        const IW = terrainImg.naturalWidth, IH = terrainImg.naturalHeight;
+        // Longitude is linear in x under Mercator, so map the view's left and
+        // right edges to source columns analytically. (Asking the projection
+        // to invert the right edge would hand back a *wrapped* longitude at
+        // the far side of the world, which made the range look backwards and
+        // left the terrain blank.)
+        const pxPerRad = viewZ * (w / 6.5);          // the projection's scale
+        const xOfLon0 = w / 2 + viewTx + bx;         // where longitude 0 sits (layer px)
+        const worldPx = 2 * Math.PI * pxPerRad;      // full 360° on screen
+        const sx0 = IW * ((0 - xOfLon0) / worldPx + 0.5);
+        const sx1 = IW * ((W - xOfLon0) / worldPx + 0.5);
+        if (!(sx1 > sx0)) return;
+        // Keep the source rect inside the image; shift the destination to match
+        // so the view beyond ±180° simply stays empty rather than stretching.
+        const cx0 = Math.max(0, sx0), cx1 = Math.min(IW, sx1);
+        if (!(cx1 > cx0)) return;
+        const dx0 = (cx0 - sx0) / (sx1 - sx0) * cw;
+        const dx1 = (cx1 - sx0) / (sx1 - sx0) * cw;
+
+        if (!terrainScratch) terrainScratch = document.createElement("canvas");
+        const tmp = terrainScratch;
+        if (tmp.width !== cw || tmp.height !== ch) { tmp.width = cw; tmp.height = ch; }
+        const tctx = tmp.getContext("2d");
+        if (!tctx) return;
+        tctx.setTransform(1, 0, 0, 1, 0, 0);
+        tctx.clearRect(0, 0, cw, ch);
+        tctx.imageSmoothingEnabled = true;
+        tctx.imageSmoothingQuality = "high";
+
+        const STRIP = 4; // device px per strip — sub-pixel error inside a strip
+        for (let y = 0; y < ch; y += STRIP) {
+          const y1 = Math.min(ch, y + STRIP);
+          const lt = projection.invert([W / 2, y / dpr]);
+          const lb = projection.invert([W / 2, y1 / dpr]);
+          if (!lt || !lb || !isFinite(lt[1]) || !isFinite(lb[1])) continue;
+          let syT = (90 - lt[1]) / 180 * IH;
+          let syB = (90 - lb[1]) / 180 * IH;
+          if (syB <= 0 || syT >= IH) continue;
+          let dyT = y, dyB = y1;
+          if (syT < 0) { dyT = y + (0 - syT) / (syB - syT) * (y1 - y); syT = 0; }
+          if (syB > IH) { dyB = y + (IH - syT) / (syB - syT) * (y1 - y); syB = IH; }
+          if (!(syB > syT) || !(dyB > dyT)) continue;
+          tctx.drawImage(terrainImg, cx0, syT, cx1 - cx0, syB - syT, dx0, dyT, dx1 - dx0, dyB - dyT);
+        }
+
+        // Clip to the landmasses (path is in CSS px) then blit the terrain.
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, cw, ch);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
-
-        const canvasPath = d3.geoPath().projection(projection).context(ctx);
-        const step = terrainRenderStep(w, h);
-
         ctx.save();
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.beginPath();
+        const canvasPath = d3.geoPath().projection(projection).context(ctx);
         features.forEach(function (feature) {
           canvasPath(feature);
         });
         ctx.clip();
-
-        for (let y = 0; y < h; y += step) {
-          for (let x = 0; x < w; x += step) {
-            const ll = projection.invert([x + step * 0.5, y + step * 0.5]);
-            if (!ll || !isFinite(ll[0]) || !isFinite(ll[1])) continue;
-            const rgb = sampleTerrainFromMap(ll[0], ll[1]);
-            ctx.fillStyle = "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + ")";
-            ctx.fillRect(x, y, step, step);
-          }
-        }
-
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.drawImage(tmp, 0, 0);
         ctx.restore();
       }
 
@@ -5600,13 +5834,39 @@
         clearHover();
       }
 
+      // Current camera on the map, as a multiple of the base scale plus an
+      // offset in px. setView re-projects and redraws for real (rather than
+      // stretching a bitmap), which is what keeps a zoomed map crisp.
+      let viewZ = 1, viewTx = 0, viewTy = 0;
+      // Bleed: the layer is drawn for a box 15% larger than the viewport on
+      // every side, so it can be scaled down ~13% by the interim transform
+      // between redraws and still cover the screen. All camera maths stays in
+      // viewport px; the bleed is just an offset applied here.
+      const BLEED = 0.15;
+      function bleedOf(w, h) { return { bx: Math.round(w * BLEED), by: Math.round(h * BLEED) }; }
+
+      function applyView(w, h) {
+        if (!(w > 1) || !(h > 1)) return;
+        const b = bleedOf(w, h);
+        const W = w + 2 * b.bx, H = h + 2 * b.by;
+        projection.scale(viewZ * (w / 6.5)).center([0, 20])
+          .translate([w / 2 + viewTx + b.bx, h / 2 + viewTy + b.by]);
+        d3.select(mapSvg).attr("viewBox", "0 0 " + W + " " + H);
+        countrySelection.attr("d", path);
+        renderTerrainCanvas(w, h, b.bx, b.by);
+        clearHover();
+        document.dispatchEvent(new CustomEvent("gezeceyik-map-ready"));
+      }
+
+      function setView(z, tx, ty) {
+        if (!projection || !path || !countrySelection) return;
+        viewZ = z; viewTx = tx; viewTy = ty;
+        applyView(window.innerWidth, window.innerHeight);
+      }
+
       function updateProjectionSize(w, h) {
         if (!projection || !path || !countrySelection) return;
-        projection.scale(w / 6.5).center([0, 20]).translate([w / 2, h / 2]);
-        d3.select(mapSvg).attr("viewBox", "0 0 " + w + " " + h);
-        countrySelection.attr("d", path);
-        renderTerrainCanvas(w, h);
-        clearHover();
+        applyView(w, h);
       }
 
       function build() {
@@ -5645,17 +5905,42 @@
                 const v = countryLabel(d);
                 return v || null;
               })
+              .attr("data-country-id", function (d) {
+                return d && d.id != null ? String(d.id) : null;
+              })
               .attr("d", path);
 
             return loadTerrainMap();
           })
           .then(function () {
             if (myGen !== loadGen) return;
-            renderTerrainCanvas(w, h);
-            clearHover();
+            applyView(w, h);   // projects, draws terrain, fires map-ready
           })
           .catch(function () {});
       }
+
+      // Minimal API for the Thailand zoom cinematic (thailandHeroZoom, below):
+      // it renders a sharp, high-res terrain fill of Thailand that matches
+      // this map exactly, using the same terrain sampler + a Mercator fit.
+      window.__gezMap = {
+        isTerrainReady: function () { return !!terrainImg; },
+        setView: setView,
+        getView: function () { return { z: viewZ, tx: viewTx, ty: viewTy }; },
+        project: function (lonlat) {
+          if (!projection) return null;
+          const p = projection(lonlat);
+          if (!p) return null;
+          const b = bleedOf(window.innerWidth, window.innerHeight);
+          return [p[0] - b.bx, p[1] - b.by];
+        },
+        bleed: function () { return bleedOf(window.innerWidth, window.innerHeight); },
+        getFeature: function (id) {
+          for (var i = 0; i < features.length; i++) {
+            if (features[i] && String(features[i].id) === String(id)) return features[i];
+          }
+          return null;
+        }
+      };
 
       loadTerrainMap().then(function () {
         build();
@@ -5690,7 +5975,7 @@
         pointer-events: none;
         z-index: 5;
         overflow: visible;
-        transition: opacity 0.5s ease;
+        transition: opacity 0.5s ease, filter 0.5s ease;
       }
       body.view-tour .gfx-landmarks { opacity: 0; }
       body.view-home .gfx-landmarks { opacity: 1; }
@@ -6512,6 +6797,410 @@
       );
 
       setupCityMarkers();
+    })();
+
+    (function thailandHeroZoom() {
+      const stage = document.getElementById("thailand-zoom-stage");
+      const viewportEl = document.getElementById("thailand-zoom-viewport");
+      const routeSvg = document.getElementById("thailand-route-svg");
+      const worldMapBg = document.getElementById("world-map-bg");
+      let gfxLandmarksEl = null;   // landmark icons overlay (queried lazily)
+      let flightSvg = null;        // Istanbul/Bangkok labels overlay
+      if (!stage || !viewportEl || !routeSvg || !worldMapBg || !window.d3) return;
+
+      // Phones get the site exactly as it was before the zoom cinematic was
+      // added (the manu-derby checkpoint): world map behind, cards in normal
+      // flow, no pinned stage. Same opt-out reduced-motion users get.
+      const phone = window.matchMedia("(max-width: 759px)").matches;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (phone || reduce) {
+        document.body.classList.add("th-noanim");
+        return;
+      }
+
+      // --- Tuning ---------------------------------------------------------
+      // The camera drives straight down onto Thailand. Rather than stretching
+      // the rendered map (which goes soft), we re-project and redraw it at the
+      // new zoom once scrolling settles — vector borders stay razor sharp and
+      // the terrain is re-sampled from the full-resolution source.
+      // Beyond ~3.2x the 8K source has to be upscaled on a retina screen and
+      // the map goes soft compared with the first view; this keeps it crisp.
+      const ZOOM_MAX = 3.2;
+      // How much scroll the zoom itself takes, as a fraction of the viewport
+      // height: roughly one trackpad flick. Everything after it (the rest of
+      // the stage) is the pinned hold — several flicks with only a slight
+      // drift, so you can actually sit with the cards.
+      const ZOOM_VH = 0.9;
+      const PAN_END = 0.6;       // Thailand has reached centre-frame by here
+      const REVEAL_ON = 0.7;     // cards arrive
+      const REVEAL_OFF = 0.62;   // hysteresis
+      const REDRAW_MS = 120;     // real redraw at most this often *while* moving
+      const SMOOTH_TAU = 0.22;   // seconds — how lazily the scene follows the wheel
+      const SETTLE_MS = 110;     // …and one final exact redraw once it stops
+
+      const clamp01 = function (v) { return v < 0 ? 0 : v > 1 ? 1 : v; };
+      const smooth = function (t) { return t * t * (3 - 2 * t); };
+      // Ease-out: fast off the first page, gentle landing on Thailand.
+      const easeOut = function (t) { return 1 - Math.pow(1 - t, 1.9); };
+
+      // Thailand's position on the *base* (un-zoomed) map, in screen px.
+      let geo = null;
+      // The view the map is currently drawn at, vs. the view we want.
+      let drawn = { z: 1, tx: 0, ty: 0 };
+      let settleTimer = 0;
+      let lastCommit = 0;
+
+      // In trip order: the route is drawn Phuket -> Bangkok -> Chiang Mai.
+      const CITIES = [
+        { lonlat: [98.39, 7.88], name: "Phuket", side: "left" },
+        { lonlat: [100.50, 13.75], name: "Bangkok", side: "right" },
+        { lonlat: [98.98, 18.79], name: "Chiang Mai", side: "left" }
+      ];
+
+      // The pins and labels are built ONCE and then only re-positioned, never
+      // scaled. Scaling the overlay along with the map was what made the names
+      // swell during the zoom and snap back on every redraw — chrome like this
+      // has to stay a fixed size on screen and just track its city.
+      let cityNodes = null;   // [{ group, base:{x,y} }]
+      let legNodes = null;    // [<path>]
+
+      function ensureRouteDom() {
+        if (cityNodes) return;
+        const NS = "http://www.w3.org/2000/svg";
+        routeSvg.innerHTML =
+          '<defs><marker id="tz-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">' +
+            '<path d="M0,1 L9,5 L0,9 z" fill="#e76f51"/>' +
+          "</marker></defs>";
+        legNodes = [];
+        for (let i = 0; i < CITIES.length - 1; i++) {
+          const pth = document.createElementNS(NS, "path");
+          pth.setAttribute("class", "tz-route");
+          pth.setAttribute("marker-end", "url(#tz-arrow)");
+          routeSvg.appendChild(pth);
+          legNodes.push(pth);
+        }
+        cityNodes = CITIES.map(function (c, i) {
+          const g = document.createElementNS(NS, "g");
+          const pulse = document.createElementNS(NS, "circle");
+          pulse.setAttribute("class", "tz-city-pulse");
+          pulse.setAttribute("r", "7");
+          pulse.style.animationDelay = (i * 0.18).toFixed(2) + "s";
+          const dot = document.createElementNS(NS, "circle");
+          dot.setAttribute("class", "tz-city-dot");
+          dot.setAttribute("r", "5");
+          const fs = 13, padX = 9;
+          const pw = c.name.length * fs * 0.56 + padX * 2;
+          const ph = fs + 11;
+          const label = document.createElementNS(NS, "g");
+          label.setAttribute(
+            "transform",
+            "translate(" + ((c.side === "left" ? -1 : 1) * (13 + pw / 2)).toFixed(1) + ",0)"
+          );
+          const pill = document.createElementNS(NS, "rect");
+          pill.setAttribute("class", "tz-city-pill");
+          pill.setAttribute("x", (-pw / 2).toFixed(1));
+          pill.setAttribute("y", (-ph / 2).toFixed(1));
+          pill.setAttribute("width", pw.toFixed(1));
+          pill.setAttribute("height", ph);
+          pill.setAttribute("rx", ph / 2);
+          const text = document.createElementNS(NS, "text");
+          text.setAttribute("class", "tz-city-name");
+          text.setAttribute("text-anchor", "middle");
+          text.textContent = c.name;
+          label.appendChild(pill);
+          label.appendChild(text);
+          g.appendChild(pulse);
+          g.appendChild(dot);
+          g.appendChild(label);
+          routeSvg.appendChild(g);
+          return { group: g, base: null };
+        });
+      }
+
+      // Record each city's position on the *base* (un-zoomed) map, so we can
+      // place it under any camera without asking the projection again.
+      function measureCities() {
+        const api = window.__gezMap;
+        if (!api || !api.project || !api.getView) return;
+        ensureRouteDom();
+        const w = window.innerWidth, h = window.innerHeight;
+        const v = api.getView();
+        CITIES.forEach(function (c, i) {
+          const p = api.project(c.lonlat);
+          if (!p || !isFinite(p[0]) || !isFinite(p[1])) return;
+          cityNodes[i].base = {
+            x: (p[0] - (w / 2 + v.tx)) / v.z + w / 2,
+            y: (p[1] - (h / 2 + v.ty)) / v.z + h / 2
+          };
+        });
+      }
+
+      // Position (never scale) the pins and redraw the legs for a given camera.
+      function layoutRoute(want) {
+        if (!cityNodes) return;
+        const w = window.innerWidth, h = window.innerHeight;
+        const ax = w / 2 + want.tx, ay = h / 2 + want.ty;
+        const pts = [];
+        cityNodes.forEach(function (n) {
+          if (!n.base) { pts.push(null); return; }
+          const x = ax + want.z * (n.base.x - w / 2);
+          const y = ay + want.z * (n.base.y - h / 2);
+          n.group.setAttribute("transform", "translate(" + x.toFixed(1) + "," + y.toFixed(1) + ")");
+          pts.push({ x: x, y: y });
+        });
+        for (let i = 0; i < legNodes.length; i++) {
+          const a = pts[i], b = pts[i + 1];
+          if (!a || !b) { legNodes[i].removeAttribute("d"); continue; }
+          const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+          const dx = b.x - a.x, dy = b.y - a.y;
+          const len = Math.sqrt(dx * dx + dy * dy) || 1;
+          const bow = Math.min(30, len * 0.17);
+          const qx = mx + (-dy / len) * bow, qy = my + (dx / len) * bow;
+          legNodes[i].setAttribute(
+            "d",
+            "M" + a.x.toFixed(1) + "," + a.y.toFixed(1) +
+            " Q" + qx.toFixed(1) + "," + qy.toFixed(1) + " " + b.x.toFixed(1) + "," + b.y.toFixed(1)
+          );
+        }
+      }
+
+      function measure() {
+        const src = document.querySelector('#world-map path.country[data-country-id="764"]');
+        const api = window.__gezMap;
+        if (!src || !api || !api.getView) return;
+        let bbox;
+        try { bbox = src.getBBox(); } catch (e) { return; }
+        if (!bbox || !bbox.width || !bbox.height) return;
+
+        const w = window.innerWidth, h = window.innerHeight;
+        const v = api.getView();
+        const b = api.bleed ? api.bleed() : { bx: 0, by: 0 };
+        // bbox is in the (bled) layer's px — shift to viewport px, then undo
+        // the current view to recover the country's position at zoom 1.
+        const cxNow = bbox.x + bbox.width / 2 - b.bx, cyNow = bbox.y + bbox.height / 2 - b.by;
+        const baseX = (cxNow - (w / 2 + v.tx)) / v.z + w / 2;
+        const baseY = (cyNow - (h / 2 + v.ty)) / v.z + h / 2;
+
+        const wide = w >= 760;
+        geo = {
+          bx: baseX, by: baseY,
+          targetX: wide ? w * 0.66 : w * 0.5,
+          targetY: wide ? h * 0.5 : h * 0.36
+        };
+      }
+
+      function viewFor(progress, hold) {
+        const w = window.innerWidth, h = window.innerHeight;
+        hold = hold || 0;
+        // During the hold the camera keeps creeping in a touch and the map
+        // eases upward a little, so the scene never feels frozen.
+        const z = (1 + easeOut(progress) * (ZOOM_MAX - 1)) * (1 + 0.05 * hold);
+        const panE = easeOut(clamp01(progress / PAN_END));
+        const tgtX = geo.bx + (geo.targetX - geo.bx) * panE - 12 * hold;
+        const tgtY = geo.by + (geo.targetY - geo.by) * panE - 34 * hold;
+        // Thailand sits at (w/2+tx) + z*(bx - w/2); solve for tx so it lands on target.
+        return {
+          z: z,
+          tx: tgtX - w / 2 - z * (geo.bx - w / 2),
+          ty: tgtY - h / 2 - z * (geo.by - h / 2)
+        };
+      }
+
+      // Between real redraws we cheat with a CSS transform that maps the
+      // drawn view onto the wanted view — exact, so nothing jumps when the
+      // sharp redraw lands and the transform is cleared.
+      function deltaTransform(want) {
+        const w = window.innerWidth, h = window.innerHeight;
+        const k = want.z / drawn.z;
+        const ax = w / 2 + want.tx, ay = h / 2 + want.ty;
+        const rx = w / 2 + drawn.tx, ry = h / 2 + drawn.ty;
+        // The layer's transform origin (its top-left) sits at (-bx,-by) on
+        // screen because of the bleed, so the similarity needs that correction.
+        const api = window.__gezMap;
+        const b = api && api.bleed ? api.bleed() : { bx: 0, by: 0 };
+        const tx = ax - k * rx + (1 - k) * b.bx;
+        const ty = ay - k * ry + (1 - k) * b.by;
+        return "translate(" + tx.toFixed(2) + "px," + ty.toFixed(2) + "px) scale(" + k + ")";
+      }
+
+      // The landmark icons are laid out for the base map, so they need the
+      // full base→wanted transform rather than the drawn→wanted one.
+      function baseTransform(want) {
+        const w = window.innerWidth, h = window.innerHeight;
+        const ax = w / 2 + want.tx, ay = h / 2 + want.ty;
+        return "translate(" + (ax - want.z * (w / 2)).toFixed(2) + "px," +
+               (ay - want.z * (h / 2)).toFixed(2) + "px) scale(" + want.z + ")";
+      }
+
+      let revealed = false;
+
+      // ---- Scroll smoothing ------------------------------------------------
+      // A mouse wheel moves in notches. If the camera tracked scrollY exactly,
+      // every notch would show as a jump — and trigger a sharp redraw (a small
+      // hitch) on top. So the scene follows a *smoothed* copy of the scroll
+      // position: `target` is read straight from the page, `cur` glides toward
+      // it every frame with a short time constant. Notches become motion.
+      const target = { p: 0, hold: 0, exit: 0, rectBottom: 0 };
+      const cur = { p: 0, hold: 0, exit: 0 };
+      let looping = false;
+      let lastTick = 0;
+
+      function readScroll() {
+        const vh = window.innerHeight;
+        const total = stage.offsetHeight - vh;         // all scrollable stage px
+        const rect = stage.getBoundingClientRect();
+        const scrolled = -rect.top;                    // px scrolled into the stage
+        const zoomDist = Math.max(200, vh * ZOOM_VH);
+        // p: the zoom (0→1 over roughly one flick). hold: 0→1 across the long
+        // pinned stretch that follows, used only for the slight drift.
+        target.p = clamp01(scrolled / zoomDist);
+        target.hold = clamp01((scrolled - zoomDist) / Math.max(1, total - zoomDist));
+        // exit: the pinned scene leaving under the contact section.
+        target.exit = clamp01((vh - rect.bottom) / (vh * 0.35));
+      }
+
+      function snapToTarget() {
+        cur.p = target.p; cur.hold = target.hold; cur.exit = target.exit;
+      }
+
+      function startLoop() {
+        if (looping) return;
+        looping = true;
+        lastTick = performance.now();
+        requestAnimationFrame(tick);
+      }
+
+      function tick(now) {
+        const dt = Math.min(0.05, Math.max(0.001, (now - lastTick) / 1000));
+        lastTick = now;
+        const a = 1 - Math.exp(-dt / SMOOTH_TAU);      // frame-rate independent
+        cur.p += (target.p - cur.p) * a;
+        cur.hold += (target.hold - cur.hold) * a;
+        cur.exit += (target.exit - cur.exit) * a;
+        const settled =
+          Math.abs(target.p - cur.p) < 0.0006 &&
+          Math.abs(target.hold - cur.hold) < 0.0006 &&
+          Math.abs(target.exit - cur.exit) < 0.0006;
+        if (settled) snapToTarget();
+        render(settled);
+        if (settled) { looping = false; }
+        else requestAnimationFrame(tick);
+      }
+
+      // Draw one frame of the scene for the current (smoothed) values.
+      function render(settled) {
+        if (document.body.classList.contains("view-tour")) return;
+        if (!geo) { measure(); if (!geo) return; }
+
+        const progress = cur.p, hold = cur.hold, exit = cur.exit;
+        const want = viewFor(progress, hold);
+        document.body.style.setProperty("--th-drift", (-36 * hold).toFixed(1) + "px");
+
+        // Real, sharp redraw straight from the 8K source. While moving we do
+        // it sparingly (throttled, and only once the zoom has actually changed
+        // — a pure pan is lossless as a transform); zooming OUT is redrawn
+        // sooner, because a shrinking interim transform would expose the page
+        // around the map. When the motion settles, one exact final redraw.
+        // Same calm cadence in both directions. Thanks to the bleed, zooming
+        // out can now be a continuous glide too — no frozen-then-pop frames.
+        const now = performance.now();
+        clearTimeout(settleTimer);
+        if (settled) {
+          settleTimer = setTimeout(function () { commitView(want, "settle"); }, SETTLE_MS);
+        } else if (now - lastCommit >= REDRAW_MS) {
+          commitView(want, "motion");
+        }
+        // Safety valve: the bleed covers a shrink of ~13%; if a very fast
+        // flick outruns that before the next scheduled redraw, redraw now.
+        if (want.z / drawn.z < 0.88) commitView(want, "force");
+
+        const dt = deltaTransform(want);
+        worldMapBg.style.transformOrigin = "0 0";
+        worldMapBg.style.transform = dt;
+        worldMapBg.style.filter = "none";
+        worldMapBg.style.opacity = "1";
+
+        // Pins/labels are re-positioned, never transformed, so the names keep
+        // one constant size all the way in and simply fade up as we approach —
+        // and back out as the pinned scene leaves under the contact form.
+        layoutRoute(want);
+        routeSvg.style.opacity = String(clamp01((progress - 0.3) / 0.32) * (1 - exit));
+        document.body.style.setProperty("--th-hl", (clamp01((progress - 0.72) / 0.14) * (1 - exit)).toFixed(3));
+
+        // The landmark icons are glued to the map, so they do scale with it —
+        // they're faded out well before the zoom could balloon them.
+        if (!gfxLandmarksEl) gfxLandmarksEl = document.querySelector("svg.gfx-landmarks");
+        if (!flightSvg) flightSvg = document.getElementById("flight-path-svg");
+        const bt = baseTransform(want);
+        const overlayFade = 1 - smooth(clamp01((progress - 0.08) / 0.22));
+        [gfxLandmarksEl, flightSvg].forEach(function (el) {
+          if (!el) return;
+          el.style.transformOrigin = "0 0";
+          el.style.transform = bt;
+          el.style.filter = "none";
+          el.style.opacity = String(overlayFade);
+          el.style.visibility = overlayFade < 0.01 ? "hidden" : "visible";
+        });
+
+        document.body.classList.toggle("th-zooming", progress > 0.02);
+        if (!revealed && progress >= REVEAL_ON) {
+          revealed = true;
+          document.body.classList.add("th-revealed");
+        } else if (revealed && progress <= REVEAL_OFF) {
+          revealed = false;
+          document.body.classList.remove("th-revealed");
+        }
+      }
+
+      function commitView(want, mode) {
+        const api = window.__gezMap;
+        if (!api || !api.setView) return;
+        if (document.body.classList.contains("view-tour")) return;
+        const dz = Math.abs(want.z - drawn.z) / drawn.z;
+        const dtx = Math.abs(want.tx - drawn.tx), dty = Math.abs(want.ty - drawn.ty);
+        if (mode === "motion" && dz < 0.06) return;              // small/pan-only: transform is fine
+        if (mode === "settle" && dz < 0.002 && dtx < 0.5 && dty < 0.5) return;
+        drawn = { z: want.z, tx: want.tx, ty: want.ty };
+        lastCommit = performance.now();
+        api.setView(want.z, want.tx, want.ty);   // triggers gezeceyik-map-ready
+      }
+
+      function onMapReady() {
+        // The map just redrew at `drawn`, so the interim transform is now the
+        // identity and the cities can be re-measured against the live map.
+        worldMapBg.style.transform = "none";
+        measureCities();
+        measure();
+        render(!looping);   // draw the correct frame right away, then keep gliding
+        startLoop();
+      }
+
+      function onScroll() {
+        readScroll();
+        startLoop();
+      }
+
+      // Anything that invalidates geometry (resize/zoom, coming back from a
+      // tour page) snaps straight to the true position and redraws for real —
+      // no glide, no stale transform.
+      function syncNow() {
+        clearTimeout(settleTimer);
+        measure(); measureCities();
+        readScroll(); snapToTarget();
+        if (geo) commitView(viewFor(cur.p, cur.hold), "force");
+        render(true);
+      }
+
+      document.addEventListener("gezeceyik-map-ready", onMapReady);
+      measure();
+      measureCities();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", syncNow, { passive: true });
+      document.addEventListener("gezeceyik-view", function () {
+        if (document.body.classList.contains("view-tour")) { clearTimeout(settleTimer); return; }
+        syncNow();
+      });
+      readScroll(); snapToTarget(); render(true);
     })();
 
     }); /* DOMContentLoaded: d3 map + city markers */
@@ -13404,6 +14093,7 @@
     });
 
     const landingEl = document.getElementById("landing");
+    const thailandZoomStageEl = document.getElementById("thailand-zoom-stage");
     const tourFullEl = document.getElementById("tour-full");
     const openTourBtn = document.getElementById("open-tour-detail");
     const openBackpackingBtn = document.getElementById("open-tour-backpacking");
@@ -13577,6 +14267,7 @@
       else currentTour = "phuket";
 
       landingEl.hidden = showTour;
+      if (thailandZoomStageEl) thailandZoomStageEl.hidden = showTour;
       tourFullEl.hidden = !showTour;
       backLandingBtn.hidden = !showTour;
       if (openBackpackingBtn) openBackpackingBtn.setAttribute("aria-expanded", isBackpacking ? "true" : "false");
