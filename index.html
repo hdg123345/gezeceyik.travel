@@ -20,7 +20,7 @@
   <meta name="twitter:image" content="https://www.gezeceyiktravel.com/comfort-card.avif" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preload" href="backpacking-card.webp" as="image" type="image/webp" />
+  <link rel="preload" href="backpacking-hero.avif" as="image" type="image/avif" />
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
   <script type="application/ld+json">
   {
@@ -37,24 +37,29 @@
     :root {
       --primary: #0f4c5c;
       --primary-light: #2c7a7b;
-      --primary-glow: #14b8a6;
-      --accent: #e76f51;
-      --accent-light: #f4a261;
+      /* Was #14b8a6 — a neon tech teal that fought the terracotta. Pulled
+         down to a muted sea green so the glow it feeds reads as depth. */
+      --primary-glow: #2f8f86;
+      /* Terracotta, a few points less hot: the brand colour, just calmer. */
+      --accent: #d96a4e;
+      --accent-light: #e9a06d;
       --bg-cream: #faf8f5;
-      --bg-white: #ffffff;
+      /* Surfaces sit a hair off pure white. Against the cream page and the
+         deep sea, #ffffff glares; this keeps the same read with less bite. */
+      --bg-white: #fdfcfa;
       --text-dark: #1a2f33;
       --text-muted: #5a6b6f;
-      --border-subtle: #e5e9eb;
+      --border-subtle: #e6e4de;
       --shadow-sm: 0 2px 8px rgba(15, 76, 92, 0.04);
       --shadow-md: 0 8px 24px rgba(15, 76, 92, 0.08);
       --shadow-lg: 0 20px 50px rgba(15, 76, 92, 0.12);
-      --shadow-glow: 0 0 40px rgba(20, 184, 166, 0.15);
+      --shadow-glow: 0 0 40px rgba(47, 143, 134, 0.13);
       /* Bridge — existing utilities */
       --bg: var(--bg-cream);
       --surface: var(--bg-white);
       --text: var(--text-dark);
-      --accent-hover: #c75a3f;
-      --accent-soft: rgba(231, 111, 81, 0.12);
+      --accent-hover: #c05b42;
+      --accent-soft: rgba(217, 106, 78, 0.12);
       --accent-muted: rgba(15, 76, 92, 0.45);
       --border: rgba(26, 47, 51, 0.1);
       --shadow: var(--shadow-md);
@@ -138,19 +143,19 @@
       display: none !important;
     }
     body.view-tour .site-top {
-      background: rgba(255, 255, 255, 0.98);
+      background: rgba(253, 252, 250, 0.98);
       border-bottom: 1px solid var(--border-subtle);
-      backdrop-filter: blur(16px) saturate(180%);
-      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      backdrop-filter: blur(16px) saturate(125%);
+      -webkit-backdrop-filter: blur(16px) saturate(125%);
     }
     body.view-tour .price-card {
-      background: #ffffff;
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
     body.view-tour .timeline__card {
-      background: #ffffff;
+      background: var(--surface);
       border: 1px solid var(--border);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
@@ -173,7 +178,7 @@
       height: 130vh;
       z-index: -1;
       overflow: hidden;
-      background: linear-gradient(180deg, #1b4f68 0%, #123a52 50%, #0a2840 100%);
+      background: linear-gradient(180deg, #17475f 0%, #103449 50%, #08223a 100%);
       opacity: 1;
       pointer-events: none;
     }
@@ -183,9 +188,9 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse at 18% 22%, rgba(120, 185, 210, 0.22) 0%, transparent 48%),
-        radial-gradient(ellipse at 82% 78%, rgba(20, 55, 80, 0.28) 0%, transparent 55%),
-        radial-gradient(ellipse at 50% 100%, rgba(8, 35, 55, 0.35) 0%, transparent 45%);
+        radial-gradient(ellipse at 18% 22%, rgba(124, 176, 196, 0.16) 0%, transparent 48%),
+        radial-gradient(ellipse at 82% 78%, rgba(16, 48, 72, 0.3) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 100%, rgba(6, 28, 46, 0.38) 0%, transparent 45%);
       pointer-events: none;
     }
 
@@ -197,7 +202,7 @@
         ellipse at center,
         transparent 0%,
         transparent 50%,
-        rgba(5, 20, 35, 0.28) 100%
+        rgba(4, 16, 28, 0.34) 100%
       );
       pointer-events: none;
     }
@@ -209,7 +214,10 @@
       height: 100%;
       display: block;
       z-index: 0;
-      filter: saturate(1.06) contrast(1.03);
+      /* The source imagery is already vivid; saturating it further made the
+         greens read acid. Easing it back and lifting contrast a touch reads
+         filmic instead, and lets the sea and the cream UI carry the colour. */
+      filter: saturate(0.93) contrast(1.07) brightness(0.99);
     }
 
     #world-map {
@@ -249,8 +257,8 @@
    no-cinematic layouts: phones and reduced-motion. */
 @media (min-width: 760px) {
   body.th-noanim #world-map path.country[data-country-id="764"] {
-    fill: rgba(255, 214, 130, 0.16);
-    stroke: #f2a65a;
+    fill: rgba(240, 206, 142, 0.15);
+    stroke: #e0a165;
     stroke-width: 2;
     stroke-linejoin: round;
     opacity: var(--th-hl, 1);
@@ -329,7 +337,7 @@ body.tour-detail-page #thailand-route-svg { display: none !important; }
    language. Built once and only re-positioned, never scaled by the camera. */
 .tz-leader {
   fill: none;
-  stroke: #ffffff;
+  stroke: #fdfcfa;
   stroke-width: 1;
   stroke-dasharray: 1;
   /* The leader crosses cream land and dark sea, so it needs its own edge. */
@@ -338,7 +346,7 @@ body.tour-detail-page #thailand-route-svg { display: none !important; }
 .tz-dot { fill: var(--primary); }
 .tz-dot-ring {
   fill: none;
-  stroke: #ffffff;
+  stroke: #fdfcfa;
   stroke-width: 1.6;
 }
 
@@ -363,6 +371,69 @@ body.tour-detail-page #th-dest-layer { display: none !important; }
   box-shadow: var(--shadow-md);
   opacity: 0;
   will-change: transform, opacity;
+  /* It is a <button>, so these undo the UA styling and nothing else. The
+     layer above it stays click-through; only the cards take the pointer,
+     and only once they have actually arrived (set from the timeline). */
+  appearance: none;
+  -webkit-appearance: none;
+  font: inherit;
+  text-align: left;
+  display: block;
+  cursor: pointer;
+  pointer-events: none;
+  transition: border-color 260ms ease, box-shadow 260ms ease;
+}
+.tz-card:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+.tz-card.is-loading,
+.tz-card.is-open {
+  border-color: rgba(217, 106, 78, 0.35);
+  box-shadow: var(--shadow-lg);
+}
+
+/* The stop numeral sits inside a hairline progress ring. At rest the ring is
+   not drawn at all, so the card reads exactly as it did before it was
+   clickable; it fades in only while the card is loading or open. */
+.tz-card__mark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  margin: 0 0 0.16rem -2px;
+}
+.tz-ring {
+  position: absolute;
+  inset: 0;
+  width: 19px;
+  height: 19px;
+  /* start the sweep at twelve o'clock */
+  transform: rotate(-90deg);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.tz-card.is-loading .tz-ring,
+.tz-card.is-open .tz-ring { opacity: 1; }
+.tz-ring__track {
+  fill: none;
+  stroke: var(--border-subtle);
+  stroke-width: 1.1;
+}
+.tz-ring__bar {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  /* pathLength="1" normalises the circle, so the sweep is just 1 -> 0.
+     The sweep itself is driven from script rather than by a class-toggled
+     transition: cancelling one card's ring and starting another's happens in
+     a single click handler, and a transition started in the same task as the
+     cancel does not always run — it snapped to the end instead of sweeping. */
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
 }
 .tz-card__n {
   display: block;
@@ -371,7 +442,49 @@ body.tour-detail-page #th-dest-layer { display: none !important; }
   font-weight: 700;
   letter-spacing: 0.18em;
   color: var(--accent);
-  margin-bottom: 0.28rem;
+  margin: 0;
+  padding-left: 0.02em;
+}
+
+/* The detail reveals by growing its own row from nothing, so no height is
+   ever hard-coded and the card simply becomes taller. */
+.tz-card__detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transform: translateY(6px) scale(0.98);
+  transform-origin: top left;
+  transition:
+    grid-template-rows 520ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 400ms cubic-bezier(0.4, 0, 0.2, 1) 70ms,
+    transform 520ms cubic-bezier(0.4, 0, 0.2, 1) 70ms;
+}
+.tz-card__detail > div { overflow: hidden; }
+.tz-card.is-open .tz-card__detail {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transform: none;
+}
+.tz-card__rule {
+  height: 1px;
+  margin: 0.6rem 0 0.5rem;
+  background: var(--border-subtle);
+}
+.tz-card__line {
+  margin: 0 0 0.24rem;
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+.tz-card__line:last-child { margin-bottom: 0; }
+.tz-card__line strong {
+  display: block;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tz-card__detail { transition-duration: 1ms; }
 }
 .tz-card__name {
   margin: 0;
@@ -395,8 +508,8 @@ body.tour-detail-page #th-dest-layer { display: none !important; }
    --th-paper is driven per frame from the master timeline. */
 body.th-deep #world-map path.country { transition: none; }
 body.th-deep #world-map path.country[data-country-id="764"] {
-  fill: rgb(226 214 190 / calc(var(--th-paper, 0) * 0.94));
-  stroke: rgb(26 44 54 / calc(var(--th-paper, 0) * 0.9));
+  fill: rgb(231 223 208 / calc(var(--th-paper, 0) * 0.94));
+  stroke: rgb(18 36 46 / calc(var(--th-paper, 0) * 0.92));
   stroke-width: 1.15;
   stroke-linejoin: round;
   opacity: 1;
@@ -661,16 +774,16 @@ body.th-noanim #thailand-route-svg { display: none; }
       left: 0;
       right: 0;
       width: 100%;
-      background: rgba(255, 255, 255, 0.72);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-bottom: 1px solid rgba(229, 233, 235, 0.55);
+      background: rgba(253, 252, 250, 0.74);
+      backdrop-filter: blur(20px) saturate(125%);
+      -webkit-backdrop-filter: blur(20px) saturate(125%);
+      border-bottom: 1px solid rgba(230, 228, 222, 0.6);
       padding: 0.85rem 0;
       z-index: 100;
       transition: background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
     }
     header.site-top.scrolled {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(253, 252, 250, 0.95);
       box-shadow: var(--shadow-sm);
     }
     .site-top__inner {
@@ -1077,8 +1190,10 @@ body.th-noanim #thailand-route-svg { display: none; }
       .tour-cards-grid { grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
     }
 
+    /* Same photograph as the Gezgin Tarzı hero, same file — not a separate
+       thumbnail. */
     .tour-card--backpacking .landing-preview__media.backpacking-media {
-      background-image: url("backpacking-card.webp");
+      background-image: url("backpacking-hero.avif");
       background-size: cover;
       background-position: center;
     }
@@ -2679,10 +2794,10 @@ body.th-noanim #thailand-route-svg { display: none; }
     .contact-form-container {
       width: 100%;
       max-width: 600px;
-      background: rgba(255, 255, 255, 0.65);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.8);
+      background: rgba(253, 252, 250, 0.7);
+      backdrop-filter: blur(20px) saturate(125%);
+      -webkit-backdrop-filter: blur(20px) saturate(125%);
+      border: 1px solid rgba(255, 253, 248, 0.7);
       border-radius: 24px;
       padding: 40px;
       box-shadow:
@@ -3859,8 +3974,8 @@ body.th-noanim #thailand-route-svg { display: none; }
     /* Card panels are a single hand zone: the pointer stays a hand across the
        whole panel, gaps between the cards included, instead of flickering back
        to the plane every time you cross a gutter. */
-    body.cursor-plane-active :is(.tour-cards-grid, .price-card),
-    body.cursor-plane-active :is(.tour-cards-grid, .price-card) * {
+    body.cursor-plane-active :is(.tour-cards-grid, .price-card, .tz-card),
+    body.cursor-plane-active :is(.tour-cards-grid, .price-card, .tz-card) * {
       cursor: pointer !important;
     }
     /* Once a card has been chosen — the tour page, or any open modal — the
@@ -6944,14 +7059,30 @@ body.th-noanim #thailand-route-svg { display: none; }
         { key: "phuket", lonlat: [98.39, 7.88], n: "01",
           name: { tr: "Phuket", en: "Phuket" },
           meta: { tr: "Andaman kıyısı · 5 gece", en: "Andaman coast · 5 nights" },
+          detail: [
+            { tr: "2 – 7 Aralık 2026", en: "2 – 7 December 2026" },
+            { tr: "Thanthip Beach Resort Patong · 4★", en: "Thanthip Beach Resort Patong · 4★" },
+            { tr: "Phi Phi Adaları · James Bond Adası · Khao Sok",
+              en: "Phi Phi Islands · James Bond Island · Khao Sok" }
+          ],
           dx: 118, dy: 104 },
         { key: "bangkok", lonlat: [100.50, 13.75], n: "02",
           name: { tr: "Bangkok", en: "Bangkok" },
           meta: { tr: "Chao Phraya · 4 gece", en: "Chao Phraya · 4 nights" },
+          detail: [
+            { tr: "7 – 11 Aralık 2026", en: "7 – 11 December 2026" },
+            { tr: "Solitaire Bangkok Sukhumvit 11 · 4★", en: "Solitaire Bangkok Sukhumvit 11 · 4★" },
+            { tr: "Tam gün şehir turu · Muay Thai günü", en: "Full-day city tour · Muay Thai day" }
+          ],
           dx: 138, dy: 8 },
         { key: "chiangmai", lonlat: [98.98, 18.79], n: "03",
           name: { tr: "Chiang Mai", en: "Chiang Mai" },
           meta: { tr: "Kuzey Tayland", en: "Northern Thailand" },
+          // Nothing in the site's itinerary covers Chiang Mai yet, so this
+          // card says so rather than inventing a programme.
+          detail: [
+            { tr: "Program yakında", en: "Programme to be announced" }
+          ],
           dx: 118, dy: -88 }
       ];
 
@@ -6960,6 +7091,12 @@ body.th-noanim #thailand-route-svg { display: none; }
       // the old names swell during the zoom and snap back on every redraw.
       let routeDom = null;
       let destLayer = null;
+      // Progress ring state, scoped to this layer: which card is mid-sweep,
+      // which is open, and the timer that turns one into the other.
+      const RING_MS = 1000;
+      let loadingKey = null;
+      let openKey = null;
+      let ringTimer = 0;
 
       function lang() {
         return document.documentElement.getAttribute("data-lang") === "en" ? "en" : "tr";
@@ -6980,16 +7117,29 @@ body.th-noanim #thailand-route-svg { display: none; }
         if (!destLayer) {
           destLayer = document.createElement("div");
           destLayer.id = "th-dest-layer";
-          destLayer.setAttribute("aria-hidden", "true");
+          // NOT aria-hidden: the cards are real buttons, reachable by keyboard.
           document.body.appendChild(destLayer);
         }
         destLayer.innerHTML = DESTS.map(function (d) {
-          return '<article class="tz-card">' +
-            '<span class="tz-card__n">' + d.n + '</span>' +
+          const lines = d.detail.map(function (t, i) {
+            return '<p class="tz-card__line" data-tr="' + t.tr + '" data-en="' + t.en + '">' +
+                   (i === 0 ? '<strong>' + t[L] + '</strong>' : t[L]) + '</p>';
+          }).join("");
+          return '<button type="button" class="tz-card" aria-expanded="false">' +
+            '<span class="tz-card__mark">' +
+              '<svg class="tz-ring" viewBox="0 0 22 22">' +
+                '<circle class="tz-ring__track" cx="11" cy="11" r="9.4"/>' +
+                '<circle class="tz-ring__bar" cx="11" cy="11" r="9.4" pathLength="1"/>' +
+              '</svg>' +
+              '<span class="tz-card__n">' + d.n + '</span>' +
+            '</span>' +
             '<h3 class="tz-card__name">' + d.name[L] + '</h3>' +
             '<p class="tz-card__meta" data-tr="' + d.meta.tr + '" data-en="' + d.meta.en + '">' +
               d.meta[L] + '</p>' +
-          '</article>';
+            '<div class="tz-card__detail"><div>' +
+              '<div class="tz-card__rule"></div>' + lines +
+            '</div></div>' +
+          '</button>';
         }).join("");
 
         const groups = routeSvg.querySelectorAll(".tz-anchor");
@@ -6999,8 +7149,60 @@ body.th-noanim #thailand-route-svg { display: none; }
             leader: groups[i].querySelector(".tz-leader"),
             ring: groups[i].querySelector(".tz-dot-ring"),
             dot: groups[i].querySelector(".tz-dot"),
-            card: cards[i]
+            card: cards[i],
+            bar: cards[i].querySelector(".tz-ring__bar"),
+            anim: null
           };
+        });
+
+        // --- Progress ring ------------------------------------------------
+        // One delegated listener for all three cards, and two variables of
+        // state that live with this layer. A click starts the ring; the reveal
+        // is fired by a timer of the same length rather than transitionend,
+        // which never arrives if the tab is throttled mid-sweep.
+        destLayer.addEventListener("click", function (e) {
+          const btn = e.target.closest(".tz-card");
+          if (!btn) return;
+          const i = routeDom.findIndex(function (n) { return n.card === btn; });
+          if (i < 0) return;
+          // Belt and braces: the cards are pointer-events:none until they have
+          // arrived, but a synthetic click ignores that. Never act on a card
+          // the reader cannot actually see.
+          if (parseFloat(btn.style.opacity || "0") < 0.9) return;
+          const key = DESTS[i].key;
+          if (openKey === key || loadingKey === key) { closeCards(); return; }
+          closeCards();
+          loadingKey = key;
+          const n = routeDom[i];
+          n.card.classList.add("is-loading");
+          n.anim = n.bar.animate(
+            [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }],
+            { duration: RING_MS, easing: "cubic-bezier(0.37, 0, 0.16, 1)", fill: "forwards" }
+          );
+          ringTimer = setTimeout(function () {
+            if (loadingKey !== key) return;   // superseded by another card
+            loadingKey = null;
+            openKey = key;
+            n.card.classList.add("is-open");
+            n.card.setAttribute("aria-expanded", "true");
+          }, RING_MS);
+        });
+      }
+
+      // Cancel any ring in flight and collapse everything. The bar's
+      // transition is suppressed for one frame so a cancelled sweep snaps back
+      // to zero instead of unwinding for a second.
+      function closeCards() {
+        clearTimeout(ringTimer);
+        loadingKey = null;
+        openKey = null;
+        if (!routeDom) return;
+        routeDom.forEach(function (n) {
+          if (n.anim) { n.anim.cancel(); n.anim = null; }
+          if (!n.card.classList.contains("is-loading") &&
+              !n.card.classList.contains("is-open")) return;
+          n.card.classList.remove("is-loading", "is-open");
+          n.card.setAttribute("aria-expanded", "false");
         });
       }
 
@@ -7100,7 +7302,11 @@ body.th-noanim #thailand-route-svg { display: none; }
             "translate(" + (cx + (1 - t) * 14).toFixed(1) + "px," +
             (cy - 26).toFixed(1) + "px)";
           n.card.style.opacity = t.toFixed(3);
+          n.card.style.pointerEvents = t > 0.92 ? "auto" : "none";
         });
+        // Leaving Thailand closes whatever was open, so the cards never scroll
+        // away mid-sweep and come back in a stale state.
+        if ((openKey || loadingKey) && tv < CARD_FROM) closeCards();
       }
 
       function measure() {
@@ -8525,7 +8731,7 @@ body.th-noanim #thailand-route-svg { display: none; }
           "SAW'da uçuştan 3 saat önce buluşma; Qatar Airways ile Doha aktarmalı Phuket'e uçuş. Geceleme uçakta.",
         date: "2 Aralık 2026 — Çarşamba",
         image: {
-          src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80",
+          src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600&q=82&auto=format",
           alt: "Uçak ve gökyüzü"
         },
         content: `
@@ -8545,7 +8751,7 @@ body.th-noanim #thailand-route-svg { display: none; }
           "Phuket Havalimanı'na varış; VIP van ile Thanthip Beach Resort (2–7 Aralık). Check-in ve Patong'da serbest zaman.",
         date: "2–7 Aralık 2026 — Phuket",
         image: {
-          src: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=800&q=80",
+          src: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=1600&q=82&auto=format",
           alt: "Phuket plajı",
           objectPosition: "center 72%"
         },
@@ -8646,7 +8852,7 @@ body.th-noanim #thailand-route-svg { display: none; }
           "Sabah serbest; öğleden sonra Thai AirAsia ile Bangkok. Solitaire Bangkok'a transfer (7–11 Aralık).",
         date: "7 Aralık 2026 — Pazartesi",
         image: {
-          src: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80",
+          src: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1600&q=82&auto=format",
           alt: "Resort ve havuz",
           objectPosition: "center 72%"
         },
@@ -8665,7 +8871,7 @@ body.th-noanim #thailand-route-svg { display: none; }
           "Grand Palace, Wat Pho, Wat Arun, Chao Phraya teknesi, ICONSIAM ve Yaowarat sokak lezzetleri.",
         date: "8 Aralık 2026 — Salı",
         image: {
-          src: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=800&q=80",
+          src: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1600&q=82&auto=format",
           alt: "Bangkok tapınağı",
           objectPosition: "center 94%"
         },
@@ -8692,7 +8898,7 @@ body.th-noanim #thailand-route-svg { display: none; }
           "Tam gün Muay Thai deneyimi: ice bath, spa, antrenman spor masajı, teori ve akşam Rajadamnern Stadyumu'nda canlı dövüş izleme (ek ücretli).",
         date: "9 Aralık 2026 — Çarşamba",
         image: {
-          src: "https://images.unsplash.com/photo-1773289338370-6197ab131713?w=800&q=80",
+          src: "https://images.unsplash.com/photo-1773289338370-6197ab131713?w=1600&q=82&auto=format",
           alt: "Muay Thai antrenmanı",
           objectPosition: "center 38%"
         },
@@ -8715,7 +8921,7 @@ body.th-noanim #thailand-route-svg { display: none; }
           "Check-out, Suvarnabhumi'ye VIP transfer. Turkish Airlines TK65 ile SAW'a dönüş; turun sonu.",
         date: "10 Aralık 2026 — Perşembe",
         image: {
-          src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80",
+          src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600&q=82&auto=format",
           alt: "Havalimanı ve seyahat"
         },
         content: `
@@ -9044,9 +9250,12 @@ body.th-noanim #thailand-route-svg { display: none; }
 
     function tourPhoto(unsplashId, alt, altEn) {
       const base = "https://images.unsplash.com/" + unsplashId;
-      const params = "auto=format&fit=crop&fm=jpg&q=85";
+      const params = "auto=format&fit=crop&q=85";
       return {
-        href: base + "?" + params + "&w=1920",
+        href: base + "?" + params + "&w=2400",
+        // The grid item renders around 280 CSS px, so 800 already covers a 2x
+        // screen. Dropping fm=jpg is what matters here: it lets auto=format
+        // serve AVIF/WebP instead of forcing JPEG.
         src: base + "?" + params + "&w=800&h=600",
         alt: alt,
         altEn: altEn || alt
@@ -9105,7 +9314,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         n: 1, route: "Istanbul > Doha > Phuket",
         summary: "Meet at SAW 3 hours before departure; Qatar Airways flight with Doha layover to Phuket. Overnight on plane.",
         date: "2 December 2026 — Wednesday",
-        image: { src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80", alt: "Aircraft and sky" },
+        image: { src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600&q=82&auto=format", alt: "Aircraft and sky" },
         content: `
       <p><strong>One calendar day before the tour start</strong>, meet at Istanbul Sabiha Gökçen International Airport departures terminal 3 hours before the flight.</p>
       <p>After ticket, baggage and passport check-in, depart with Qatar Airways <strong>QR242</strong> to Doha. After layover, continue with <strong>QR850</strong> to Phuket.</p>
@@ -9121,7 +9330,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         summary: "Arrive at Phuket Airport; VIP van to Thanthip Beach Resort (2–7 Dec). Check-in and free time in Patong.",
         date: "2–7 December 2026 — Phuket",
         image: {
-          src: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=800&q=80",
+          src: "https://images.unsplash.com/photo-1589394815804-964ed0be2eb5?w=1600&q=82&auto=format",
           alt: "Phuket beach",
           objectPosition: "center 72%"
         },
@@ -9214,7 +9423,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         summary: "Morning free; afternoon Thai AirAsia to Bangkok. Transfer to Solitaire Bangkok (7–11 Dec).",
         date: "7 December 2026 — Monday",
         image: {
-          src: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80",
+          src: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1600&q=82&auto=format",
           alt: "Resort and pool",
           objectPosition: "center 72%"
         },
@@ -9230,7 +9439,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         summary: "Grand Palace, Wat Pho, Wat Arun, Chao Phraya boat, ICONSIAM and Yaowarat street food.",
         date: "8 December 2026 — Tuesday",
         image: {
-          src: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=800&q=80",
+          src: "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1600&q=82&auto=format",
           alt: "Bangkok temple",
           objectPosition: "center 94%"
         },
@@ -9256,7 +9465,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         summary: "Full-day Muay Thai experience: ice bath, spa, training sports massage, theory and live fight at Rajadamnern Stadium, Bangkok in the evening (extra cost).",
         date: "9 December 2026 — Wednesday",
         image: {
-          src: "https://images.unsplash.com/photo-1773289338370-6197ab131713?w=800&q=80",
+          src: "https://images.unsplash.com/photo-1773289338370-6197ab131713?w=1600&q=82&auto=format",
           alt: "Muay Thai training",
           objectPosition: "center 38%"
         },
@@ -9276,7 +9485,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         n: 9, route: "Bangkok > Istanbul",
         summary: "Check-out, VIP transfer to Suvarnabhumi. Return to SAW with Turkish Airlines TK65; end of tour.",
         date: "10 December 2026 — Thursday",
-        image: { src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80", alt: "Airport and travel" },
+        image: { src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600&q=82&auto=format", alt: "Airport and travel" },
         content: `
       <p>After breakfast, check-out. Private van transfer to <strong>Bangkok Suvarnabhumi Airport</strong>.</p>
       <p>After ticket, baggage and passport check-in, departure to Istanbul with <strong>Turkish Airlines TK65</strong>.</p>
@@ -9838,7 +10047,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         route: "Bangkok → Pattaya · Tomorrowland Day 1",
         summary: "Bangkok'tan Pattaya'ya transfer, otele yerleşme. Akşam Tomorrowland Day 1.",
         date: "11 Aralık 2026 — Cuma",
-        image: { src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80", alt: "Tomorrowland sahne" },
+        image: { src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=82&auto=format", alt: "Tomorrowland sahne" },
         content: `
       <p>Otelde kahvaltı ve check-out sonrası <strong>özel transferle Pattaya'ya</strong> geçiş (1.5-2 saat).</p>
       <p><strong>Royal Cliff Beach Terrace Pattaya</strong> otelinde check-in. Festival hazırlığı, dinlenme.</p>
@@ -9849,7 +10058,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         route: "Pattaya serbest gün",
         summary: "Plaj, dinlenme, isteğe bağlı tekne turları veya Pattaya keşfi.",
         date: "12 Aralık 2026 — Cumartesi",
-        image: { src: "https://images.unsplash.com/photo-1625276413000-12c38e7b7d0a?w=800&q=80", alt: "Pattaya plajı" },
+        image: { src: "https://images.unsplash.com/photo-1625276413000-12c38e7b7d0a?w=1600&q=82&auto=format", alt: "Pattaya plajı" },
         content: `
       <p>Festival arası dinlenme günü. Otelde kahvaltı sonrası serbest zaman.</p>
       <p><strong>Önerilen aktiviteler:</strong></p>
@@ -9867,7 +10076,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         route: "Tomorrowland Day 2",
         summary: "Festivalin kapanış günü — büyük ana sahne, headliner sanatçılar.",
         date: "13 Aralık 2026 — Pazar",
-        image: { src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&q=80", alt: "Festival kalabalık" },
+        image: { src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1600&q=82&auto=format", alt: "Festival kalabalık" },
         content: `
       <p>Otelde geç kahvaltı, gün boyu dinlenme ve hazırlık.</p>
       <p>Akşam festival shuttle servisi ile <strong>Tomorrowland Day 2</strong>'ye hareket. Büyük ana sahnede festival son gecesi: headliner DJ'ler, kapanış show'u, havai fişek gösterisi.</p>
@@ -9878,7 +10087,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         route: "Pattaya → Bangkok → dönüş",
         summary: "Otelde kahvaltı, BKK transferi; 14 Aralık gece uçuşu (kalkış limanına göre).",
         date: "14 Aralık 2026 — Pazartesi",
-        image: { src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80", alt: "Uçak" },
+        image: { src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600&q=82&auto=format", alt: "Uçak" },
         content: `
       <p>Otelde kahvaltı sonrası check-out. Özel transferle Bangkok Suvarnabhumi'ye (1.5-2 saat).</p>
       <p><strong>Dönüş uçuşu</strong> kalkış limanınıza göre değişir — İstanbul: <strong>TK8548</strong> 14.12.2026 23:45 → 15.12.2026 06:05 IST.</p>
@@ -10046,7 +10255,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         route: "Bangkok → Pattaya · Tomorrowland Day 1",
         summary: "Transfer from Bangkok to Pattaya, hotel check-in. Tomorrowland Day 1 in the evening.",
         date: "11 December 2026 — Friday",
-        image: { src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80", alt: "Tomorrowland stage" },
+        image: { src: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=82&auto=format", alt: "Tomorrowland stage" },
         content: `
       <p>After breakfast and check-out, <strong>private transfer to Pattaya</strong> (1.5-2 hours).</p>
       <p>Check-in at <strong>Royal Cliff Beach Terrace Pattaya</strong>. Festival prep and rest.</p>
@@ -10057,7 +10266,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         route: "Pattaya free day",
         summary: "Beach, rest, optional boat tours or Pattaya exploration.",
         date: "12 December 2026 — Saturday",
-        image: { src: "https://images.unsplash.com/photo-1625276413000-12c38e7b7d0a?w=800&q=80", alt: "Pattaya beach" },
+        image: { src: "https://images.unsplash.com/photo-1625276413000-12c38e7b7d0a?w=1600&q=82&auto=format", alt: "Pattaya beach" },
         content: `
       <p>Rest day between festival days. Free time after breakfast at the hotel.</p>
       <p><strong>Recommended activities:</strong></p>
@@ -10075,7 +10284,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         route: "Tomorrowland Day 2",
         summary: "Festival closing day — main stage, headliner artists.",
         date: "13 December 2026 — Sunday",
-        image: { src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&q=80", alt: "Festival crowd" },
+        image: { src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1600&q=82&auto=format", alt: "Festival crowd" },
         content: `
       <p>Late breakfast at the hotel; rest and prep during the day.</p>
       <p>Evening: festival shuttle to <strong>Tomorrowland Day 2</strong>. Final festival night on the main stage: headliner DJs, closing show, fireworks.</p>
@@ -10086,7 +10295,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         route: "Pattaya → Bangkok → return",
         summary: "Breakfast, BKK transfer; 14 December return flight (varies by departure city).",
         date: "14 December 2026 — Monday",
-        image: { src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80", alt: "Airplane" },
+        image: { src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600&q=82&auto=format", alt: "Airplane" },
         content: `
       <p>Breakfast and check-out. Private transfer to Bangkok Suvarnabhumi (1.5-2 hours).</p>
       <p><strong>Return flight</strong> depends on your departure city — example Istanbul: <strong>TK8548</strong> 14.12.2026 23:45 → 15.12.2026 06:05 IST.</p>
@@ -12405,7 +12614,14 @@ body.th-noanim #thailand-route-svg { display: none; }
         badge:    { tr: 'Gezgin Tarzı', en: 'Backpacking style' },
         title:    { tr: 'Phuket & Bangkok · Gezgin Tarzı',
                     en: 'Phuket & Bangkok · Backpacking Style' },
-        heroImg:  'backpacking-card.webp',
+        // Full-resolution hero art, shared with this tour's card. The old
+        // thumbnail was 427x640 against a 1425x380 hero box, so it was being
+        // enlarged 3.3x on a 1x screen and 6.7x on retina.
+        heroImg:  'backpacking-hero.avif',
+        // The longtail boats sit low in the photo (about 60-76% down), so the
+        // visible band has to sit low too. At 72% they land in the lower half
+        // of the frame with the karsts still above them.
+        heroPos:  'center 68%',
         heroAlt:  { tr: 'Gezgin tarzı seyahat', en: 'Backpacking style travel' },
         routesByPort: {
           istanbul: { tr: 'İstanbul → Phuket, Bangkok', en: 'Istanbul → Phuket, Bangkok' },
@@ -13510,7 +13726,9 @@ body.th-noanim #thailand-route-svg { display: none; }
         heroBg.style.backgroundImage =
           "linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.25)), url('" + t.heroImg + "')";
         heroBg.style.backgroundSize = 'cover';
-        heroBg.style.backgroundPosition = 'center';
+        // Per-tour framing. 50% is dead centre; a smaller Y shows more of the
+        // top of the photo, which moves the image content down in the frame.
+        heroBg.style.backgroundPosition = t.heroPos || 'center';
         heroBg.setAttribute('aria-label', t.heroAlt[lang]);
       }
 
