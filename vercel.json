@@ -1,5 +1,9 @@
 {
   "installCommand": "npm install",
+  "redirects": [
+    { "source": "/", "destination": "/coming-soon.html", "permanent": false },
+    { "source": "/:path((?!api/|coming-soon\\.html|robots\\.txt|sitemap\\.xml).*)", "destination": "/coming-soon.html", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ],

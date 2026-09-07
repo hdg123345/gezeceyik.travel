@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gezeceyik | Çok Yakında</title>
+  <meta name="description" content="Gezeceyik — seyahat deneyimleri çok yakında." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* Same palette and type as the site: deep ocean ground, Caveat wordmark,
+       terracotta mark, Inter for everything else. Self-contained on purpose —
+       no local assets, so nothing else has to be served while the site is
+       showing this. */
+    :root {
+      --primary-deep: #0a2840;
+      --accent: #e76f51;
+      --cream: #f3ece1;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      font-family: Inter, system-ui, -apple-system, sans-serif;
+      color: var(--cream);
+      background: linear-gradient(180deg, #1b4f68 0%, #123a52 50%, #0a2840 100%);
+      background-attachment: fixed;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 18% 22%, rgba(120, 185, 210, 0.2) 0%, transparent 48%),
+        radial-gradient(ellipse at 82% 78%, rgba(20, 55, 80, 0.28) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 100%, rgba(8, 35, 55, 0.35) 0%, transparent 45%);
+    }
+    main {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      max-width: 34rem;
+      animation: rise 1s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .brand {
+      font-family: Caveat, "Segoe Script", cursive;
+      font-size: clamp(3rem, 11vw, 5.25rem);
+      font-weight: 700;
+      line-height: 1;
+      margin: 0;
+      letter-spacing: 0.02em;
+    }
+    .brand span { color: var(--accent); }
+    .rule {
+      width: 3rem;
+      height: 1px;
+      margin: 2rem auto 1.75rem;
+      background: rgba(243, 236, 225, 0.4);
+    }
+    .kicker {
+      margin: 0;
+      font-size: clamp(0.72rem, 2.4vw, 0.82rem);
+      font-weight: 500;
+      letter-spacing: 0.34em;
+      text-transform: uppercase;
+      color: rgba(243, 236, 225, 0.92);
+    }
+    .lede {
+      margin: 1.5rem 0 0;
+      font-size: clamp(0.95rem, 3vw, 1.06rem);
+      line-height: 1.65;
+      color: rgba(243, 236, 225, 0.82);
+    }
+    .lede-tr { margin-top: 0.35rem; }
+    .contact {
+      margin: 2.5rem 0 0;
+      font-size: 0.82rem;
+      color: rgba(243, 236, 225, 0.58);
+    }
+    .contact a {
+      color: rgba(243, 236, 225, 0.82);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(231, 111, 81, 0.6);
+      padding-bottom: 1px;
+    }
+    .contact a:hover { color: var(--accent); }
+    @media (prefers-reduced-motion: reduce) {
+      main { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1 class="brand">Gezeceyik<span aria-hidden="true">!</span></h1>
+    <div class="rule"></div>
+    <p class="kicker" lang="en">Coming Soon</p>
+    <p class="lede" lang="en">Travel experiences, coming soon.</p>
+    <p class="lede lede-tr" lang="tr">Seyahat deneyimleri çok yakında.</p>
+    <p class="contact">
+      <a href="mailto:gezeceyik1travel@gmail.com">gezeceyik1travel@gmail.com</a>
+    </p>
+  </main>
+</body>
+</html>
