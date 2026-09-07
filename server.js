@@ -80,7 +80,13 @@ function serveStatic(req, res) {
       return;
     }
     const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream" });
+    // Dev server: never let the browser reuse a stale copy. Without this there
+    // is no Cache-Control at all, so Chrome caches heuristically and keeps
+    // serving an old index.html after edits.
+    res.writeHead(200, {
+      "Content-Type": MIME[ext] || "application/octet-stream",
+      "Cache-Control": "no-store, must-revalidate"
+    });
     res.end(data);
   });
 }

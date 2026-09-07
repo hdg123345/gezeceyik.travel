@@ -3822,6 +3822,53 @@ body.th-noanim #thailand-route-svg { display: none; }
     body.cursor-plane-active input,
     body.cursor-plane-active textarea,
     body.cursor-plane-active [contenteditable="true"] { cursor: text !important; }
+    /* Anything clickable keeps a real pointing hand — cards, buttons, links,
+       tabs, selects — and the plane steps aside so you never see two cursors
+       at once. One rule for every control instead of naming each component. */
+    body.cursor-plane-active :is(
+      a[href], button, select, summary, label[for], [role="button"], [role="tab"],
+      input[type="checkbox"], input[type="radio"], input[type="submit"], input[type="button"]
+    ),
+    body.cursor-plane-active :is(a[href], button, [role="button"], [role="tab"]) * {
+      cursor: pointer !important;
+    }
+    /* Card panels are a single hand zone: the pointer stays a hand across the
+       whole panel, gaps between the cards included, instead of flickering back
+       to the plane every time you cross a gutter. */
+    body.cursor-plane-active :is(.tour-cards-grid, .price-card),
+    body.cursor-plane-active :is(.tour-cards-grid, .price-card) * {
+      cursor: pointer !important;
+    }
+    /* Once a card has been chosen — the tour page, or any open modal — the
+       whole screen is the hand: no plane from there on. */
+    body.cursor-plane-active:is(.view-tour, .departure-open, .modal-open, .day-modal-open),
+    body.cursor-plane-active:is(.view-tour, .departure-open, .modal-open, .day-modal-open) * {
+      cursor: pointer !important;
+    }
+    /* The contact box is a writing surface: I-beam across the panel (buttons
+       and links inside still win a hand via the control rule above). */
+    body.cursor-plane-active .contact-form-container,
+    body.cursor-plane-active .contact-form-container * {
+      cursor: text !important;
+    }
+
+    /* …except where you actually type: a form still needs a caret. */
+    body.cursor-plane-active:is(.view-tour, .departure-open, .modal-open, .day-modal-open)
+      :is(textarea, [contenteditable="true"],
+          input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"])) {
+      cursor: text !important;
+    }
+    /* Disabled / sold-out controls say so instead. */
+    body.cursor-plane-active :is(.tour-cards-grid, .price-card) :is(:disabled, [aria-disabled="true"], .tour-card--sold-out),
+    body.cursor-plane-active :is(.tour-cards-grid, .price-card) :is(:disabled, [aria-disabled="true"], .tour-card--sold-out) *,
+    body.cursor-plane-active :is(a[href], button, select, [role="button"]):is(:disabled, [aria-disabled="true"], .tour-card--sold-out),
+    body.cursor-plane-active :is(button, [role="button"]):is(:disabled, [aria-disabled="true"], .tour-card--sold-out) * {
+      cursor: not-allowed !important;
+    }
+    body.cursor-plane-active:has(:is(a[href], button, select, summary, label[for], [role="button"], [role="tab"], .tour-cards-grid, .price-card, .contact-form-container, textarea, input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]), [contenteditable="true"]):hover) :is(.cursor-plane, .cursor-trail),
+    body.cursor-plane-active:is(.view-tour, .departure-open, .modal-open, .day-modal-open) :is(.cursor-plane, .cursor-trail) {
+      opacity: 0;
+    }
 
     .cursor-plane {
       position: fixed;
@@ -3841,47 +3888,58 @@ body.th-noanim #thailand-route-svg { display: none; }
     .cursor-plane.visible { opacity: 0.95; }
     .cursor-plane svg { width: 100%; height: 100%; display: block; }
 
-    /* Realistic contrail — dispersing vapor cloud puffs */
+    /* Contrail — vapour puffs. Each is born tight at the engine, blooms fast
+       then slows as it diffuses, stretches along the flight path and drifts
+       back off the wing while thinning out. Per-puff variation (life, size,
+       drift, opacity) comes from custom properties set in createTrail. */
     .cursor-trail {
       position: fixed;
-      width: 9px;
-      height: 9px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: radial-gradient(
-        circle,
-        rgba(195, 205, 215, 0.65) 0%,
-        rgba(170, 185, 195, 0.42) 30%,
-        rgba(150, 170, 180, 0.18) 60%,
-        transparent 82%
+        circle at 50% 50%,
+        rgba(255, 255, 255, 0.55) 0%,
+        rgba(224, 233, 240, 0.34) 34%,
+        rgba(188, 203, 214, 0.12) 66%,
+        transparent 84%
       );
       pointer-events: none;
       z-index: 10999;
       transform: translate(-50%, -50%);
-      filter: blur(0.6px);
       opacity: 0;
-      animation: vaporPuff 1.3s cubic-bezier(0.16, 0.6, 0.4, 1) forwards;
+      /* Fast bloom, long slow dissipation — diffusion, not a linear fade. */
+      animation: vaporPuff var(--life, 0.78s) cubic-bezier(0.05, 0.75, 0.25, 1) forwards;
       will-change: opacity, transform, filter;
     }
     @keyframes vaporPuff {
       0% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(0.35);
+        transform: translate(-50%, -50%) rotate(var(--rot, 0deg)) scale(0.22, 0.16);
         filter: blur(0.3px);
       }
-      8% {
-        opacity: 0.7;
-        transform: translate(-50%, -50%) scale(1);
-        filter: blur(0.8px);
+      10% {
+        opacity: var(--peak, 0.5);
+        transform:
+          translate(calc(-50% + var(--dx, 0px) * 0.12), calc(-50% + var(--dy, 0px) * 0.12))
+          rotate(var(--rot, 0deg)) scale(1, 0.72);
+        filter: blur(0.9px);
       }
-      45% {
-        opacity: 0.42;
-        transform: translate(-50%, -50%) scale(2);
-        filter: blur(2px);
+      42% {
+        opacity: calc(var(--peak, 0.5) * 0.5);
+        transform:
+          translate(calc(-50% + var(--dx, 0px) * 0.45), calc(-50% + var(--dy, 0px) * 0.45))
+          rotate(var(--rot, 0deg))
+          scale(calc(var(--grow, 3) * 0.55), calc(var(--grow, 3) * 0.42));
+        filter: blur(2.2px);
       }
       100% {
         opacity: 0;
-        transform: translate(-50%, -50%) scale(3.4);
-        filter: blur(5px);
+        transform:
+          translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, 0px)))
+          rotate(var(--rot, 0deg))
+          scale(var(--grow, 3), calc(var(--grow, 3) * 0.78));
+        filter: blur(4.5px);
       }
     }
     @media (hover: none) and (pointer: coarse) {
@@ -4156,6 +4214,10 @@ body.th-noanim #thailand-route-svg { display: none; }
     .date-hint {
       font-size: 11px;
       opacity: 0.6;
+    }
+    .today-hint {
+      display: block;
+      margin-top: 6px;
     }
 
     .addons-grid {
@@ -7044,6 +7106,7 @@ body.th-noanim #thailand-route-svg { display: none; }
       const cur = { p: 0, hold: 0, exit: 0 };
       let looping = false;
       let lastTick = 0;
+      let prevP = 0;            // to tell which way the camera is travelling
 
       function readScroll() {
         const vh = window.innerHeight;
@@ -7101,18 +7164,26 @@ body.th-noanim #thailand-route-svg { display: none; }
         // — a pure pan is lossless as a transform); zooming OUT is redrawn
         // sooner, because a shrinking interim transform would expose the page
         // around the map. When the motion settles, one exact final redraw.
-        // Same calm cadence in both directions. Thanks to the bleed, zooming
-        // out can now be a continuous glide too — no frozen-then-pop frames.
+        // Render slightly AHEAD in the direction of travel. Going out, that
+        // means drawing a little further out than we need, so the interim
+        // transform only ever scales UP — which always covers the frame. Left
+        // to itself, zooming out shrinks the drawn map until it runs past the
+        // bleed and has to force a synchronous redraw (~every 12% of zoom),
+        // and those forced redraws were the judder on the way back up.
+        const outward = progress < prevP - 0.0004;
+        prevP = progress;
+        const commitWant = outward ? viewFor(Math.max(0, progress - 0.1), hold) : want;
+
         const now = performance.now();
         clearTimeout(settleTimer);
         if (settled) {
           settleTimer = setTimeout(function () { commitView(want, "settle"); }, SETTLE_MS);
         } else if (now - lastCommit >= REDRAW_MS) {
-          commitView(want, "motion");
+          commitView(commitWant, "motion");
         }
-        // Safety valve: the bleed covers a shrink of ~13%; if a very fast
-        // flick outruns that before the next scheduled redraw, redraw now.
-        if (want.z / drawn.z < 0.88) commitView(want, "force");
+        // Safety valve, now rarely needed: only if a very fast flick still
+        // outruns the bleed before the next scheduled redraw.
+        if (want.z / drawn.z < 0.88) commitView(commitWant, "force");
 
         const dt = deltaTransform(want);
         worldMapBg.style.transformOrigin = "0 0";
@@ -14233,6 +14304,29 @@ body.th-noanim #thailand-route-svg { display: none; }
       });
     }
 
+    // Today indicator under every date picker. Native pickers ring today only
+    // once open; this keeps the reference visible while the field is closed.
+    // Reuses .date-hint styling and the existing data-tr/data-en translator.
+    (function todayHint() {
+      const now = new Date();
+      const opts = { day: "numeric", month: "long", year: "numeric" };
+      const tr = "Bugün: " + now.toLocaleDateString("tr-TR", opts);
+      const en = "Today: " + now.toLocaleDateString("en-GB", opts);
+      const lang = document.documentElement.getAttribute("data-lang") === "en" ? "en" : "tr";
+      const seen = new Set();
+      document.querySelectorAll('input[type="date"]').forEach(function (input) {
+        const group = input.closest(".date-range-wrap, .custom-date-row") || input.parentElement;
+        if (!group || seen.has(group)) return;
+        seen.add(group);
+        const hint = document.createElement("span");
+        hint.className = "date-hint today-hint";
+        hint.setAttribute("data-tr", tr);
+        hint.setAttribute("data-en", en);
+        hint.textContent = lang === "en" ? en : tr;
+        group.after(hint);
+      });
+    })();
+
     document.addEventListener("click", function (e) {
       const guestBtn = e.target.closest("[data-guest-btn]");
       if (!guestBtn) return;
@@ -14776,19 +14870,32 @@ body.th-noanim #thailand-route-svg { display: none; }
       tick();
 
       function createTrail(x, y, angle) {
-        // Cloud puff with subtle perpendicular jitter — natural irregular vapor
         const rad = angle * Math.PI / 180;
-        const perpX = -Math.sin(rad);
-        const perpY =  Math.cos(rad);
+        const dirX = Math.cos(rad), dirY = Math.sin(rad);
+        const perpX = -dirY, perpY = dirX;
+        // Born just off the flight path, then drifts backwards (astern of the
+        // plane) with a little sideways wander — vapour falling behind, not a
+        // dot expanding in place.
         const jitter = (Math.random() - 0.5) * 5;
+        const driftBack = 10 + Math.random() * 12;
+        const driftSide = (Math.random() - 0.5) * 9;
 
         const puff = document.createElement('div');
         puff.className = 'cursor-trail';
         puff.style.left = (x + perpX * jitter).toFixed(1) + 'px';
         puff.style.top  = (y + perpY * jitter).toFixed(1) + 'px';
+        // Stretch along the direction of travel, not an axis-aligned circle.
+        puff.style.setProperty('--rot', angle.toFixed(1) + 'deg');
+        puff.style.setProperty('--dx', (-dirX * driftBack + perpX * driftSide).toFixed(1) + 'px');
+        puff.style.setProperty('--dy', (-dirY * driftBack + perpY * driftSide).toFixed(1) + 'px');
+        // Irregular puffs read as vapour; identical ones read as a UI effect.
+        const life = 0.62 + Math.random() * 0.28;
+        puff.style.setProperty('--life', life.toFixed(2) + 's');
+        puff.style.setProperty('--peak', (0.4 + Math.random() * 0.22).toFixed(2));
+        puff.style.setProperty('--grow', (2.6 + Math.random() * 1.3).toFixed(2));
         document.body.appendChild(puff);
-    setTimeout(() => { puff.remove(); }, 1300);
-  }
+        setTimeout(() => { puff.remove(); }, life * 1000 + 60);
+      }
 })();
   </script>
 </body>
