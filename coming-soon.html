@@ -86,6 +86,100 @@
       padding-bottom: 1px;
     }
     .contact a:hover { color: var(--accent); }
+
+    /* --- Notify card ------------------------------------------------------
+       A compact panel in the same palette as the page: hairline border, a
+       touch of depth, no heavy glass. It posts to the site's existing
+       /api/booking function, which mails the entry to the inbox. */
+    .notify {
+      margin: 2.4rem auto 0;
+      max-width: 25rem;
+      padding: 1.5rem 1.5rem 1.6rem;
+      text-align: left;
+      background: rgba(7, 31, 46, 0.42);
+      border: 1px solid rgba(246, 238, 218, 0.14);
+      border-radius: 14px;
+      box-shadow: 0 18px 42px rgba(3, 14, 24, 0.34);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .notify__lead {
+      margin: 0 0 1.05rem;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      color: rgba(246, 238, 218, 0.88);
+    }
+    .notify__field { margin-bottom: 0.8rem; }
+    .notify__label {
+      display: block;
+      margin-bottom: 0.34rem;
+      font-size: 0.62rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(246, 238, 218, 0.6);
+    }
+    .notify__input {
+      width: 100%;
+      /* 16px keeps iOS from zooming the page on focus */
+      font: 400 16px/1.4 Inter, system-ui, sans-serif;
+      color: var(--cream);
+      background: rgba(246, 238, 218, 0.06);
+      border: 1px solid rgba(246, 238, 218, 0.16);
+      border-radius: 9px;
+      padding: 0.66rem 0.75rem;
+      transition: border-color 200ms ease, background 200ms ease;
+    }
+    .notify__input::placeholder { color: rgba(246, 238, 218, 0.34); }
+    .notify__input:focus {
+      outline: none;
+      border-color: rgba(217, 106, 78, 0.75);
+      background: rgba(246, 238, 218, 0.09);
+    }
+    .notify__input:focus-visible { outline: 2px solid rgba(217, 106, 78, 0.5); outline-offset: 2px; }
+    .notify__input[aria-invalid="true"] { border-color: rgba(224, 122, 96, 0.85); }
+    .notify__button {
+      width: 100%;
+      margin-top: 0.35rem;
+      font: 500 0.88rem/1 Inter, system-ui, sans-serif;
+      letter-spacing: 0.02em;
+      color: #fdf7ee;
+      background: var(--accent);
+      border: 0;
+      border-radius: 9px;
+      padding: 0.78rem 1rem;
+      cursor: pointer;
+      transition: background 200ms ease, opacity 200ms ease;
+    }
+    .notify__button:hover { background: #c85d43; }
+    .notify__button:disabled { opacity: 0.62; cursor: default; }
+    .notify__error {
+      min-height: 1.1rem;
+      margin: 0.55rem 0 0;
+      font-size: 0.74rem;
+      line-height: 1.35;
+      color: #f0a892;
+    }
+    .notify__swap { transition: opacity 220ms ease, transform 220ms ease; }
+    .notify__swap.is-fading { opacity: 0; transform: translateY(-4px); }
+    .notify__done { text-align: center; }
+    .notify__done h2 {
+      margin: 0 0 0.5rem;
+      font-family: Caveat, "Segoe Script", cursive;
+      font-size: 1.9rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--cream);
+    }
+    .notify__done p {
+      margin: 0;
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: rgba(246, 238, 218, 0.78);
+    }
+    @media (max-width: 30rem) {
+      .notify { padding: 1.3rem 1.15rem 1.4rem; }
+    }
     @media (prefers-reduced-motion: reduce) {
       main { animation: none; }
     }
@@ -96,10 +190,118 @@
     <h1 class="brand">Gezeceyik<span aria-hidden="true">!</span></h1>
     <div class="rule"></div>
     <p class="lede" lang="en">Travel experiences, coming soon.</p>
-    <p class="lede lede-tr" lang="tr">Seyahat deneyimleri çok yakında.</p>
+    <p class="lede lede-tr" lang="tr">Çok yakında yollardayız.</p>
+
+    <section class="notify" aria-labelledby="notifyLead">
+      <div class="notify__swap" id="notifySwap">
+        <form id="notifyForm" novalidate>
+          <p class="notify__lead" id="notifyLead" lang="tr">
+            Online olduğumuzda sana haber verelim.
+          </p>
+          <div class="notify__field">
+            <label class="notify__label" for="notifyName" lang="tr">Ad</label>
+            <input class="notify__input" id="notifyName" name="name" type="text"
+                   autocomplete="given-name" autocapitalize="words" required />
+          </div>
+          <div class="notify__field">
+            <label class="notify__label" for="notifyEmail" lang="tr">E-posta</label>
+            <input class="notify__input" id="notifyEmail" name="email" type="email"
+                   inputmode="email" autocomplete="email" autocapitalize="off"
+                   autocorrect="off" spellcheck="false" required />
+          </div>
+          <button class="notify__button" id="notifyButton" type="submit" lang="tr">Haber Ver</button>
+          <p class="notify__error" id="notifyError" role="status" aria-live="polite"></p>
+        </form>
+        <div class="notify__done" id="notifyDone" hidden lang="tr">
+          <h2>Teşekkürler!</h2>
+          <p>Gezeceyik online olduğunda sana haber vereceğiz.</p>
+        </div>
+      </div>
+    </section>
     <p class="contact">
       <a href="mailto:gezeceyik1travel@gmail.com">gezeceyik1travel@gmail.com</a>
     </p>
   </main>
+  <script>
+    (function notifySignup() {
+      var form = document.getElementById("notifyForm");
+      if (!form) return;
+      var swap = document.getElementById("notifySwap");
+      var done = document.getElementById("notifyDone");
+      var nameEl = document.getElementById("notifyName");
+      var emailEl = document.getElementById("notifyEmail");
+      var button = document.getElementById("notifyButton");
+      var errorEl = document.getElementById("notifyError");
+      var busy = false;
+      var finished = false;
+
+      function fail(message, field) {
+        errorEl.textContent = message;
+        if (field) {
+          field.setAttribute("aria-invalid", "true");
+          field.focus();
+        }
+      }
+      function clearError() {
+        errorEl.textContent = "";
+        nameEl.removeAttribute("aria-invalid");
+        emailEl.removeAttribute("aria-invalid");
+      }
+      [nameEl, emailEl].forEach(function (el) {
+        el.addEventListener("input", clearError);
+      });
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        // Two guards against a double send: one while the request is in
+        // flight, one for good once it has succeeded.
+        if (busy || finished) return;
+        clearError();
+
+        var name = nameEl.value.trim();
+        var email = emailEl.value.trim();
+        if (!name) return fail("Lütfen adını yaz.", nameEl);
+        // Deliberately loose: one @, something either side, a dot in the
+        // domain. Anything stricter rejects addresses that are actually valid.
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+          return fail("Geçerli bir e-posta adresi yaz.", emailEl);
+        }
+
+        busy = true;
+        button.disabled = true;
+        button.textContent = "Gönderiliyor…";
+
+        fetch("/api/booking", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            subject: "Gezeceyik — haber ver listesi",
+            name: name,
+            email: email,
+            message: "Çok yakında sayfasından kayıt: site açıldığında haber verilecek."
+          })
+        })
+          .then(function (r) {
+            return r.json().catch(function () { return { ok: r.ok }; });
+          })
+          .then(function (data) {
+            if (!data || !data.ok) throw new Error((data && data.error) || "Gönderilemedi");
+            finished = true;
+            swap.classList.add("is-fading");
+            setTimeout(function () {
+              form.hidden = true;
+              done.hidden = false;
+              swap.classList.remove("is-fading");
+            }, 220);
+          })
+          .catch(function () {
+            busy = false;
+            button.disabled = false;
+            button.textContent = "Haber Ver";
+            fail("Şu an gönderemedik. Biraz sonra tekrar dener misin?");
+          });
+      });
+    })();
+  </script>
 </body>
 </html>
