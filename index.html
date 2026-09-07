@@ -242,24 +242,18 @@
       filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.12));
     }
 
-/* Thailand is NOT marked in the opening world view. Once the scroll has
-   completed and the camera is in close (body.th-revealed), its borders light
-   up with a clear gold stroke and a gentle glow pulse — obvious at that zoom,
-   invisible clutter at world scale. The stroke is in CSS px and the map is
-   re-projected rather than scaled, so it stays a crisp 2px line. */
+/* Thailand is NOT marked in the opening world view. On the desktop cinematic
+   it is no longer marked with a glow at all — the destination sequence lifts
+   it out of its neighbours with a paper fill and an ink coast instead (see
+   body.th-deep further down). This gold treatment now only serves the
+   no-cinematic layouts: phones and reduced-motion. */
 @media (min-width: 760px) {
-  body.th-revealed #world-map path.country[data-country-id="764"],
   body.th-noanim #world-map path.country[data-country-id="764"] {
     fill: rgba(255, 214, 130, 0.16);
     stroke: #f2a65a;
     stroke-width: 2;
     stroke-linejoin: round;
-    /* --th-hl is driven per frame from the scroll: 1 on arrival, easing back
-       to 0 as the pinned scene scrolls away under the contact section. */
     opacity: var(--th-hl, 1);
-  }
-  body.th-revealed #world-map path.country[data-country-id="764"] {
-    animation: gentlePulse 3.2s ease-in-out infinite;
   }
 }
 
@@ -293,10 +287,10 @@
    Driven by thailandHeroZoom() in the scripts below. */
 .thailand-zoom-stage {
   position: relative;
-  /* 100vh of pin + ~70vh of (fast) zoom + ~260vh of pinned hold — see
-     ZOOM_VH in thailandHeroZoom. The hold is what makes the card view stay
-     put for three or four scrolls before the contact section takes over. */
-  height: 450vh;
+  /* One viewport tall: the camera is no longer driven by scroll position, so
+     no tall scroll runway is needed. Shots are requested by wheel gestures —
+     see the cinematic camera in thailandHeroZoom. */
+  height: 100vh;
   /* Below the header (z-index 1) so the scene slides under it on the way out,
      and below the contact section so that scrolls cleanly over the top. */
   z-index: 0;
@@ -328,57 +322,87 @@
 body.view-tour #thailand-route-svg,
 body.tour-detail-page #thailand-route-svg { display: none !important; }
 
-/* Dashed "cut line" route between the stops, marching toward the next city */
-.tz-route {
+/* --- Destination markers and cards ---------------------------------------
+   The three stops are presented together once the camera settles on Thailand.
+   They are annotations on the map, not scroll destinations: a precise dot at
+   the real location, a hairline leader, and a card in the site's own card
+   language. Built once and only re-positioned, never scaled by the camera. */
+.tz-leader {
   fill: none;
-  stroke: #e76f51;
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 9 11;
-  filter: drop-shadow(0 1px 2px rgba(20, 40, 25, 0.5));
-  animation: tzRouteDash 1.5s linear infinite;
+  stroke: #ffffff;
+  stroke-width: 1;
+  stroke-dasharray: 1;
+  /* The leader crosses cream land and dark sea, so it needs its own edge. */
+  filter: drop-shadow(0 0 2px rgba(6, 26, 36, 0.75));
 }
-@keyframes tzRouteDash {
-  to { stroke-dashoffset: -20; }
-}
-.tz-city-dot {
-  fill: #e76f51;
-  stroke: #fff;
-  stroke-width: 2.5;
-}
-.tz-city-pulse {
+.tz-dot { fill: var(--primary); }
+.tz-dot-ring {
   fill: none;
-  stroke: #e76f51;
-  stroke-width: 2;
-  transform-origin: center;
-  transform-box: fill-box;
-  animation: tzCityPulse 2.4s ease-out infinite;
+  stroke: #ffffff;
+  stroke-width: 1.6;
 }
-@keyframes tzCityPulse {
-  0%   { transform: scale(0.6); opacity: 0.75; }
-  70%  { transform: scale(2.1); opacity: 0; }
-  100% { transform: scale(2.1); opacity: 0; }
+
+#th-dest-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
 }
-.tz-city-pill {
-  fill: rgba(255, 255, 255, 0.97);
-  filter: drop-shadow(0 2px 4px rgba(12, 40, 20, 0.35));
+body.view-tour #th-dest-layer,
+body.tour-detail-page #th-dest-layer { display: none !important; }
+.tz-card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 186px;
+  padding: 0.6rem 0.85rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  will-change: transform, opacity;
 }
-.tz-city-name {
-  fill: #12433a;
-  font-family: Inter, system-ui, sans-serif;
-  font-size: 13px;
+.tz-card__n {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.6rem;
   font-weight: 700;
-  dominant-baseline: middle;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  margin-bottom: 0.28rem;
+}
+.tz-card__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--text-dark);
+}
+.tz-card__meta {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  color: var(--text-muted);
 }
 
-/* Camera zoom applies to the world map itself (scale/translate set inline by
-   JS); the blur + dim is the class-driven end state once we're "close". */
-/* The map is never blurred or dimmed — it stays as crisp on arrival as in
-   the first view (see thailandHeroZoom below).*/
-/* The map's focus-pull (blur/dim) and the landmark fade are driven inline,
-   frame by frame, from the scroll position — see thailandHeroZoom below. */
-
+/* --- Thailand on arrival --------------------------------------------------
+   Past ~3x the 8K terrain has to be upscaled on a retina screen, so the hero
+   country stops being a photograph: it takes a warm paper fill with a hairline
+   ink coast, which is vector and stays sharp. Its neighbours are left alone.
+   --th-paper is driven per frame from the master timeline. */
+body.th-deep #world-map path.country { transition: none; }
+body.th-deep #world-map path.country[data-country-id="764"] {
+  fill: rgb(226 214 190 / calc(var(--th-paper, 0) * 0.94));
+  stroke: rgb(26 44 54 / calc(var(--th-paper, 0) * 0.9));
+  stroke-width: 1.15;
+  stroke-linejoin: round;
+  opacity: 1;
+  filter: none;
+  animation: none;
+}
 /* --- Tour cards, now the right-hand panel inside the pinned frame --- */
 /* --- Desktop only: the pinned card panel beside the zoomed map. ------- */
 @media (min-width: 760px) {
@@ -6888,16 +6912,8 @@ body.th-noanim #thailand-route-svg { display: none; }
       // Beyond ~3.2x the 8K source has to be upscaled on a retina screen and
       // the map goes soft compared with the first view; this keeps it crisp.
       const ZOOM_MAX = 3.2;
-      // How much scroll the zoom itself takes, as a fraction of the viewport
-      // height: roughly one trackpad flick. Everything after it (the rest of
-      // the stage) is the pinned hold — several flicks with only a slight
-      // drift, so you can actually sit with the cards.
-      const ZOOM_VH = 0.9;
       const PAN_END = 0.6;       // Thailand has reached centre-frame by here
-      const REVEAL_ON = 0.7;     // cards arrive
-      const REVEAL_OFF = 0.62;   // hysteresis
       const REDRAW_MS = 120;     // real redraw at most this often *while* moving
-      const SMOOTH_TAU = 0.22;   // seconds — how lazily the scene follows the wheel
       const SETTLE_MS = 110;     // …and one final exact redraw once it stops
 
       const clamp01 = function (v) { return v < 0 ? 0 : v > 1 ? 1 : v; };
@@ -6912,118 +6928,179 @@ body.th-noanim #thailand-route-svg { display: none; }
       let settleTimer = 0;
       let lastCommit = 0;
 
-      // In trip order: the route is drawn Phuket -> Bangkok -> Chiang Mai.
-      const CITIES = [
-        { lonlat: [98.39, 7.88], name: "Phuket", side: "left" },
-        { lonlat: [100.50, 13.75], name: "Bangkok", side: "right" },
-        { lonlat: [98.98, 18.79], name: "Chiang Mai", side: "left" }
+      // --- The journey ----------------------------------------------------
+      // ONE cinematic move: world -> Thailand. camP is the master progress,
+      // 0 at the world view and 1 parked over Thailand. The camera, the
+      // destination cards, their leader lines and the paper wash are all pure
+      // functions of camP, so scrolling back up replays the identical
+      // animation in reverse. There is no separate reverse path, and there
+      // are no scroll stages beyond Thailand.
+      const Z_TH = ZOOM_MAX;
+
+      // The three stops are presented together on arrival, anchored to their
+      // real positions on the map. They are NOT scroll destinations: the
+      // camera never travels between them.
+      const DESTS = [
+        { key: "phuket", lonlat: [98.39, 7.88], n: "01",
+          name: { tr: "Phuket", en: "Phuket" },
+          meta: { tr: "Andaman kıyısı · 5 gece", en: "Andaman coast · 5 nights" },
+          dx: 118, dy: 104 },
+        { key: "bangkok", lonlat: [100.50, 13.75], n: "02",
+          name: { tr: "Bangkok", en: "Bangkok" },
+          meta: { tr: "Chao Phraya · 4 gece", en: "Chao Phraya · 4 nights" },
+          dx: 138, dy: 8 },
+        { key: "chiangmai", lonlat: [98.98, 18.79], n: "03",
+          name: { tr: "Chiang Mai", en: "Chiang Mai" },
+          meta: { tr: "Kuzey Tayland", en: "Northern Thailand" },
+          dx: 118, dy: -88 }
       ];
 
-      // The pins and labels are built ONCE and then only re-positioned, never
-      // scaled. Scaling the overlay along with the map was what made the names
-      // swell during the zoom and snap back on every redraw — chrome like this
-      // has to stay a fixed size on screen and just track its city.
-      let cityNodes = null;   // [{ group, base:{x,y} }]
-      let legNodes = null;    // [<path>]
+      // Cards and leaders are built ONCE and then only re-positioned, never
+      // scaled by the camera. Scaling chrome along with the map is what made
+      // the old names swell during the zoom and snap back on every redraw.
+      let routeDom = null;
+      let destLayer = null;
+
+      function lang() {
+        return document.documentElement.getAttribute("data-lang") === "en" ? "en" : "tr";
+      }
 
       function ensureRouteDom() {
-        if (cityNodes) return;
-        const NS = "http://www.w3.org/2000/svg";
-        routeSvg.innerHTML =
-          '<defs><marker id="tz-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">' +
-            '<path d="M0,1 L9,5 L0,9 z" fill="#e76f51"/>' +
-          "</marker></defs>";
-        legNodes = [];
-        for (let i = 0; i < CITIES.length - 1; i++) {
-          const pth = document.createElementNS(NS, "path");
-          pth.setAttribute("class", "tz-route");
-          pth.setAttribute("marker-end", "url(#tz-arrow)");
-          routeSvg.appendChild(pth);
-          legNodes.push(pth);
+        if (routeDom) return;
+        const L = lang();
+        routeSvg.innerHTML = DESTS.map(function () {
+          return '<g class="tz-anchor">' +
+            '<path class="tz-leader" pathLength="1"/>' +
+            '<circle class="tz-dot-ring" r="5.5"/>' +
+            '<circle class="tz-dot" r="2.4"/>' +
+          '</g>';
+        }).join("");
+
+        destLayer = document.getElementById("th-dest-layer");
+        if (!destLayer) {
+          destLayer = document.createElement("div");
+          destLayer.id = "th-dest-layer";
+          destLayer.setAttribute("aria-hidden", "true");
+          document.body.appendChild(destLayer);
         }
-        cityNodes = CITIES.map(function (c, i) {
-          const g = document.createElementNS(NS, "g");
-          const pulse = document.createElementNS(NS, "circle");
-          pulse.setAttribute("class", "tz-city-pulse");
-          pulse.setAttribute("r", "7");
-          pulse.style.animationDelay = (i * 0.18).toFixed(2) + "s";
-          const dot = document.createElementNS(NS, "circle");
-          dot.setAttribute("class", "tz-city-dot");
-          dot.setAttribute("r", "5");
-          const fs = 13, padX = 9;
-          const pw = c.name.length * fs * 0.56 + padX * 2;
-          const ph = fs + 11;
-          const label = document.createElementNS(NS, "g");
-          label.setAttribute(
-            "transform",
-            "translate(" + ((c.side === "left" ? -1 : 1) * (13 + pw / 2)).toFixed(1) + ",0)"
-          );
-          const pill = document.createElementNS(NS, "rect");
-          pill.setAttribute("class", "tz-city-pill");
-          pill.setAttribute("x", (-pw / 2).toFixed(1));
-          pill.setAttribute("y", (-ph / 2).toFixed(1));
-          pill.setAttribute("width", pw.toFixed(1));
-          pill.setAttribute("height", ph);
-          pill.setAttribute("rx", ph / 2);
-          const text = document.createElementNS(NS, "text");
-          text.setAttribute("class", "tz-city-name");
-          text.setAttribute("text-anchor", "middle");
-          text.textContent = c.name;
-          label.appendChild(pill);
-          label.appendChild(text);
-          g.appendChild(pulse);
-          g.appendChild(dot);
-          g.appendChild(label);
-          routeSvg.appendChild(g);
-          return { group: g, base: null };
+        destLayer.innerHTML = DESTS.map(function (d) {
+          return '<article class="tz-card">' +
+            '<span class="tz-card__n">' + d.n + '</span>' +
+            '<h3 class="tz-card__name">' + d.name[L] + '</h3>' +
+            '<p class="tz-card__meta" data-tr="' + d.meta.tr + '" data-en="' + d.meta.en + '">' +
+              d.meta[L] + '</p>' +
+          '</article>';
+        }).join("");
+
+        const groups = routeSvg.querySelectorAll(".tz-anchor");
+        const cards = destLayer.querySelectorAll(".tz-card");
+        routeDom = DESTS.map(function (d, i) {
+          return {
+            leader: groups[i].querySelector(".tz-leader"),
+            ring: groups[i].querySelector(".tz-dot-ring"),
+            dot: groups[i].querySelector(".tz-dot"),
+            card: cards[i]
+          };
         });
       }
 
-      // Record each city's position on the *base* (un-zoomed) map, so we can
-      // place it under any camera without asking the projection again.
+      // Record each stop's position on the *base* (un-zoomed) map, so it can be
+      // placed under any camera without asking the projection again.
       function measureCities() {
         const api = window.__gezMap;
         if (!api || !api.project || !api.getView) return;
         ensureRouteDom();
         const w = window.innerWidth, h = window.innerHeight;
         const v = api.getView();
-        CITIES.forEach(function (c, i) {
-          const p = api.project(c.lonlat);
-          if (!p || !isFinite(p[0]) || !isFinite(p[1])) return;
-          cityNodes[i].base = {
+        DESTS.forEach(function (d) {
+          const p = api.project(d.lonlat);
+          if (!p || !isFinite(p[0]) || !isFinite(p[1])) { d.base = null; return; }
+          d.base = {
             x: (p[0] - (w / 2 + v.tx)) / v.z + w / 2,
             y: (p[1] - (h / 2 + v.ty)) / v.z + h / 2
           };
         });
       }
 
-      // Position (never scale) the pins and redraw the legs for a given camera.
-      function layoutRoute(want) {
-        if (!cityNodes) return;
+      // --- The page leg (Thailand -> contact) -----------------------------
+      // The wheel never moves the page directly here either: the scroll offset
+      // is a function of the master progress, exactly like the camera is.
+      let contactY = 0;         // scroll offset that frames the contact section
+      let lastPageY = null;     // last offset this code wrote
+
+      function measureContact() {
+        const el = document.getElementById("contactFormSection");
+        if (!el) { contactY = 0; return; }
+        const top = el.getBoundingClientRect().top + window.scrollY;
+        const max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+        contactY = Math.min(Math.round(top), max);
+      }
+
+      function restScrollOf(i) {
+        return SHOTS[i] && SHOTS[i].key === "contact" ? contactY : 0;
+      }
+
+      // Only ever write while a shot is flying, or when the target has actually
+      // moved. Writing every frame would fight a reader who scrolled the page
+      // by some other means while the camera is parked.
+      function applyPageScroll(pageP, force) {
+        if (!contactY) measureContact();
+        const y = Math.round(pageP * contactY);
+        if (!force && y === lastPageY) return;
+        lastPageY = y;
+        // behavior:"instant" matters: the stylesheet sets scroll-behavior to
+        // smooth, and the browser's own smoothing would fight this tween.
+        window.scrollTo({ top: y, left: 0, behavior: "instant" });
+      }
+
+      function screenOf(want, b) {
         const w = window.innerWidth, h = window.innerHeight;
-        const ax = w / 2 + want.tx, ay = h / 2 + want.ty;
-        const pts = [];
-        cityNodes.forEach(function (n) {
-          if (!n.base) { pts.push(null); return; }
-          const x = ax + want.z * (n.base.x - w / 2);
-          const y = ay + want.z * (n.base.y - h / 2);
-          n.group.setAttribute("transform", "translate(" + x.toFixed(1) + "," + y.toFixed(1) + ")");
-          pts.push({ x: x, y: y });
-        });
-        for (let i = 0; i < legNodes.length; i++) {
-          const a = pts[i], b = pts[i + 1];
-          if (!a || !b) { legNodes[i].removeAttribute("d"); continue; }
-          const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-          const dx = b.x - a.x, dy = b.y - a.y;
-          const len = Math.sqrt(dx * dx + dy * dy) || 1;
-          const bow = Math.min(30, len * 0.17);
-          const qx = mx + (-dy / len) * bow, qy = my + (dx / len) * bow;
-          legNodes[i].setAttribute(
+        return {
+          x: w / 2 + want.tx + want.z * (b.x - w / 2),
+          y: h / 2 + want.ty + want.z * (b.y - h / 2)
+        };
+      }
+
+      // Lay the cards out beside their cities for a given camera and a given
+      // point on the master timeline. Pure function of (want, tv) — nothing
+      // accumulates, so reverse costs nothing.
+      function layoutRoute(want, tv) {
+        if (!routeDom) return;
+        DESTS.forEach(function (d, i) {
+          const n = routeDom[i];
+          if (!d.base) { n.card.style.opacity = "0"; return; }
+          const at = screenOf(want, d.base);
+          const cx = at.x + d.dx, cy = at.y + d.dy;
+
+          // Staggered in trip order, over the last third of the approach.
+          const from = CARD_FROM + i * CARD_STAGGER;
+          const t = smooth(clamp01((tv - from) / CARD_SPAN));
+          // The anchor lands a little before its card, so the card arrives at
+          // a point on the map that is already marked.
+          const a = smooth(clamp01((tv - (from - 0.1)) / CARD_SPAN));
+
+          n.dot.setAttribute("cx", at.x.toFixed(1));
+          n.dot.setAttribute("cy", at.y.toFixed(1));
+          n.ring.setAttribute("cx", at.x.toFixed(1));
+          n.ring.setAttribute("cy", at.y.toFixed(1));
+          n.dot.style.opacity = a.toFixed(3);
+          n.ring.style.opacity = (a * 0.55).toFixed(3);
+
+          // The leader runs from the dot to the card's inner edge, drawing
+          // itself outward as the card comes in.
+          n.leader.setAttribute(
             "d",
-            "M" + a.x.toFixed(1) + "," + a.y.toFixed(1) +
-            " Q" + qx.toFixed(1) + "," + qy.toFixed(1) + " " + b.x.toFixed(1) + "," + b.y.toFixed(1)
+            "M" + at.x.toFixed(1) + "," + at.y.toFixed(1) +
+            " L" + (cx - 10).toFixed(1) + "," + cy.toFixed(1)
           );
-        }
+          n.leader.setAttribute("stroke-dashoffset", (1 - a).toFixed(4));
+          n.leader.style.opacity = (a * 0.7).toFixed(3);
+
+          n.card.style.transform =
+            "translate(" + (cx + (1 - t) * 14).toFixed(1) + "px," +
+            (cy - 26).toFixed(1) + "px)";
+          n.card.style.opacity = t.toFixed(3);
+        });
       }
 
       function measure() {
@@ -7051,16 +7128,14 @@ body.th-noanim #thailand-route-svg { display: none; }
         };
       }
 
-      function viewFor(progress, hold) {
+      // The camera path. One leg: world -> Thailand, unchanged.
+      function viewFor(progress) {
         const w = window.innerWidth, h = window.innerHeight;
-        hold = hold || 0;
-        // During the hold the camera keeps creeping in a touch and the map
-        // eases upward a little, so the scene never feels frozen.
-        const z = (1 + easeOut(progress) * (ZOOM_MAX - 1)) * (1 + 0.05 * hold);
-        const panE = easeOut(clamp01(progress / PAN_END));
-        const tgtX = geo.bx + (geo.targetX - geo.bx) * panE - 12 * hold;
-        const tgtY = geo.by + (geo.targetY - geo.by) * panE - 34 * hold;
-        // Thailand sits at (w/2+tx) + z*(bx - w/2); solve for tx so it lands on target.
+        const u = clamp01(progress);
+        const z = 1 + easeOut(u) * (Z_TH - 1);
+        const panE = easeOut(clamp01(u / PAN_END));
+        const tgtX = geo.bx + (geo.targetX - geo.bx) * panE;
+        const tgtY = geo.by + (geo.targetY - geo.by) * panE;
         return {
           z: z,
           tx: tgtX - w / 2 - z * (geo.bx - w / 2),
@@ -7096,35 +7171,92 @@ body.th-noanim #thailand-route-svg { display: none; }
 
       let revealed = false;
 
-      // ---- Scroll smoothing ------------------------------------------------
-      // A mouse wheel moves in notches. If the camera tracked scrollY exactly,
-      // every notch would show as a jump — and trigger a sharp redraw (a small
-      // hitch) on top. So the scene follows a *smoothed* copy of the scroll
-      // position: `target` is read straight from the page, `cur` glides toward
-      // it every frame with a short time constant. Notches become motion.
-      const target = { p: 0, hold: 0, exit: 0, rectBottom: 0 };
-      const cur = { p: 0, hold: 0, exit: 0 };
+      // ---- Cinematic camera ------------------------------------------------
+      // The wheel does NOT drive the camera. One intentional scroll requests
+      // the next shot; the camera then flies it on its own clock — brief
+      // anticipation, a long eased move, then it settles. Input is locked for
+      // the whole shot so a flurry of wheel events can't skip ahead.
+      // The stops on the master timeline. One value drives everything:
+      //   0 .. 1  the camera flies from the world view onto Thailand
+      //   1 .. 2  the page itself travels from Thailand to the contact section
+      // Both legs are flown by the same state machine, the same easing and the
+      // same input rules — the second leg simply moves a different thing.
+      const SHOTS = [
+        { key: "world",    p: 0, ms: 0 },
+        { key: "thailand", p: 1, ms: 2100 },
+        { key: "contact",  p: 2, ms: 1700 }
+      ];
+      const ANTICIPATION = 240;   // ms of held breath before the camera moves
+      const SHOT_MS = 2100;       // default leg length
+      const COOLDOWN = 260;       // ms after arrival before another shot is taken
+      const QUIET_MS = 140;       // wheel must go quiet this long before re-arming
+      // The cards used to be triggered on arrival, so their 0.8s entrance only
+      // started once the camera had already stopped. Starting them at 78% of
+      // the travel overlaps the entrance with the last of the camera move.
+      const REVEAL_AT = 0.78;
+      let P_REVEAL = 1;           // set once the easing below is defined
+      // The destination cards come in over the last third of the approach, in
+      // trip order. These are fractions of the shot's TIME, not of the eased
+      // progress, so "from 70%" means what it says on the clock.
+      const CARD_FROM = 0.7;
+      const CARD_STAGGER = 0.06;
+      const CARD_SPAN = 0.18;   // last card lands exactly on arrival
+
+      let phase = 0;              // which stop we are parked on
+      let cooldownUntil = 0;      // no new shot before this timestamp
+      let shot = null;            // { fromP, toP, startAt, dir }
+      let camP = 0;               // the camera's own position, 0..1
+      let lastWheelAt = 0;
+      let armed = true;           // false until the wheel goes quiet again
+      let shotTimer = 0;          // guarantees a shot ends even without rAF
+
+      // The pointer has NO effect on the scene. No parallax, no orbit, no
+      // rotation, no offset of any kind. The camera is driven by the scroll
+      // timeline alone, and the map, the markers and the cards move only
+      // because the camera moves. Nothing here reads clientX/clientY.
+
+      // Cinematic easings. Nothing here is linear.
+      // Share of the distance covered in the first 20% / middle 60% / last 20%:
+      //   expo.inOut    0.8% / 98.4% / 0.8%   peak 6.9x  — ends feel dead
+      //   power4.inOut  1.3% / 97.4% / 1.3%   peak 4.0x
+      //   power3.inOut  3.2% / 93.6% / 3.2%   peak 3.0x  — slow start you can
+      //                                                    read, real accel,
+      //                                                    unhurried settle
+      function easeInOutExpo(t) {
+        if (t <= 0) return 0;
+        if (t >= 1) return 1;
+        return t < 0.5
+          ? Math.pow(2, 20 * t - 10) / 2
+          : (2 - Math.pow(2, -20 * t + 10)) / 2;
+      }
+      function easeInOutPower4(t) {
+        return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
+      }
+      function easeInOutPower3(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      }
+      // Used only when a gesture reverses a shot in flight.
+      function easeOutPower3(t) { return 1 - Math.pow(1 - t, 3); }
+      // Swap this for easeInOutPower4 / easeInOutExpo to firm up the curve.
+      const shotEase = easeInOutPower3;
+      // The point on the timeline that 78% of the world -> Thailand leg lands
+      // on. Testing camP rather than the tween's own t is what makes the cards
+      // reverse for free: it holds however the camera got there.
+      P_REVEAL = shotEase(REVEAL_AT);
+
+      // camP is eased, so a threshold on it does not correspond to a share of
+      // the shot's duration. Inverting the ease recovers that share, and it is
+      // still a pure function of camP — the card reveal reverses for free.
+      function timeOf(p) {
+        if (p <= 0) return 0;
+        if (p >= 1) return 1;
+        return p < 0.5
+          ? Math.cbrt(p / 4)
+          : 1 - Math.cbrt(2 * (1 - p)) / 2;
+      }
+
       let looping = false;
       let lastTick = 0;
-      let prevP = 0;            // to tell which way the camera is travelling
-
-      function readScroll() {
-        const vh = window.innerHeight;
-        const total = stage.offsetHeight - vh;         // all scrollable stage px
-        const rect = stage.getBoundingClientRect();
-        const scrolled = -rect.top;                    // px scrolled into the stage
-        const zoomDist = Math.max(200, vh * ZOOM_VH);
-        // p: the zoom (0→1 over roughly one flick). hold: 0→1 across the long
-        // pinned stretch that follows, used only for the slight drift.
-        target.p = clamp01(scrolled / zoomDist);
-        target.hold = clamp01((scrolled - zoomDist) / Math.max(1, total - zoomDist));
-        // exit: the pinned scene leaving under the contact section.
-        target.exit = clamp01((vh - rect.bottom) / (vh * 0.35));
-      }
-
-      function snapToTarget() {
-        cur.p = target.p; cur.hold = target.hold; cur.exit = target.exit;
-      }
 
       function startLoop() {
         if (looping) return;
@@ -7136,74 +7268,93 @@ body.th-noanim #thailand-route-svg { display: none; }
       function tick(now) {
         const dt = Math.min(0.05, Math.max(0.001, (now - lastTick) / 1000));
         lastTick = now;
-        const a = 1 - Math.exp(-dt / SMOOTH_TAU);      // frame-rate independent
-        cur.p += (target.p - cur.p) * a;
-        cur.hold += (target.hold - cur.hold) * a;
-        cur.exit += (target.exit - cur.exit) * a;
-        const settled =
-          Math.abs(target.p - cur.p) < 0.0006 &&
-          Math.abs(target.hold - cur.hold) < 0.0006 &&
-          Math.abs(target.exit - cur.exit) < 0.0006;
-        if (settled) snapToTarget();
-        render(settled);
-        if (settled) { looping = false; }
-        else requestAnimationFrame(tick);
+
+        let busy = false;
+
+        // --- the shot (translation + zoom only) ------------------------------
+        if (shot) {
+          const elapsed = now - shot.startAt;
+          if (elapsed < 0) {
+            busy = true;                       // still in the anticipation beat
+          } else {
+            const t = Math.min(1, elapsed / (shot.ms || SHOT_MS));
+            // Position eases expo — slow to leave, fast through the middle,
+            // a long glide into the final frame.
+            camP = shot.fromP + (shot.toP - shot.fromP) * (shot.ease || shotEase)(t);
+            if (t >= 1) {
+              completeShot();
+            } else {
+              busy = true;
+            }
+          }
+        }
+
+        render();
+
+        if (busy) {
+          requestAnimationFrame(tick);
+        } else {
+          looping = false;
+          render(true);            // one last exact frame, then redraw sharp
+        }
       }
 
-      // Draw one frame of the scene for the current (smoothed) values.
+      // Draw one frame for the camera's current position.
       function render(settled) {
         if (document.body.classList.contains("view-tour")) return;
         if (!geo) { measure(); if (!geo) return; }
 
-        const progress = cur.p, hold = cur.hold, exit = cur.exit;
-        const want = viewFor(progress, hold);
-        document.body.style.setProperty("--th-drift", (-36 * hold).toFixed(1) + "px");
+        // The camera owns 0..1 and the page owns 1..2. Splitting the master
+        // value here is the whole of the change: everything below this line
+        // that used to read camP now reads camView, so the world -> Thailand
+        // leg renders exactly as it did.
+        const camView = camP < 1 ? camP : 1;
+        applyPageScroll(camP > 1 ? camP - 1 : 0, !!shot);
 
-        // Real, sharp redraw straight from the 8K source. While moving we do
-        // it sparingly (throttled, and only once the zoom has actually changed
-        // — a pure pan is lossless as a transform); zooming OUT is redrawn
-        // sooner, because a shrinking interim transform would expose the page
-        // around the map. When the motion settles, one exact final redraw.
-        // Render slightly AHEAD in the direction of travel. Going out, that
-        // means drawing a little further out than we need, so the interim
-        // transform only ever scales UP — which always covers the frame. Left
-        // to itself, zooming out shrinks the drawn map until it runs past the
-        // bleed and has to force a synchronous redraw (~every 12% of zoom),
-        // and those forced redraws were the judder on the way back up.
-        const outward = progress < prevP - 0.0004;
-        prevP = progress;
-        const commitWant = outward ? viewFor(Math.max(0, progress - 0.1), hold) : want;
+        const want = viewFor(camView);
+        const base = want;
 
         const now = performance.now();
         clearTimeout(settleTimer);
         if (settled) {
-          settleTimer = setTimeout(function () { commitView(want, "settle"); }, SETTLE_MS);
+          settleTimer = setTimeout(function () { commitView(base, "settle"); }, SETTLE_MS);
         } else if (now - lastCommit >= REDRAW_MS) {
-          commitView(commitWant, "motion");
+          commitView(base, "motion");
         }
-        // Safety valve, now rarely needed: only if a very fast flick still
-        // outruns the bleed before the next scheduled redraw.
-        if (want.z / drawn.z < 0.88) commitView(commitWant, "force");
 
+        // Translation + scale only — never a rotation, so the geographic
+        // orientation stays fixed all the way in. This transform is a pure
+        // function of the scroll timeline; no pointer term is added to it.
         const dt = deltaTransform(want);
         worldMapBg.style.transformOrigin = "0 0";
         worldMapBg.style.transform = dt;
         worldMapBg.style.filter = "none";
         worldMapBg.style.opacity = "1";
 
-        // Pins/labels are re-positioned, never transformed, so the names keep
-        // one constant size all the way in and simply fade up as we approach —
-        // and back out as the pinned scene leaves under the contact form.
-        layoutRoute(want);
-        routeSvg.style.opacity = String(clamp01((progress - 0.3) / 0.32) * (1 - exit));
-        document.body.style.setProperty("--th-hl", (clamp01((progress - 0.72) / 0.14) * (1 - exit)).toFixed(3));
+        // The destination cards ride the last third of the approach. Driving
+        // them off the timeline rather than off an arrival event is what makes
+        // them reverse without a second animation.
+        layoutRoute(want, timeOf(camView));
+        routeOpacity = smooth(clamp01((camView - 0.5) / 0.22));
+        applyExitFade();
 
-        // The landmark icons are glued to the map, so they do scale with it —
-        // they're faded out well before the zoom could balloon them.
+        // The tour panel keeps its own entrance, triggered 22% before arrival.
+        const showCards = camView >= P_REVEAL;
+        if (showCards !== revealed) {
+          revealed = showCards;
+          document.body.classList.toggle("th-revealed", showCards);
+        }
+
+        // Thailand lifts out of its neighbours as the camera arrives: a paper
+        // fill and an ink coast rather than the old gold glow.
+        const paper = smooth(clamp01((camView - 0.55) / 0.5));
+        document.body.classList.toggle("th-deep", camView > 0.55);
+        document.body.style.setProperty("--th-paper", paper.toFixed(3));
+
         if (!gfxLandmarksEl) gfxLandmarksEl = document.querySelector("svg.gfx-landmarks");
         if (!flightSvg) flightSvg = document.getElementById("flight-path-svg");
         const bt = baseTransform(want);
-        const overlayFade = 1 - smooth(clamp01((progress - 0.08) / 0.22));
+        const overlayFade = 1 - smooth(clamp01((camView - 0.08) / 0.22));
         [gfxLandmarksEl, flightSvg].forEach(function (el) {
           if (!el) return;
           el.style.transformOrigin = "0 0";
@@ -7213,13 +7364,152 @@ body.th-noanim #thailand-route-svg { display: none; }
           el.style.visibility = overlayFade < 0.01 ? "hidden" : "visible";
         });
 
-        document.body.classList.toggle("th-zooming", progress > 0.02);
-        if (!revealed && progress >= REVEAL_ON) {
-          revealed = true;
-          document.body.classList.add("th-revealed");
-        } else if (revealed && progress <= REVEAL_OFF) {
-          revealed = false;
-          document.body.classList.remove("th-revealed");
+        document.body.classList.toggle("th-zooming", camView > 0.02);
+      }
+
+      // Land the shot: snap to the final frame, then hold off new input for
+      // the cooldown. Called by the render loop when the tween ends, and by a
+      // timer as a backstop — a background tab throttles requestAnimationFrame,
+      // and without it the shot would never finish.
+      // The cooldown is a TIMESTAMP, not a flag cleared by a timer: a dropped
+      // timer used to leave `locked` true forever and trap the camera.
+      function completeShot() {
+        if (!shot) return;
+        clearTimeout(shotTimer);
+        camP = shot.toP;
+        shot = null;
+        cooldownUntil = performance.now() + COOLDOWN;
+        phase = SHOTS.findIndex(function (sh) { return sh.p === camP; });
+        if (phase < 0) phase = 0;
+        render(true);
+      }
+
+      // Ask for the next (or previous) stop on the master timeline.
+      function requestShot(dir) {
+        const now = performance.now();
+        if (shot) {
+          // Already moving. Same way: ignore. Opposite way: turn the camera
+          // around from wherever it has got to, on the same timeline — never a
+          // second animation, and never a wait for the first one to land.
+          const forward = shot.toP > shot.fromP;
+          if ((dir > 0) === forward) return false;
+          const backIdx = shot.fromIdx;
+          const span = Math.abs(shot.toP - shot.fromP) || 1;
+          const left = Math.abs(camP - SHOTS[backIdx].p);
+          clearTimeout(shotTimer);
+          const ms = Math.max(420, shot.ms * (left / span));
+          shot = {
+            fromP: camP, toP: SHOTS[backIdx].p,
+            fromIdx: shot.toIdx, toIdx: backIdx,
+            ms: ms,
+            // The camera is already travelling, so a turn-around must not
+            // start from a standstill: ease OUT of the speed it already has.
+            ease: easeOutPower3,
+            startAt: now
+          };
+          shotTimer = setTimeout(completeShot, ms + 80);
+          startLoop();
+          return true;
+        }
+        if (now < cooldownUntil) return false;
+        const next = phase + dir;
+        if (next < 0 || next >= SHOTS.length) return false;
+        // The leg's own length, whichever way it is travelled.
+        const legMs = SHOTS[Math.max(next, phase)].ms || SHOT_MS;
+        shot = {
+          fromP: camP,
+          toP: SHOTS[next].p,
+          fromIdx: phase,
+          toIdx: next,
+          ms: legMs,
+          startAt: now + ANTICIPATION
+        };
+        measureContact();
+        clearTimeout(shotTimer);
+        shotTimer = setTimeout(completeShot, ANTICIPATION + legMs + 80);
+        startLoop();
+        return true;
+      }
+
+      // Nothing here may touch the page while the tour view is up: the stage is
+      // hidden then, and swallowing the wheel would strand the reader on a page
+      // the cinematic is not even drawing.
+      function dormant() {
+        return document.body.classList.contains("view-tour") ||
+               document.body.classList.contains("tour-detail-page");
+      }
+
+      // The cinematic owns a gesture ONLY in the direction it still has
+      // somewhere to go. Downward past the last stop, and upward at the world
+      // view, belong to the page. That asymmetry is what makes it impossible to
+      // get trapped in here: there is always a direction that scrolls out.
+      function ownsWheel(dy) {
+        if (dormant()) return false;
+        if (shot) return true;
+        if (dy > 0) return phase < SHOTS.length - 1;   // stops still ahead
+        // Upward: if the reader has scrolled past this stop's own resting
+        // offset (below the contact section, say), give the page its scroll
+        // back until they are level with the stop again.
+        if (window.scrollY > restScrollOf(phase) + 2) return false;
+        return phase > 0;                              // then step back a stop
+      }
+
+      function onWheel(e) {
+        const now = performance.now();
+        // Trackpad momentum arrives as a long tail of events after the flick.
+        // Re-arm only once the wheel has genuinely gone quiet.
+        if (now - lastWheelAt > QUIET_MS) armed = true;
+        lastWheelAt = now;
+
+        // Last resort: a shot that has outlived its own clock has failed
+        // somehow. Never let a stale one hold the wheel hostage.
+        if (shot && now - shot.startAt > shot.ms + 1500) completeShot();
+
+        if (Math.abs(e.deltaY) < 4) return;
+        if (!ownsWheel(e.deltaY)) return;   // the page scrolls normally
+        e.preventDefault();
+        if (!armed) return;
+
+        armed = false;                      // one shot per intentional gesture
+        requestShot(e.deltaY > 0 ? 1 : -1);
+      }
+
+      // Touch: same rule, one swipe = one shot. dy > 0 is a swipe up, i.e.
+      // scrolling down.
+      let touchY = null;
+      function onTouchStart(e) { touchY = e.touches && e.touches[0] ? e.touches[0].clientY : null; }
+      function onTouchMove(e) {
+        if (touchY === null) return;
+        const y = e.touches && e.touches[0] ? e.touches[0].clientY : touchY;
+        const dy = touchY - y;
+        if (Math.abs(dy) < 24) return;
+        if (!ownsWheel(dy)) return;
+        e.preventDefault();
+        touchY = y;
+        requestShot(dy > 0 ? 1 : -1);
+      }
+      function onTouchEnd() { touchY = null; }
+
+      // The wheel handler now does the stepping in both directions, so this is
+      // only the overlay fade. It used to re-arm the previous shot from here,
+      // which fired on the way down as well and yanked the camera backwards.
+      function onScroll() {
+        applyExitFade();
+      }
+
+      // The scene is drawn in fixed overlays, so it would otherwise hang over
+      // the contact section once the stage has scrolled past. Fade it out with
+      // the stage rather than pinning it to the camera.
+      let routeOpacity = 0;
+      function applyExitFade() {
+        const r = stage.getBoundingClientRect();
+        const f = clamp01(r.bottom / (window.innerHeight * 0.55));
+        const vis = f < 0.01 ? "hidden" : "visible";
+        routeSvg.style.opacity = String(routeOpacity * f);
+        routeSvg.style.visibility = vis;
+        if (destLayer) {
+          destLayer.style.opacity = f.toFixed(3);
+          destLayer.style.visibility = vis;
         }
       }
 
@@ -7229,7 +7519,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         if (document.body.classList.contains("view-tour")) return;
         const dz = Math.abs(want.z - drawn.z) / drawn.z;
         const dtx = Math.abs(want.tx - drawn.tx), dty = Math.abs(want.ty - drawn.ty);
-        if (mode === "motion" && dz < 0.06) return;              // small/pan-only: transform is fine
+        if (mode === "motion" && dz < 0.06) return;
         if (mode === "settle" && dz < 0.002 && dtx < 0.5 && dty < 0.5) return;
         drawn = { z: want.z, tx: want.tx, ty: want.ty };
         lastCommit = performance.now();
@@ -7237,41 +7527,59 @@ body.th-noanim #thailand-route-svg { display: none; }
       }
 
       function onMapReady() {
-        // The map just redrew at `drawn`, so the interim transform is now the
-        // identity and the cities can be re-measured against the live map.
         worldMapBg.style.transform = "none";
         measureCities();
         measure();
-        render(!looping);   // draw the correct frame right away, then keep gliding
-        startLoop();
+        render(!looping);
       }
 
-      function onScroll() {
-        readScroll();
-        startLoop();
-      }
-
-      // Anything that invalidates geometry (resize/zoom, coming back from a
-      // tour page) snaps straight to the true position and redraws for real —
-      // no glide, no stale transform.
       function syncNow() {
         clearTimeout(settleTimer);
         measure(); measureCities();
-        readScroll(); snapToTarget();
-        if (geo) commitView(viewFor(cur.p, cur.hold), "force");
+        measureContact();
+        if (geo) commitView(viewFor(camP < 1 ? camP : 1), "force");
+        applyPageScroll(camP > 1 ? camP - 1 : 0, true);
         render(true);
       }
 
       document.addEventListener("gezeceyik-map-ready", onMapReady);
       measure();
       measureCities();
+      window.addEventListener("wheel", onWheel, { passive: false });
+      window.addEventListener("touchstart", onTouchStart, { passive: true });
+      window.addEventListener("touchmove", onTouchMove, { passive: false });
+      window.addEventListener("touchend", onTouchEnd, { passive: true });
       window.addEventListener("scroll", onScroll, { passive: true });
       window.addEventListener("resize", syncNow, { passive: true });
       document.addEventListener("gezeceyik-view", function () {
-        if (document.body.classList.contains("view-tour")) { clearTimeout(settleTimer); return; }
+        if (dormant()) {
+          // Leaving for the tour view: drop everything in flight so nothing is
+          // left half-locked when the reader comes back.
+          clearTimeout(settleTimer);
+          clearTimeout(shotTimer);
+          shot = null;
+          armed = true;
+          cooldownUntil = 0;
+          return;
+        }
         syncNow();
       });
-      readScroll(); snapToTarget(); render(true);
+      // Debug handle for inspection.
+      window.__cam = {
+        phase: function () { return phase; },
+        camP: function () { return camP; },
+        locked: function () { return !!shot; },
+        go: function (d) { return requestShot(d); },
+        // Jump the master timeline straight to a value, for inspection.
+        set: function (p) { const last = SHOTS[SHOTS.length - 1].p;
+          camP = p < 0 ? 0 : p > last ? last : p;
+          phase = SHOTS.reduce(function (a, sh, i) {
+          return Math.abs(sh.p - camP) < Math.abs(SHOTS[a].p - camP) ? i : a; }, 0);
+          render(true); return camP; },
+        stops: SHOTS,
+        timings: { ANTICIPATION: ANTICIPATION, SHOT_MS: SHOT_MS, COOLDOWN: COOLDOWN }
+      };
+      render(true);
     })();
 
     }); /* DOMContentLoaded: d3 map + city markers */
