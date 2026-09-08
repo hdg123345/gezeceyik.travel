@@ -217,7 +217,39 @@
       /* The source imagery is already vivid; saturating it further made the
          greens read acid. Easing it back and lifting contrast a touch reads
          filmic instead, and lets the sea and the cream UI carry the colour. */
-      filter: saturate(0.93) contrast(1.07) brightness(0.99);
+      /* --th-boost lifts Thailand out of the map as the camera arrives. It is
+         applied to the whole terrain and then pulled back off everywhere
+         except Thailand by the #th-dim wash below, so the difference reads as
+         light falling on the destination rather than a selection highlight. */
+      filter:
+        saturate(calc(0.93 + 0.40 * var(--th-boost, 0)))
+        contrast(calc(1.07 + 0.08 * var(--th-boost, 0)))
+        brightness(calc(0.99 + 0.16 * var(--th-boost, 0)));
+    }
+
+    /* --- Soft east/west edges ------------------------------------------
+       The projected world is 2pi/6.5 of the viewport wide, so its antimeridian
+       always lands 1.67% of the viewport in from each side, whatever the
+       screen. Left unmasked, the land is chopped by a hard vertical line
+       there. This fades the drawn map out horizontally so it dissolves into
+       the ocean gradient instead — the gradient itself is on the parent and is
+       deliberately NOT masked, so nothing brightens at the edges.
+       Stops are in vw against a layer that starts 15vw off-screen: 17vw and
+       113vw are exactly the two map boundaries, 30vw and 100vw are where the
+       map reaches full opacity. Horizontal only: top and bottom untouched. */
+    #world-map-terrain,
+    #world-map {
+      --edge-fade: linear-gradient(
+        to right,
+        transparent 0,
+        transparent 17vw,
+        #000 30vw,
+        #000 100vw,
+        transparent 113vw,
+        transparent 130vw
+      );
+      -webkit-mask-image: var(--edge-fade);
+      mask-image: var(--edge-fade);
     }
 
     #world-map {
@@ -502,15 +534,23 @@ body.tour-detail-page #th-dest-layer { display: none !important; }
 }
 
 /* --- Thailand on arrival --------------------------------------------------
-   Past ~3x the 8K terrain has to be upscaled on a retina screen, so the hero
-   country stops being a photograph: it takes a warm paper fill with a hairline
-   ink coast, which is vector and stays sharp. Its neighbours are left alone.
-   --th-paper is driven per frame from the master timeline. */
+   A dark wash over the whole map with Thailand cut out of it. The terrain
+   underneath is untouched inside that cut, so Thailand keeps its real
+   geography and simply stays brighter than everything around it. Both this
+   and --th-boost are pure functions of the scroll progress, so the effect
+   unwinds on the way back out without a second animation. */
+#th-dim {
+  fill: #05131d;
+  opacity: calc(var(--th-dim, 0) * 0.58);
+  pointer-events: none;
+}
 body.th-deep #world-map path.country { transition: none; }
 body.th-deep #world-map path.country[data-country-id="764"] {
-  fill: rgb(231 223 208 / calc(var(--th-paper, 0) * 0.94));
-  stroke: rgb(18 36 46 / calc(var(--th-paper, 0) * 0.92));
-  stroke-width: 1.15;
+  /* No fill: the point is to see Thailand's own terrain. Just a fine coast
+     so the shape stays unmistakable at close range. */
+  fill: none;
+  stroke: rgb(14 32 42 / calc(var(--th-lift, 0) * 0.8));
+  stroke-width: 1.1;
   stroke-linejoin: round;
   opacity: 1;
   filter: none;
@@ -537,6 +577,34 @@ body.th-deep #world-map path.country[data-country-id="764"] {
 #thailand-zoom-viewport > #landing.upcoming-tour-section::before { display: none; }
 #thailand-zoom-viewport > #landing .landing__intro { margin-bottom: 1rem; text-align: left; }
 #thailand-zoom-viewport > #landing .landing__intro h2 { font-size: clamp(1.2rem, 2.4vw, 1.6rem); }
+
+/* In the pinned panel this heading sits straight on the satellite map, where
+   the site's ink-on-paper colours all but vanish. Inside the cinematic it gets
+   a warm ivory label — the same surface and shadow tokens the cards use, just
+   translucent enough for the map to read through it. Sized to its own content
+   so it stays a label rather than a bar, and aligned with the cards below.
+   The static layouts (phones, reduced motion) keep the plain original. */
+body:not(.th-noanim) #thailand-zoom-viewport > #landing .landing__intro {
+  width: fit-content;
+  max-width: 100%;
+  align-self: flex-start;
+  padding: 0.62rem 1.15rem 0.7rem;
+  border-radius: 14px;
+  background: rgba(253, 252, 250, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  /* the site's own teal-tinted shadow, softened — no black */
+  box-shadow: 0 10px 30px rgba(15, 76, 92, 0.1);
+  backdrop-filter: blur(7px) saturate(115%);
+  -webkit-backdrop-filter: blur(7px) saturate(115%);
+}
+body:not(.th-noanim) #thailand-zoom-viewport > #landing .landing__intro h2 {
+  font-weight: 700;
+  color: var(--text-dark);
+}
+body:not(.th-noanim) #thailand-zoom-viewport > #landing .landing__intro p,
+body:not(.th-noanim) #thailand-zoom-viewport > #landing .landing__intro .subtitle {
+  color: var(--text-muted);
+}
 #thailand-zoom-viewport > #landing .tour-cards-grid {
   grid-template-columns: repeat(2, 1fr);
   gap: clamp(0.6rem, 1vw, 1rem);
@@ -6046,6 +6114,21 @@ body.th-noanim #thailand-route-svg { display: none; }
       const BLEED = 0.15;
       function bleedOf(w, h) { return { bx: Math.round(w * BLEED), by: Math.round(h * BLEED) }; }
 
+      // Keep the wash covering the whole bled box and its cut-out sitting on
+      // Thailand, for whatever camera the map has just been projected at.
+      let thailandFeature = null;
+      function sizeSpotlight(W, H) {
+        const bg = document.getElementById("th-spot-bg");
+        const cut = document.getElementById("th-spot-cut");
+        const dim = document.getElementById("th-dim");
+        if (!bg || !cut || !dim) return;
+        bg.setAttribute("width", W);
+        bg.setAttribute("height", H);
+        dim.setAttribute("width", W);
+        dim.setAttribute("height", H);
+        if (thailandFeature) cut.setAttribute("d", path(thailandFeature) || "");
+      }
+
       function applyView(w, h) {
         if (!(w > 1) || !(h > 1)) return;
         const b = bleedOf(w, h);
@@ -6054,6 +6137,7 @@ body.th-noanim #thailand-route-svg { display: none; }
           .translate([w / 2 + viewTx + b.bx, h / 2 + viewTy + b.by]);
         d3.select(mapSvg).attr("viewBox", "0 0 " + W + " " + H);
         countrySelection.attr("d", path);
+        sizeSpotlight(W, H);
         renderTerrainCanvas(w, h, b.bx, b.by);
         clearHover();
         document.dispatchEvent(new CustomEvent("gezeceyik-map-ready"));
@@ -6110,6 +6194,27 @@ body.th-noanim #thailand-route-svg { display: none; }
                 return d && d.id != null ? String(d.id) : null;
               })
               .attr("d", path);
+
+            // The wash and its Thailand-shaped hole. Built once, after the
+            // countries so it paints over them; only its geometry is updated
+            // per redraw, from the same projected path the map already has.
+            const NS = "http://www.w3.org/2000/svg";
+            const defs = document.createElementNS(NS, "defs");
+            defs.innerHTML =
+              '<mask id="th-spot" maskUnits="userSpaceOnUse">' +
+                '<rect id="th-spot-bg" x="0" y="0" fill="#fff"/>' +
+                '<path id="th-spot-cut" fill="#000"/>' +
+              "</mask>";
+            mapSvg.appendChild(defs);
+            const dim = document.createElementNS(NS, "rect");
+            dim.setAttribute("id", "th-dim");
+            dim.setAttribute("x", "0");
+            dim.setAttribute("y", "0");
+            dim.setAttribute("mask", "url(#th-spot)");
+            mapSvg.appendChild(dim);
+            thailandFeature = features.filter(function (f) {
+              return String(f.id) === "764";
+            })[0] || null;
 
             return loadTerrainMap();
           })
@@ -7551,11 +7656,18 @@ body.th-noanim #thailand-route-svg { display: none; }
           document.body.classList.toggle("th-revealed", showCards);
         }
 
-        // Thailand lifts out of its neighbours as the camera arrives: a paper
-        // fill and an ink coast rather than the old gold glow.
-        const paper = smooth(clamp01((camView - 0.55) / 0.5));
-        document.body.classList.toggle("th-deep", camView > 0.55);
-        document.body.style.setProperty("--th-paper", paper.toFixed(3));
+        // Thailand lifts out of its neighbours as the camera arrives. Three
+        // ramps, all pure functions of the master progress, so the whole
+        // effect unwinds by itself on the way back out:
+        //   dim   the world darkens from 32% of the travel, full by 87%
+        //   boost Thailand's own terrain brightens from 50%, full by 95%
+        //   lift  the coastline draws in alongside the boost
+        const dim = smooth(clamp01((camView - 0.32) / 0.55));
+        const lift = smooth(clamp01((camView - 0.5) / 0.45));
+        document.body.classList.toggle("th-deep", camView > 0.32);
+        document.body.style.setProperty("--th-dim", dim.toFixed(3));
+        document.body.style.setProperty("--th-boost", lift.toFixed(3));
+        document.body.style.setProperty("--th-lift", lift.toFixed(3));
 
         if (!gfxLandmarksEl) gfxLandmarksEl = document.querySelector("svg.gfx-landmarks");
         if (!flightSvg) flightSvg = document.getElementById("flight-path-svg");
