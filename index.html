@@ -198,6 +198,7 @@
       content: "";
       position: absolute;
       inset: 0;
+      z-index: 2;
       background: radial-gradient(
         ellipse at center,
         transparent 0%,
@@ -237,8 +238,10 @@
        Stops are in vw against a layer that starts 15vw off-screen: 17vw and
        113vw are exactly the two map boundaries, 30vw and 100vw are where the
        map reaches full opacity. Horizontal only: top and bottom untouched. */
-    #world-map-terrain,
-    #world-map {
+    #world-map-fade {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
       --edge-fade: linear-gradient(
         to right,
         transparent 0,
@@ -250,6 +253,30 @@
       );
       -webkit-mask-image: var(--edge-fade);
       mask-image: var(--edge-fade);
+    }
+
+    /* Only this moves. The fade above it and the ocean gradient below it are
+       pinned to the viewport, so the soft edge stays where it is drawn instead
+       of travelling with the camera. */
+    #world-map-cam {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* The darkening wash is deliberately OUTSIDE #world-map-fade. It used to
+       live inside the masked SVG, which cancelled it at the two edges: with
+       the spotlight at full strength the screen was darkened 58% everywhere
+       except the outer ~200px, leaving a bright vertical strip whose width
+       swept with the camera every frame. It rides the same camera transform so
+       the Thailand cut-out still tracks the map. */
+    #world-map-wash {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
     }
 
     #world-map {
@@ -367,19 +394,83 @@ body.tour-detail-page #thailand-route-svg { display: none !important; }
    They are annotations on the map, not scroll destinations: a precise dot at
    the real location, a hairline leader, and a card in the site's own card
    language. Built once and only re-positioned, never scaled by the camera. */
+/* --- Scroll cue ----------------------------------------------------------
+   A thin mark at the foot of the opening view. Opacity is driven per frame
+   from the master progress, so it lifts the moment the camera starts moving
+   and returns only once the reader is back on the world view. It defaults to
+   invisible, which means the layouts that never run the cinematic (phones,
+   reduced motion, the tour pages) never show it. */
+#scroll-cue {
+  position: fixed;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  opacity: 0;
+  pointer-events: none;
+}
+.scroll-cue__label {
+  font-family: var(--font-body);
+  font-size: 0.56rem;
+  font-weight: 500;
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  color: rgba(246, 238, 218, 0.72);
+  text-shadow: 0 1px 10px rgba(3, 16, 24, 0.7);
+}
+.scroll-cue__arrow {
+  fill: none;
+  stroke: rgba(246, 238, 218, 0.72);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 6px rgba(3, 16, 24, 0.6));
+  animation: scrollCue 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+@keyframes scrollCue {
+  0%   { transform: translateY(-3px); opacity: 0.35; }
+  45%  { transform: translateY(3px);  opacity: 1; }
+  100% { transform: translateY(-3px); opacity: 0.35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue__arrow { animation: none; }
+}
+
+/* --- The journey ---------------------------------------------------------
+   Phuket to Bangkok to Chiang Mai, drawn between the real coordinates and
+   revealed in trip order off the same scroll progress as everything else. */
+.tz-route {
+  fill: none;
+  stroke: rgba(246, 238, 218, 0.82);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  /* it crosses both bright land and dark sea, so it needs its own edge */
+  filter: drop-shadow(0 0 2px rgba(6, 26, 36, 0.65));
+}
+/* A single small mark travelling at the head of the leg being drawn. It is
+   not a glow and it disappears the moment the leg lands. */
+.tz-route-head { fill: #f8f1e2; }
+
 .tz-leader {
   fill: none;
-  stroke: #fdfcfa;
-  stroke-width: 1;
+  stroke: rgba(253, 252, 250, 0.62);
+  stroke-width: 0.9;
   stroke-dasharray: 1;
-  /* The leader crosses cream land and dark sea, so it needs its own edge. */
-  filter: drop-shadow(0 0 2px rgba(6, 26, 36, 0.75));
+  filter: drop-shadow(0 0 2px rgba(6, 26, 36, 0.7));
 }
+/* A coordinate, not a pin: a small ink centre, a hairline ring, and a second
+   ring that eases outward once as the node lands and then stops. */
 .tz-dot { fill: var(--primary); }
+.tz-dot-halo { fill: #fdfcfa; }
 .tz-dot-ring {
   fill: none;
-  stroke: #fdfcfa;
-  stroke-width: 1.6;
+  stroke: rgba(253, 252, 250, 0.85);
+  stroke-width: 1;
 }
 
 #th-dest-layer {
@@ -395,12 +486,17 @@ body.tour-detail-page #th-dest-layer { display: none !important; }
   position: absolute;
   left: 0;
   top: 0;
-  width: 186px;
-  padding: 0.6rem 0.85rem 0.7rem;
-  background: var(--surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-md);
+  width: 178px;
+  padding: 0.62rem 0.9rem 0.72rem;
+  /* Slightly translucent so the map reads underneath it: the card sits on the
+     geography rather than on top of it. Hairline border, and a shadow soft
+     enough to give depth without announcing itself. */
+  background: rgba(253, 252, 250, 0.93);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  box-shadow: 0 8px 26px rgba(15, 76, 92, 0.11);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   opacity: 0;
   will-change: transform, opacity;
   /* It is a <button>, so these undo the UA styling and nothing else. The
@@ -521,15 +617,21 @@ body.tour-detail-page #th-dest-layer { display: none !important; }
 .tz-card__name {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.02rem;
+  font-size: 1.08rem;
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.08;
+  letter-spacing: 0.005em;
   color: var(--text-dark);
 }
+/* Small caps and wide tracking: the descriptor reads as a caption under the
+   place name rather than as a second sentence. */
 .tz-card__meta {
-  margin: 0.3rem 0 0;
+  margin: 0.34rem 0 0;
   font-family: var(--font-body);
-  font-size: 0.68rem;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
   color: var(--text-muted);
 }
 
@@ -564,7 +666,7 @@ body.th-deep #world-map path.country[data-country-id="764"] {
   top: 50%;
   left: clamp(16px, 3.5vw, 56px);
   right: auto;
-  transform: translateY(calc(-50% + var(--th-drift, 0px))) translateX(-36px);
+  transform: translateY(-50%) translateX(-36px);
   width: min(40vw, 540px);
   margin: 0;
   padding: 0;
@@ -573,6 +675,15 @@ body.th-deep #world-map path.country[data-country-id="764"] {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  /* This panel is animated by exactly one thing: the class toggle above and
+     this transition. It stuttered because the camera commits a fresh 8K
+     terrain redraw roughly twenty times per shot, each measured at 86-252ms,
+     which saturates the main thread for the whole 2100ms move and starves the
+     transition. Promoting the panel puts its opacity and transform on the
+     compositor, where they keep running while the main thread is busy. The
+     dead --th-drift custom property is gone from the transform for the same
+     reason: a plain transform value composites cleanly. */
+  will-change: transform, opacity;
 }
 #thailand-zoom-viewport > #landing.upcoming-tour-section::before { display: none; }
 #thailand-zoom-viewport > #landing .landing__intro { margin-bottom: 1rem; text-align: left; }
@@ -645,7 +756,7 @@ body:not(.th-noanim) #thailand-zoom-viewport > #landing .landing__intro .subtitl
 body.th-revealed #thailand-zoom-viewport > #landing.upcoming-tour-section,
 body.th-noanim #thailand-zoom-viewport > #landing.upcoming-tour-section {
   opacity: 1;
-  transform: translateY(calc(-50% + var(--th-drift, 0px))) translateX(0);
+  transform: translateY(-50%) translateX(0);
   pointer-events: auto;
 }
 }
@@ -4938,14 +5049,28 @@ body.th-noanim #thailand-route-svg { display: none; }
     })();
   </script>
   <div id="world-map-bg" aria-hidden="true">
-    <canvas id="world-map-terrain"></canvas>
-    <svg id="world-map"></svg>
+    <div id="world-map-fade">
+      <div id="world-map-cam">
+        <canvas id="world-map-terrain"></canvas>
+        <svg id="world-map"></svg>
+      </div>
+    </div>
+    <svg id="world-map-wash" aria-hidden="true"></svg>
   </div>
   <svg id="flight-path-svg" aria-hidden="true">
     <text id="origin-label" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Istanbul</text>
     <text id="destination-label" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Bangkok</text>
   </svg>
   <svg id="thailand-route-svg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>
+  <!-- Shown only while the reader is parked on the opening world view; its
+       opacity comes off the same master progress as everything else. -->
+  <div id="scroll-cue" aria-hidden="true">
+    <span class="scroll-cue__label">SCROLL</span>
+    <svg class="scroll-cue__arrow" viewBox="0 0 16 22" width="16" height="22">
+      <path d="M8 1 L8 15" />
+      <path d="M2.5 10.5 L8 16 L13.5 10.5" />
+    </svg>
+  </div>
   <div class="page-layer">
   <header class="site-top">
     <div class="site-top__inner">
@@ -5842,13 +5967,16 @@ body.th-noanim #thailand-route-svg { display: none; }
       };
 
       const mapSvg = document.getElementById("world-map");
+      const washSvg = document.getElementById("world-map-wash");
       const terrainCanvas = document.getElementById("world-map-terrain");
       const tooltipEl = document.getElementById("country-tooltip");
       if (!mapSvg || !terrainCanvas || !window.d3 || !window.topojson) return;
 
       const TERRAIN_MAP_URL = "world-terrain-map.jpg?v=3";
-      // The terrain is drawn straight from the full 8192px source image, so
-      // it never loses detail no matter how far the camera pushes in.
+      // The terrain is drawn from this 8192px source, stepped down through
+      // buildTerrainMips for the wide shots that cannot resolve it anyway.
+      // The close-up still draws from the full image, so pushing the camera
+      // in never loses detail.
       let terrainImg = null;
       let terrainMapReady = null;
 
@@ -5860,6 +5988,16 @@ body.th-noanim #thailand-route-svg { display: none; }
       let countrySelection = null;
       let mapHiddenForTour = /#tur(-backpacking|-private)?|#tomorrowland/.test(location.hash);
       let hoveredKey = null;
+      let thailandPathEl = null;
+      // Every one of the 177 country paths is transparent unless it is
+      // hovered, and applyView clears hover -- so mid-flight the only country
+      // whose geometry can actually be seen is Thailand's. Rewriting all of
+      // them means re-serialising 169KB of path data across 177 elements,
+      // measured at 8ms per commit: half the cost of a commit, fifteen times
+      // per 2100ms shot, each one dirtying layout and paint for the whole
+      // document. Motion commits now reproject Thailand alone and mark the
+      // rest stale; the settle redraw and the next hover put them back.
+      let pathsStale = false;
       let rafPick = 0;
       let pendingPick = null;
 
@@ -5895,6 +6033,7 @@ body.th-noanim #thailand-route-svg { display: none; }
           const img = new Image();
           img.onload = function () {
             terrainImg = img;
+            buildTerrainMips(img);
             resolve();
           };
           img.onerror = function () {
@@ -5912,6 +6051,44 @@ body.th-noanim #thailand-route-svg { display: none; }
       // inside itself. Full source resolution, and fast enough to redraw
       // while scrolling instead of once it stops.
       let terrainScratch = null;
+
+      // The 8192x4096 source decodes to ~128MB, and a commit walks it 293
+      // times (one drawImage per strip), so it only stays cheap while that
+      // whole texture is resident -- which it is not. Measured through the
+      // real setView path, a commit costs about 17ms, one entire frame
+      // budget, fifteen times per 2100ms shot: one dropped frame each, plus
+      // up to 140ms when the texture has gone cold. Half-size levels drop the
+      // working set to 32MB and 8MB.
+      let terrainMips = [];
+
+      function buildTerrainMips(img) {
+        terrainMips = [{ w: img.naturalWidth, h: img.naturalHeight, src: img }];
+        [4096, 2048].forEach(function (mw) {
+          if (mw >= img.naturalWidth) return;
+          const c = document.createElement("canvas");
+          c.width = mw;
+          c.height = Math.round(mw * img.naturalHeight / img.naturalWidth);
+          const x = c.getContext("2d");
+          if (!x) return;
+          x.imageSmoothingEnabled = true;
+          x.imageSmoothingQuality = "high";
+          x.drawImage(img, 0, 0, c.width, c.height);
+          terrainMips.push({ w: c.width, h: c.height, src: c });
+        });
+      }
+
+      // The smallest level that still carries at least one source pixel per
+      // destination pixel across the visible longitude span. Anything below
+      // that would visibly soften the map, so the close-up view keeps drawing
+      // from the full 8K exactly as before -- this trades no sharpness, only
+      // the pointless oversampling of the wide shots.
+      function pickTerrainMip(spanPx, destPx) {
+        const full = terrainMips[0];
+        for (let i = terrainMips.length - 1; i > 0; i--) {
+          if (spanPx * terrainMips[i].w / full.w >= destPx) return terrainMips[i];
+        }
+        return full;
+      }
 
       function renderTerrainCanvas(w, h, bx, by) {
         if (!(w > 1) || !(h > 1)) return;
@@ -5934,7 +6111,6 @@ body.th-noanim #thailand-route-svg { display: none; }
         const ctx = terrainCanvas.getContext("2d");
         if (!ctx || !path || !features.length) return;
 
-        const IW = terrainImg.naturalWidth, IH = terrainImg.naturalHeight;
         // Longitude is linear in x under Mercator, so map the view's left and
         // right edges to source columns analytically. (Asking the projection
         // to invert the right edge would hand back a *wrapped* longitude at
@@ -5943,6 +6119,13 @@ body.th-noanim #thailand-route-svg { display: none; }
         const pxPerRad = viewZ * (w / 6.5);          // the projection's scale
         const xOfLon0 = w / 2 + viewTx + bx;         // where longitude 0 sits (layer px)
         const worldPx = 2 * Math.PI * pxPerRad;      // full 360° on screen
+        // Pick the source level here, before anything reads IW/IH: every
+        // source coordinate below is a fraction of them, so a smaller level
+        // needs no other change. The view spans W/worldPx of the globe.
+        if (!terrainMips.length) buildTerrainMips(terrainImg);
+        const mip = pickTerrainMip(terrainMips[0].w * Math.min(1, W / worldPx), cw);
+        const terrainSrc = mip.src;
+        const IW = mip.w, IH = mip.h;
         const sx0 = IW * ((0 - xOfLon0) / worldPx + 0.5);
         const sx1 = IW * ((W - xOfLon0) / worldPx + 0.5);
         if (!(sx1 > sx0)) return;
@@ -5976,7 +6159,7 @@ body.th-noanim #thailand-route-svg { display: none; }
           if (syT < 0) { dyT = y + (0 - syT) / (syB - syT) * (y1 - y); syT = 0; }
           if (syB > IH) { dyB = y + (IH - syT) / (syB - syT) * (y1 - y); syB = IH; }
           if (!(syB > syT) || !(dyB > dyT)) continue;
-          tctx.drawImage(terrainImg, cx0, syT, cx1 - cx0, syB - syT, dx0, dyT, dx1 - dx0, dyB - dyT);
+          tctx.drawImage(terrainSrc, cx0, syT, cx1 - cx0, syB - syT, dx0, dyT, dx1 - dx0, dyB - dyT);
         }
 
         // Clip to the landmasses (path is in CSS px) then blit the terrain.
@@ -5995,6 +6178,12 @@ body.th-noanim #thailand-route-svg { display: none; }
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.drawImage(tmp, 0, 0);
         ctx.restore();
+      }
+
+      function refreshCountryPaths() {
+        if (!countrySelection) return;
+        countrySelection.attr("d", path);
+        pathsStale = false;
       }
 
       function clearHover() {
@@ -6054,6 +6243,7 @@ body.th-noanim #thailand-route-svg { display: none; }
 
       function applyHover(feature, clientX, clientY) {
         if (mapHiddenForTour || !countrySelection) return;
+        if (feature && pathsStale) refreshCountryPaths();
         const key = feature ? countryKey(feature) : "";
         if (key !== hoveredKey) {
           hoveredKey = key;
@@ -6129,24 +6319,32 @@ body.th-noanim #thailand-route-svg { display: none; }
         if (thailandFeature) cut.setAttribute("d", path(thailandFeature) || "");
       }
 
-      function applyView(w, h) {
+      function applyView(w, h, quick) {
         if (!(w > 1) || !(h > 1)) return;
         const b = bleedOf(w, h);
         const W = w + 2 * b.bx, H = h + 2 * b.by;
         projection.scale(viewZ * (w / 6.5)).center([0, 20])
           .translate([w / 2 + viewTx + b.bx, h / 2 + viewTy + b.by]);
         d3.select(mapSvg).attr("viewBox", "0 0 " + W + " " + H);
-        countrySelection.attr("d", path);
+        if (washSvg) washSvg.setAttribute("viewBox", "0 0 " + W + " " + H);
+        if (quick) {
+          if (thailandPathEl && thailandFeature) {
+            thailandPathEl.setAttribute("d", path(thailandFeature) || "");
+          }
+          pathsStale = true;
+        } else {
+          refreshCountryPaths();
+        }
         sizeSpotlight(W, H);
         renderTerrainCanvas(w, h, b.bx, b.by);
         clearHover();
         document.dispatchEvent(new CustomEvent("gezeceyik-map-ready"));
       }
 
-      function setView(z, tx, ty) {
+      function setView(z, tx, ty, quick) {
         if (!projection || !path || !countrySelection) return;
         viewZ = z; viewTx = tx; viewTy = ty;
-        applyView(window.innerWidth, window.innerHeight);
+        applyView(window.innerWidth, window.innerHeight, quick);
       }
 
       function updateProjectionSize(w, h) {
@@ -6160,6 +6358,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         const h = window.innerHeight;
 
         d3.select(mapSvg).selectAll("*").remove();
+        if (washSvg) d3.select(washSvg).selectAll("*").remove();
         features = [];
         countrySelection = null;
 
@@ -6205,16 +6404,17 @@ body.th-noanim #thailand-route-svg { display: none; }
                 '<rect id="th-spot-bg" x="0" y="0" fill="#fff"/>' +
                 '<path id="th-spot-cut" fill="#000"/>' +
               "</mask>";
-            mapSvg.appendChild(defs);
+            (washSvg || mapSvg).appendChild(defs);
             const dim = document.createElementNS(NS, "rect");
             dim.setAttribute("id", "th-dim");
             dim.setAttribute("x", "0");
             dim.setAttribute("y", "0");
             dim.setAttribute("mask", "url(#th-spot)");
-            mapSvg.appendChild(dim);
+            (washSvg || mapSvg).appendChild(dim);
             thailandFeature = features.filter(function (f) {
               return String(f.id) === "764";
             })[0] || null;
+            thailandPathEl = mapSvg.querySelector('path.country[data-country-id="764"]');
 
             return loadTerrainMap();
           })
@@ -6231,6 +6431,9 @@ body.th-noanim #thailand-route-svg { display: none; }
       window.__gezMap = {
         isTerrainReady: function () { return !!terrainImg; },
         setView: setView,
+        // A settle redraw that turns out to be a no-op still has to put the
+        // countries left stale by the motion commits back on the projection.
+        syncPaths: function () { if (pathsStale) refreshCountryPaths(); },
         getView: function () { return { z: viewZ, tx: viewTx, ty: viewTy }; },
         project: function (lonlat) {
           if (!projection) return null;
@@ -7110,6 +7313,21 @@ body.th-noanim #thailand-route-svg { display: none; }
       const viewportEl = document.getElementById("thailand-zoom-viewport");
       const routeSvg = document.getElementById("thailand-route-svg");
       const worldMapBg = document.getElementById("world-map-bg");
+      const worldMapCam = document.getElementById("world-map-cam");
+      const worldMapWash = document.getElementById("world-map-wash");
+
+      // The camera transform is applied to the map content and to the wash,
+      // never to #world-map-bg itself. The ocean gradient underneath and the
+      // edge fade above both have to stay pinned to the viewport: a mask
+      // inside a transformed subtree is painted in that subtree's space, so
+      // the fade used to sweep across the left 200px of the screen every
+      // frame and snap back at every terrain commit.
+      function setCamTransform(t) {
+        worldMapCam.style.transformOrigin = "0 0";
+        worldMapCam.style.transform = t;
+        worldMapWash.style.transformOrigin = "0 0";
+        worldMapWash.style.transform = t;
+      }
       let gfxLandmarksEl = null;   // landmark icons overlay (queried lazily)
       let flightSvg = null;        // Istanbul/Bangkok labels overlay
       if (!stage || !viewportEl || !routeSvg || !worldMapBg || !window.d3) return;
@@ -7194,7 +7412,10 @@ body.th-noanim #thailand-route-svg { display: none; }
       // Cards and leaders are built ONCE and then only re-positioned, never
       // scaled by the camera. Scaling chrome along with the map is what made
       // the old names swell during the zoom and snap back on every redraw.
+      let scrollCue = null;
       let routeDom = null;
+      let routeLegs = null;
+      let routeHead = null;
       let destLayer = null;
       // Progress ring state, scoped to this layer: which card is mid-sweep,
       // which is open, and the timer that turns one into the other.
@@ -7210,13 +7431,22 @@ body.th-noanim #thailand-route-svg { display: none; }
       function ensureRouteDom() {
         if (routeDom) return;
         const L = lang();
-        routeSvg.innerHTML = DESTS.map(function () {
-          return '<g class="tz-anchor">' +
-            '<path class="tz-leader" pathLength="1"/>' +
-            '<circle class="tz-dot-ring" r="5.5"/>' +
-            '<circle class="tz-dot" r="2.4"/>' +
-          '</g>';
-        }).join("");
+        // Route first so the nodes and their connectors draw over it.
+        routeSvg.innerHTML =
+          '<g class="tz-route-g">' +
+            DESTS.slice(1).map(function () {
+              return '<path class="tz-route" pathLength="1"/>';
+            }).join("") +
+            '<circle class="tz-route-head" r="2.1"/>' +
+          '</g>' +
+          DESTS.map(function () {
+            return '<g class="tz-anchor">' +
+              '<path class="tz-leader" pathLength="1"/>' +
+              '<circle class="tz-dot-ring"/>' +
+              '<circle class="tz-dot-halo" r="3.4"/>' +
+              '<circle class="tz-dot" r="2"/>' +
+            '</g>';
+          }).join("");
 
         destLayer = document.getElementById("th-dest-layer");
         if (!destLayer) {
@@ -7249,10 +7479,13 @@ body.th-noanim #thailand-route-svg { display: none; }
 
         const groups = routeSvg.querySelectorAll(".tz-anchor");
         const cards = destLayer.querySelectorAll(".tz-card");
+        routeLegs = [].slice.call(routeSvg.querySelectorAll(".tz-route"));
+        routeHead = routeSvg.querySelector(".tz-route-head");
         routeDom = DESTS.map(function (d, i) {
           return {
             leader: groups[i].querySelector(".tz-leader"),
             ring: groups[i].querySelector(".tz-dot-ring"),
+            halo: groups[i].querySelector(".tz-dot-halo"),
             dot: groups[i].querySelector(".tz-dot"),
             card: cards[i],
             bar: cards[i].querySelector(".tz-ring__bar"),
@@ -7371,8 +7604,50 @@ body.th-noanim #thailand-route-svg { display: none; }
       // Lay the cards out beside their cities for a given camera and a given
       // point on the master timeline. Pure function of (want, tv) — nothing
       // accumulates, so reverse costs nothing.
+      // A gently bowed leg between two screen points. The bow arcs away from
+      // the side the cards sit on, so the route never tangles with a connector.
+      function legPath(a, b, bowSign) {
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const len = Math.sqrt(dx * dx + dy * dy) || 1;
+        const bow = len * 0.16 * bowSign;
+        const mx = (a.x + b.x) / 2 + (dy / len) * bow;
+        const my = (a.y + b.y) / 2 - (dx / len) * bow;
+        return "M" + a.x.toFixed(1) + "," + a.y.toFixed(1) +
+               " Q" + mx.toFixed(1) + "," + my.toFixed(1) +
+               " " + b.x.toFixed(1) + "," + b.y.toFixed(1);
+      }
+
       function layoutRoute(want, tv) {
         if (!routeDom) return;
+
+        // --- the journey itself: Phuket -> Bangkok -> Chiang Mai ----------
+        // Each leg gets its own band on the master timeline, sitting between
+        // the cards it connects, so the route reads as travel rather than as
+        // decoration that appeared all at once.
+        let headSet = false;
+        if (routeLegs) {
+          routeLegs.forEach(function (leg, i) {
+            const from = DESTS[i], to = DESTS[i + 1];
+            if (!from.base || !to.base) { leg.style.opacity = "0"; return; }
+            const a = screenOf(want, from.base), b = screenOf(want, to.base);
+            leg.setAttribute("d", legPath(a, b, ROUTE_BOW[i]));
+            const r = smooth(clamp01((tv - (ROUTE_FROM + i * ROUTE_GAP)) / ROUTE_LEG));
+            leg.setAttribute("stroke-dashoffset", (1 - r).toFixed(4));
+            leg.style.opacity = (r > 0 ? 0.92 : 0).toFixed(3);
+            // the travelling mark rides the leg currently being drawn
+            if (!headSet && r > 0.02 && r < 0.99) {
+              try {
+                const p = leg.getPointAtLength(leg.getTotalLength() * r);
+                routeHead.setAttribute("cx", p.x.toFixed(1));
+                routeHead.setAttribute("cy", p.y.toFixed(1));
+                routeHead.style.opacity = "0.9";
+                headSet = true;
+              } catch (e) { /* path not measurable yet */ }
+            }
+          });
+        }
+        if (routeHead && !headSet) routeHead.style.opacity = "0";
+
         DESTS.forEach(function (d, i) {
           const n = routeDom[i];
           if (!d.base) { n.card.style.opacity = "0"; return; }
@@ -7386,22 +7661,29 @@ body.th-noanim #thailand-route-svg { display: none; }
           // a point on the map that is already marked.
           const a = smooth(clamp01((tv - (from - 0.1)) / CARD_SPAN));
 
-          n.dot.setAttribute("cx", at.x.toFixed(1));
-          n.dot.setAttribute("cy", at.y.toFixed(1));
-          n.ring.setAttribute("cx", at.x.toFixed(1));
-          n.ring.setAttribute("cy", at.y.toFixed(1));
+          [n.dot, n.halo, n.ring].forEach(function (el) {
+            el.setAttribute("cx", at.x.toFixed(1));
+            el.setAttribute("cy", at.y.toFixed(1));
+          });
           n.dot.style.opacity = a.toFixed(3);
-          n.ring.style.opacity = (a * 0.55).toFixed(3);
+          n.halo.style.opacity = (a * 0.9).toFixed(3);
+          // The ring eases outward once as the node lands, then holds. Driven
+          // from the timeline, so it settles rather than pulsing forever.
+          n.ring.setAttribute("r", (3.6 + 4.2 * a).toFixed(2));
+          n.ring.style.opacity = (a * (1 - a) * 2.2 + a * 0.3).toFixed(3);
 
           // The leader runs from the dot to the card's inner edge, drawing
           // itself outward as the card comes in.
+          // A single soft curve from the node to the card's inner edge.
+          const ex = cx - 12, ey = cy;
           n.leader.setAttribute(
             "d",
             "M" + at.x.toFixed(1) + "," + at.y.toFixed(1) +
-            " L" + (cx - 10).toFixed(1) + "," + cy.toFixed(1)
+            " Q" + ((at.x + ex) / 2).toFixed(1) + "," + ey.toFixed(1) +
+            " " + ex.toFixed(1) + "," + ey.toFixed(1)
           );
           n.leader.setAttribute("stroke-dashoffset", (1 - a).toFixed(4));
-          n.leader.style.opacity = (a * 0.7).toFixed(3);
+          n.leader.style.opacity = (a * 0.6).toFixed(3);
 
           n.card.style.transform =
             "translate(" + (cx + (1 - t) * 14).toFixed(1) + "px," +
@@ -7509,6 +7791,12 @@ body.th-noanim #thailand-route-svg { display: none; }
       // The destination cards come in over the last third of the approach, in
       // trip order. These are fractions of the shot's TIME, not of the eased
       // progress, so "from 70%" means what it says on the clock.
+      // The two route legs, each with its own band between the cards it joins.
+      // Bow signs arc the route away from the side the cards sit on.
+      const ROUTE_FROM = 0.72;
+      const ROUTE_LEG = 0.15;
+      const ROUTE_GAP = 0.07;
+      const ROUTE_BOW = [1, 1];
       const CARD_FROM = 0.7;
       const CARD_STAGGER = 0.06;
       const CARD_SPAN = 0.18;   // last card lands exactly on arrival
@@ -7610,16 +7898,47 @@ body.th-noanim #thailand-route-svg { display: none; }
         }
       }
 
+      // Write a custom property onto the map layer, and only when the value
+      // has actually changed: an identical write still costs an invalidation.
+      const varCache = Object.create(null);
+      function setVar(name, value) {
+        if (varCache[name] === value) return;
+        varCache[name] = value;
+        worldMapBg.style.setProperty(name, value);
+      }
+
       // Draw one frame for the camera's current position.
+      // render() commits the map, and a commit dispatches gezeceyik-map-ready,
+      // whose handler calls render() again -- so every commit re-entered this
+      // function from the middle of itself. The nested pass was pure waste:
+      // the outer call resumes straight after commitView and recomputes the
+      // transform, route and cards from the same progress, so it always
+      // overwrote whatever the inner one had just done. The handler's measure
+      // calls still run; only the redundant second pass is dropped.
+      let rendering = false;
+
       function render(settled) {
+        if (rendering) return;
         if (document.body.classList.contains("view-tour")) return;
         if (!geo) { measure(); if (!geo) return; }
+        rendering = true;
+        try {
+          renderBody(settled);
+        } finally {
+          rendering = false;
+        }
+      }
 
-        // The camera owns 0..1 and the page owns 1..2. Splitting the master
-        // value here is the whole of the change: everything below this line
-        // that used to read camP now reads camView, so the world -> Thailand
-        // leg renders exactly as it did.
-        const camView = camP < 1 ? camP : 1;
+      function renderBody(settled) {
+
+        // One value, folded. The camera runs 0 -> 1 -> 0 while the master
+        // progress runs 0 -> 1 -> 2, so the journey out to Thailand is flown
+        // in reverse on the way to contact: the camera pulls back, the
+        // highlight lifts, and the route and cards retract, all because every
+        // ramp below is a function of this number. Contact therefore ends on
+        // the same full world map the reader started from. Folding rather
+        // than branching is also what keeps it exactly reversible.
+        const camView = camP < 1 ? camP : 2 - camP;
         applyPageScroll(camP > 1 ? camP - 1 : 0, !!shot);
 
         const want = viewFor(camView);
@@ -7637,8 +7956,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         // orientation stays fixed all the way in. This transform is a pure
         // function of the scroll timeline; no pointer term is added to it.
         const dt = deltaTransform(want);
-        worldMapBg.style.transformOrigin = "0 0";
-        worldMapBg.style.transform = dt;
+        setCamTransform(dt);
         worldMapBg.style.filter = "none";
         worldMapBg.style.opacity = "1";
 
@@ -7665,9 +7983,18 @@ body.th-noanim #thailand-route-svg { display: none; }
         const dim = smooth(clamp01((camView - 0.32) / 0.55));
         const lift = smooth(clamp01((camView - 0.5) / 0.45));
         document.body.classList.toggle("th-deep", camView > 0.32);
-        document.body.style.setProperty("--th-dim", dim.toFixed(3));
-        document.body.style.setProperty("--th-boost", lift.toFixed(3));
-        document.body.style.setProperty("--th-lift", lift.toFixed(3));
+        // These three are set on the MAP LAYER, not on <body>. They are
+        // inherited custom properties that change every frame, and setting an
+        // inherited property on body invalidates style for every one of its
+        // descendants — 1717 elements here, including the whole left panel and
+        // its four cards. Measured at 5.5ms per frame against a 16.7ms budget,
+        // three times over, which is what made the left side stutter. All
+        // three consumers (#th-dim, the terrain canvas, Thailand's path) live
+        // inside this layer's 184 elements, so scoping the write costs 0.86ms
+        // and leaves the cards' style untouched.
+        setVar("--th-dim", dim.toFixed(3));
+        setVar("--th-boost", lift.toFixed(3));
+        setVar("--th-lift", lift.toFixed(3));
 
         if (!gfxLandmarksEl) gfxLandmarksEl = document.querySelector("svg.gfx-landmarks");
         if (!flightSvg) flightSvg = document.getElementById("flight-path-svg");
@@ -7681,6 +8008,15 @@ body.th-noanim #thailand-route-svg { display: none; }
           el.style.opacity = String(overlayFade);
           el.style.visibility = overlayFade < 0.01 ? "hidden" : "visible";
         });
+
+        // The cue belongs to the opening frame only: gone by a tenth of the
+        // way out, back when the reader has fully returned.
+        if (!scrollCue) scrollCue = document.getElementById("scroll-cue");
+        if (scrollCue) {
+          const cue = 1 - smooth(clamp01(camP / 0.1));
+          scrollCue.style.opacity = cue.toFixed(3);
+          scrollCue.style.visibility = cue < 0.01 ? "hidden" : "visible";
+        }
 
         document.body.classList.toggle("th-zooming", camView > 0.02);
       }
@@ -7838,14 +8174,17 @@ body.th-noanim #thailand-route-svg { display: none; }
         const dz = Math.abs(want.z - drawn.z) / drawn.z;
         const dtx = Math.abs(want.tx - drawn.tx), dty = Math.abs(want.ty - drawn.ty);
         if (mode === "motion" && dz < 0.06) return;
-        if (mode === "settle" && dz < 0.002 && dtx < 0.5 && dty < 0.5) return;
+        if (mode === "settle" && dz < 0.002 && dtx < 0.5 && dty < 0.5) {
+          if (api.syncPaths) api.syncPaths();
+          return;
+        }
         drawn = { z: want.z, tx: want.tx, ty: want.ty };
         lastCommit = performance.now();
-        api.setView(want.z, want.tx, want.ty);   // triggers gezeceyik-map-ready
+        api.setView(want.z, want.tx, want.ty, mode === "motion");   // triggers gezeceyik-map-ready
       }
 
       function onMapReady() {
-        worldMapBg.style.transform = "none";
+        setCamTransform("none");
         measureCities();
         measure();
         render(!looping);
