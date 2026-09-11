@@ -223,9 +223,9 @@
          except Thailand by the #th-dim wash below, so the difference reads as
          light falling on the destination rather than a selection highlight. */
       filter:
-        saturate(calc(0.93 + 0.40 * var(--th-boost, 0)))
-        contrast(calc(1.07 + 0.08 * var(--th-boost, 0)))
-        brightness(calc(0.99 + 0.16 * var(--th-boost, 0)));
+        saturate(calc(0.93 + 0.52 * var(--th-boost, 0)))
+        contrast(calc(1.07 + 0.11 * var(--th-boost, 0)))
+        brightness(calc(0.99 + 0.20 * var(--th-boost, 0)));
     }
 
     /* --- Soft east/west edges ------------------------------------------
@@ -261,7 +261,22 @@
     #world-map-cam {
       position: absolute;
       inset: 0;
+      /* The terrain is a 4.5MB image drawn asynchronously: without this the
+         ocean gradient sits alone for a moment and the world then pops in on
+         a hard cut. One fade, on the first draw only -- the class is added by
+         the map when it has its first frame and never removed, and opacity
+         composites, so nothing about the camera's per-frame transform on this
+         layer changes. */
+      opacity: 0;
+      transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      /* This layer is transformed every frame of the flight and blurred for
+         most of it. Declaring both keeps its render surface and effect node
+         alive for the whole shot instead of being created on the first blurred
+         frame and torn down on the last -- each of those is a hitch. */
+      will-change: transform, filter;
     }
+    #world-map-cam.is-drawn { opacity: 1; }
+
 
     /* The darkening wash is deliberately OUTSIDE #world-map-fade. It used to
        live inside the masked SVG, which cancelled it at the two edges: with
@@ -277,6 +292,9 @@
       height: 100%;
       display: block;
       pointer-events: none;
+      /* the darkening ramp, composited -- see #th-dim */
+      opacity: calc(var(--th-dim, 0) * 0.66);
+      will-change: transform, opacity;
     }
 
     #world-map {
@@ -402,23 +420,45 @@ body.tour-detail-page #thailand-route-svg { display: none !important; }
    reduced motion, the tour pages) never show it. */
 #scroll-cue {
   position: fixed;
-  left: 50%;
-  bottom: 30px;
-  transform: translateX(-50%);
+  left: clamp(20px, 3.4vw, 54px);
+  bottom: clamp(22px, 4vh, 44px);
   z-index: 2;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 7px;
+  gap: 14px;
   opacity: 0;
   pointer-events: none;
 }
+/* the mouse: an outline only, no fill and no heavy border */
+.scroll-cue__mouse {
+  flex: none;
+  fill: none;
+  stroke: rgba(246, 238, 218, 0.5);
+  stroke-width: 1.1;
+  filter: drop-shadow(0 1px 6px rgba(3, 16, 24, 0.6));
+}
+.scroll-cue__wheel {
+  fill: rgba(246, 238, 218, 0.9);
+  stroke: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: scrollCueWheel 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+.scroll-cue__stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
 .scroll-cue__label {
   font-family: var(--font-body);
-  font-size: 0.56rem;
+  font-size: 0.58rem;
   font-weight: 500;
-  letter-spacing: 0.34em;
-  text-indent: 0.34em;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  white-space: nowrap;
   color: rgba(246, 238, 218, 0.72);
   text-shadow: 0 1px 10px rgba(3, 16, 24, 0.7);
 }
@@ -429,32 +469,98 @@ body.tour-detail-page #thailand-route-svg { display: none !important; }
   stroke-linecap: round;
   stroke-linejoin: round;
   filter: drop-shadow(0 1px 6px rgba(3, 16, 24, 0.6));
-  animation: scrollCue 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: scrollCueArrow 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
-@keyframes scrollCue {
-  0%   { transform: translateY(-3px); opacity: 0.35; }
-  45%  { transform: translateY(3px);  opacity: 1; }
-  100% { transform: translateY(-3px); opacity: 0.35; }
+/* Restrained on purpose: the shell never moves, the wheel makes one slow
+   fall inside it, and the arrow drifts a few pixels. Both run on the same
+   3.2s clock so they read as one gesture rather than two tics. */
+@keyframes scrollCueWheel {
+  0%   { transform: translateY(0);   opacity: 0.15; }
+  22%  { opacity: 0.9; }
+  62%  { transform: translateY(8px); opacity: 0; }
+  100% { transform: translateY(0);   opacity: 0.15; }
+}
+@keyframes scrollCueArrow {
+  0%, 100% { transform: translateY(0);   opacity: 0.42; }
+  50%      { transform: translateY(4px); opacity: 0.9; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .scroll-cue__arrow { animation: none; }
+  .scroll-cue__arrow, .scroll-cue__wheel { animation: none; }
 }
 
 /* --- The journey ---------------------------------------------------------
    Phuket to Bangkok to Chiang Mai, drawn between the real coordinates and
    revealed in trip order off the same scroll progress as everything else. */
+/* --- The journey --------------------------------------------------------
+   ONE route, Phuket -> Bangkok -> Chiang Mai, built as a single smooth curve
+   through all three coordinates rather than two independent connectors, so
+   there is no corner at Bangkok and nothing reads as a navigation segment.
+   Four strokes share that one path and one reveal offset:
+     lift   a dark copy pushed down a pixel and a half -- the route's own
+            shadow on the terrain, which is what lifts it off the ground
+     halo   wide and almost transparent: atmosphere, not a glow
+     core   the hairline itself, warm and just luminous enough
+     comet  a short train of marks riding the head of the drawn portion
+   Everything is a fraction of the WHOLE path (pathLength="1"), so the same
+   numbers work at any zoom and on any screen. */
 .tz-route {
   fill: none;
-  stroke: rgba(246, 238, 218, 0.82);
-  stroke-width: 1.3;
   stroke-linecap: round;
+  stroke-linejoin: round;
   stroke-dasharray: 1;
-  /* it crosses both bright land and dark sea, so it needs its own edge */
-  filter: drop-shadow(0 0 2px rgba(6, 26, 36, 0.65));
 }
-/* A single small mark travelling at the head of the leg being drawn. It is
-   not a glow and it disappears the moment the leg lands. */
-.tz-route-head { fill: #f8f1e2; }
+.tz-route__lift {
+  stroke: rgba(6, 26, 36, 0.24);
+  stroke-width: 2.6;
+  transform: translate(0.6px, 1.7px);
+}
+.tz-route__halo {
+  stroke: rgba(246, 238, 218, 0.12);
+  stroke-width: 5.6;
+}
+.tz-route__core {
+  stroke: rgba(250, 245, 231, 0.88);
+  stroke-width: 1.1;
+  /* one small warm bloom -- restrained on purpose; the halo above carries the
+     atmosphere, this only keeps the hairline from disappearing over bright
+     land */
+  filter: drop-shadow(0 0 2.4px rgba(238, 205, 148, 0.5));
+}
+/* Three marks, longest at the front, riding the head of the drawn portion.
+   The long gap comes FIRST so the train trails the head instead of running
+   ahead of it, which lets it share the core's own reveal offset exactly. */
+.tz-route__comet {
+  stroke: #f7dfb0;
+  stroke-width: 1.7;
+  stroke-dasharray: 0.916 0.008 0.022 0.013 0.022 0.019;
+  filter: drop-shadow(0 0 3px rgba(240, 196, 131, 0.7));
+  opacity: 0;
+}
+/* Once the whole route has landed the same marks keep walking it, slowly, so
+   it reads as a journey rather than as a border between three shapes. */
+.tz-route__comet.is-drifting { animation: routeDrift 9s linear infinite; }
+@keyframes routeDrift {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tz-route__comet.is-drifting { animation: none; }
+}
+
+/* The travelling light. Not a dot: a warm core inside a soft bloom, with a
+   thin trail stretched along the direction of travel -- the group is rotated
+   to the curve's own tangent, so the trail always lies down the route. */
+.tz-route-head { opacity: 0; }
+.tz-route-head__glow { fill: url(#tz-head-glow); }
+.tz-route-head__trail {
+  fill: none;
+  stroke: rgba(250, 232, 196, 0.5);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+}
+.tz-route-head__core { fill: #fff6e2; }
 
 .tz-leader {
   fill: none;
@@ -473,6 +579,66 @@ body.tour-detail-page #thailand-route-svg { display: none !important; }
   stroke-width: 1;
 }
 
+/* --- The miniature scenes ------------------------------------------------
+   One scene per stop, standing on its own coordinate. Three planes deep, one
+   sun for all three (upper left: every lit face points up-left, every shaded
+   face down-right), and a contact shadow so each sits ON the terrain rather
+   than over it. Placement and separation come from the timeline in script;
+   everything in here is either static art or a composited transform, so none
+   of it touches the render loop. */
+.tz-dio {
+  opacity: 0;
+  /* No drop-shadow here. A CSS drop-shadow throws a copy of EVERY opaque
+     pixel, soft bloom included, which put a dark oval behind each landmark;
+     and it is a filter on a layer that moves every frame. The shadows are
+     drawn into the art instead -- a contact ellipse under the scene and a
+     raked cast shadow off each landmark, both from the same sun. */
+}
+/* Not screen-blended: over bright satellite terrain that clips to white. */
+.tz-dio__glow { pointer-events: none; }
+
+/* Small, slow, and deliberately out of phase with each other, so the scene
+   is alive without ever asking to be watched. */
+.dio-boat,
+.dio-sway,
+.dio-lantern,
+.dio-trunk {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+.dio-boat { animation: dioBoat 5.6s ease-in-out infinite; }
+.dio-sway { animation: dioSway 7.4s ease-in-out infinite; }
+.dio-lantern {
+  transform-origin: 50% 50%;
+  animation: dioLantern 9.2s ease-in-out infinite;
+}
+.dio-lantern--b { animation-duration: 11.6s; animation-delay: -3.4s; }
+/* A trunk hangs from the head, so it swings from the top. Slow and shallow --
+   the figures are meant to be standing still, not performing. */
+.dio-trunk {
+  transform-origin: 62% 8%;
+  animation: dioTrunk 8.6s ease-in-out infinite;
+}
+@keyframes dioTrunk {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(2.2deg); }
+}
+@keyframes dioBoat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-0.55px) rotate(-1.15deg); }
+}
+@keyframes dioSway {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(1.7deg); }
+}
+@keyframes dioLantern {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50%      { transform: translateY(-2.4px); opacity: 0.7; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dio-boat, .dio-sway, .dio-lantern, .dio-trunk { animation: none; }
+}
+
 #th-dest-layer {
   position: fixed;
   inset: 0;
@@ -486,17 +652,38 @@ body.tour-detail-page #th-dest-layer { display: none !important; }
   position: absolute;
   left: 0;
   top: 0;
-  width: 178px;
-  padding: 0.62rem 0.9rem 0.72rem;
-  /* Slightly translucent so the map reads underneath it: the card sits on the
-     geography rather than on top of it. Hairline border, and a shadow soft
-     enough to give depth without announcing itself. */
-  background: rgba(253, 252, 250, 0.93);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 12px;
-  box-shadow: 0 8px 26px rgba(15, 76, 92, 0.11);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  width: 208px;
+  padding: 0.62rem 1.05rem 0.7rem;
+  /* A soft label, not a UI box. The previous treatment was a left hairline
+     with a wash fading out to the right: square corners plus a hard vertical
+     rule, which is exactly the rectangle it was trying not to be. This is a
+     single low-opacity surface with a generous radius and a border light
+     enough to read as an edge of light rather than a stroke.
+     No backdrop-filter, deliberately: a filter here has to re-sample a
+     moving, already-filtered map every frame -- the pattern that was taken
+     out of .landing__intro for that reason -- and it is also what makes
+     glassmorphism look like glassmorphism. */
+  /* Warm off-white rather than the cool #fdfcfa, and enough of it to carry
+     9px type over satellite imagery -- readability is the point here, and at
+     0.80 the metadata line measured 3.8:1 against the real terrain. The two
+     stops are 4% of alpha apart: light falling across the surface, not a
+     decorative gradient. */
+  background: linear-gradient(168deg,
+    rgba(255, 253, 249, 0.93) 0%,
+    rgba(250, 247, 241, 0.89) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  /* Squared where the leader arrives from the map, rounded away from it. The
+     asymmetry is what stops it reading as an app card, and it points the label
+     back at its own coordinate. */
+  border-radius: 3px 16px 16px 3px;
+  /* Three layers, all restrained and all teal-tinted -- never black, which
+     over satellite terrain reads as dirt. The inset is a lit top edge: one
+     pixel of light along the surface, which is what gives a material an
+     upper side. */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 1px 2px rgba(15, 76, 92, 0.07),
+    0 12px 30px rgba(15, 76, 92, 0.1);
   opacity: 0;
   will-change: transform, opacity;
   /* It is a <button>, so these undo the UA styling and nothing else. The
@@ -515,10 +702,19 @@ body.tour-detail-page #th-dest-layer { display: none !important; }
   outline: 2px solid var(--primary);
   outline-offset: 3px;
 }
+/* Open, it has to hold several lines of small type over satellite imagery, so
+   the surface firms up. It stays the same shape -- it becomes a fuller
+   annotation, never a dialog. */
 .tz-card.is-loading,
 .tz-card.is-open {
-  border-color: rgba(217, 106, 78, 0.35);
-  box-shadow: var(--shadow-lg);
+  background: linear-gradient(168deg,
+    rgba(255, 254, 251, 0.975) 0%,
+    rgba(251, 248, 243, 0.95) 100%);
+  border-color: rgba(217, 106, 78, 0.3);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 2px 4px rgba(15, 76, 92, 0.08),
+    0 16px 38px rgba(15, 76, 92, 0.13);
 }
 
 /* The stop numeral sits inside a hairline progress ring. At rest the ring is
@@ -531,7 +727,7 @@ body.tour-detail-page #th-dest-layer { display: none !important; }
   justify-content: center;
   width: 19px;
   height: 19px;
-  margin: 0 0 0.16rem -2px;
+  margin: 0 0 0.02rem -1px;
 }
 .tz-ring {
   position: absolute;
@@ -566,10 +762,15 @@ body.tour-detail-page #th-dest-layer { display: none !important; }
 .tz-card__n {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
-  color: var(--accent);
+  letter-spacing: 0.22em;
+  /* The deeper of the two terracottas the palette already carries. --accent
+     measures 2.9:1 on this surface, --accent-hover 3.7 -- and keeping the
+     index warm is what stops the card going all-teal, so this trades a little
+     legibility for the one piece of brand colour on it. It is a two-character
+     index that repeats what the route order already says. */
+  color: var(--accent-hover);
   margin: 0;
   padding-left: 0.02em;
 }
@@ -617,22 +818,48 @@ body.tour-detail-page #th-dest-layer { display: none !important; }
 .tz-card__name {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.08rem;
+  /* The one element that has to dominate. Up from 1.16rem, and the tracking
+     pulled in slightly, which is what makes a display face read as a title
+     rather than as a longer word. */
+  font-size: 1.34rem;
   font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: 0.005em;
+  line-height: 1.02;
+  letter-spacing: -0.004em;
   color: var(--text-dark);
+  text-shadow: 0 1px 0 rgba(255, 253, 249, 0.9);
 }
-/* Small caps and wide tracking: the descriptor reads as a caption under the
-   place name rather than as a second sentence. */
-.tz-card__meta {
-  margin: 0.34rem 0 0;
+/* Where it is, in the reader's language. Sits directly under the name with a
+   hairline between them -- the travel-magazine annotation, not a UI subtitle. */
+.tz-card__region {
+  margin: 0.36rem 0 0;
+  padding-top: 0.36rem;
+  border-top: 1px solid rgba(26, 47, 51, 0.12);
   font-family: var(--font-body);
-  font-size: 0.6rem;
+  font-size: 0.68rem;
   font-weight: 500;
-  letter-spacing: 0.11em;
+  line-height: 1.34;
+  letter-spacing: 0.008em;
+  color: var(--text-dark);
+  opacity: 0.84;
+}
+/* Small caps and wide tracking: the itinerary line reads as a caption under
+   the descriptor rather than as a second sentence. */
+.tz-card__meta {
+  margin: 0.26rem 0 0;
+  font-family: var(--font-body);
+  font-size: 0.55rem;
+  /* 600 rather than 500: at this size weight buys more legibility than colour
+     does. And --primary rather than --text-muted -- the muted grey measured
+     3.8:1 on this surface, where the palette's own deep teal clears AA
+     comfortably without going black and heavy. */
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  line-height: 1.5;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--primary);
+  /* 0.82: measured 5.1:1 on this surface against the real terrain. At 0.74 it
+     was 4.26 -- still under AA, which is not "subtle", it is faint. */
+  opacity: 0.82;
 }
 
 /* --- Thailand on arrival --------------------------------------------------
@@ -643,9 +870,21 @@ body.tour-detail-page #th-dest-layer { display: none !important; }
    unwinds on the way back out without a second animation. */
 #th-dim {
   fill: #05131d;
-  opacity: calc(var(--th-dim, 0) * 0.58);
+  /* Opaque. The fade lives on the <svg> root (#world-map-wash) instead: an
+     opacity on an SVG child is a paint property, so every frame --th-dim
+     moved -- more than half the flight -- this 130vw x 130vh masked rect was
+     re-rasterised. On the root element it is a compositor property, and the
+     SVG's own raster is then constant between commits. Same picture, no
+     per-frame raster. */
+  opacity: 1;
   pointer-events: none;
 }
+/* th-zooming, not just th-deep: th-deep drops at 32% on the way OUT while
+   the camera is still moving, and the base 0.35s transitions then ran a
+   stroke-width tween on this path for 21 frames -- a geometry change inside
+   the moving camera layer that zoom-in never paid. Values are at rest by the
+   time th-zooming clears, so nothing transitions then either. */
+body.th-zooming #world-map path.country,
 body.th-deep #world-map path.country { transition: none; }
 body.th-deep #world-map path.country[data-country-id="764"] {
   /* No fill: the point is to see Thailand's own terrain. Just a fine coast
@@ -661,15 +900,32 @@ body.th-deep #world-map path.country[data-country-id="764"] {
 /* --- Tour cards, now the right-hand panel inside the pinned frame --- */
 /* --- Desktop only: the pinned card panel beside the zoomed map. ------- */
 @media (min-width: 760px) {
+:root {
+  /* what .page-layer already reserves for the fixed header */
+  --tz-top: 4.75rem;
+  --tz-gutter: clamp(18px, 2.8vh, 34px);
+  --tz-side: clamp(26px, 4.4vw, 76px);
+}
 #thailand-zoom-viewport > #landing.upcoming-tour-section {
-  position: absolute;
-  top: 50%;
-  left: clamp(16px, 3.5vw, 56px);
+  /* Fixed, not absolute. The stage it lives in is a sticky 100vh box that
+     starts BELOW the header's 4.75rem spacer, so it runs from y=74 to y=794
+     on a 720-tall window -- centring inside it put the panel's middle 37px
+     too low and pushed the bottom row 92px past the fold. Positioning from
+     the viewport instead makes the gutters mean what they say. No ancestor
+     carries a transform or filter, so fixed resolves against the viewport. */
+  position: fixed;
+  top: calc(var(--tz-top) + var(--tz-gutter));
+  height: calc(100vh - var(--tz-top) - 2 * var(--tz-gutter));
+  left: var(--tz-side);
   right: auto;
-  transform: translateY(-50%) translateX(-36px);
-  width: min(40vw, 540px);
+  transform: translateX(-36px);
+  width: min(38vw, 536px);
   margin: 0;
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  /* Sits in the middle of its own band rather than against either edge. */
+  justify-content: center;
   align-items: stretch;
   z-index: 3;
   opacity: 0;
@@ -686,8 +942,28 @@ body.th-deep #world-map path.country[data-country-id="764"] {
   will-change: transform, opacity;
 }
 #thailand-zoom-viewport > #landing.upcoming-tour-section::before { display: none; }
-#thailand-zoom-viewport > #landing .landing__intro { margin-bottom: 1rem; text-align: left; }
-#thailand-zoom-viewport > #landing .landing__intro h2 { font-size: clamp(1.2rem, 2.4vw, 1.6rem); }
+/* The heading label's gap to the grid is the SAME expression as the gap
+   between the cards, so the whole left column runs on one spacing scale and
+   the label reads as part of the grid rather than as a thing above it. */
+#thailand-zoom-viewport > #landing .landing__intro {
+  margin-bottom: clamp(0.6rem, 1vw, 1rem);
+  text-align: left;
+  flex: 0 0 auto;
+}
+/* Down from clamp(1.2rem, 2.4vw, 1.6rem), which resolved to 25.6px here and
+   was most of the box's height. The family and the weights are untouched --
+   this is the same heading, set at section-header size. */
+#thailand-zoom-viewport > #landing .landing__intro h2 {
+  font-size: clamp(0.95rem, 1.5vw, 1.16rem);
+  line-height: 1.14;
+  margin: 0;
+}
+#thailand-zoom-viewport > #landing .landing__intro p,
+#thailand-zoom-viewport > #landing .landing__intro .subtitle {
+  font-size: 0.76rem;
+  line-height: 1.34;
+  margin: 0.2rem 0 0;
+}
 
 /* In the pinned panel this heading sits straight on the satellite map, where
    the site's ink-on-paper colours all but vanish. Inside the cinematic it gets
@@ -696,17 +972,31 @@ body.th-deep #world-map path.country[data-country-id="764"] {
    so it stays a label rather than a bar, and aligned with the cards below.
    The static layouts (phones, reduced motion) keep the plain original. */
 body:not(.th-noanim) #thailand-zoom-viewport > #landing .landing__intro {
-  width: fit-content;
+  /* Exactly one grid column wide, derived from the panel and the grid's own
+     0.75rem gap rather than typed as a pixel count -- so the right edge lands
+     on the same line as the first card's, and stays there at any panel width.
+     It was 372px, which ended between the two columns on no line at all. */
+  width: calc((100% - 0.75rem) / 2);
   max-width: 100%;
   align-self: flex-start;
-  padding: 0.62rem 1.15rem 0.7rem;
+  padding: 0.44rem 0.82rem 0.54rem;
   border-radius: 14px;
-  background: rgba(253, 252, 250, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  /* the site's own teal-tinted shadow, softened — no black */
-  box-shadow: 0 10px 30px rgba(15, 76, 92, 0.1);
-  backdrop-filter: blur(7px) saturate(115%);
-  -webkit-backdrop-filter: blur(7px) saturate(115%);
+  /* 0.88 rather than 0.82, and no backdrop-filter. This label sits directly
+     over the map on the left, and a backdrop-filter has to re-sample and
+     re-blur whatever is behind it on every frame that backdrop changes. It
+     fades in while the camera is still moving, still committing and still
+     running the travel blur, so it was re-blurring a filtered, re-rasterising
+     backdrop for the whole overlap -- which is what made the left side judder
+     and flash. The extra 6% of opacity closes the same amount of map detail
+     the 7px blur used to soften, so it reads the same standing still. */
+  /* 0.84: more translucent than the 0.88 it was, but not the 0.78 a first
+     pass tried -- there the subtitle measured 4.13:1 against the real terrain
+     under it, i.e. under AA. Readability was in the brief too. */
+  background: rgba(253, 252, 250, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  /* Barely there. This is a section header for the grid, not a card sitting
+     above it, so it should not cast like one. */
+  box-shadow: 0 3px 12px rgba(15, 76, 92, 0.055);
 }
 body:not(.th-noanim) #thailand-zoom-viewport > #landing .landing__intro h2 {
   font-weight: 700;
@@ -718,7 +1008,13 @@ body:not(.th-noanim) #thailand-zoom-viewport > #landing .landing__intro .subtitl
 }
 #thailand-zoom-viewport > #landing .tour-cards-grid {
   grid-template-columns: repeat(2, 1fr);
+  /* Equal rows. They were 314 and 333 because the two cards in the lower row
+     carry an extra line, which made the vertical gap look uneven even though
+     it was not. */
+  grid-auto-rows: minmax(0, 1fr);
   gap: clamp(0.6rem, 1vw, 1rem);
+  flex: 1 1 auto;
+  min-height: 0;
 }
 /* In the narrow pinned panel the cards must stack (photo on top, full width) —
    the site's ≥540px rule turns them into a 2-column row, which squeezes each
@@ -726,10 +1022,14 @@ body:not(.th-noanim) #thailand-zoom-viewport > #landing .landing__intro .subtitl
 #thailand-zoom-viewport > #landing .landing-preview {
   grid-template-columns: 1fr;
   max-width: none;
+  min-height: 0;
 }
+/* Fluid rather than a fixed 104px: the photo is the one part of the card that
+   can give a little, so the group keeps its gutters on a shorter window
+   instead of running off the bottom. */
 #thailand-zoom-viewport > #landing .landing-preview__media {
-  height: 104px;
-  min-height: 104px;
+  height: clamp(80px, 10.6vh, 104px);
+  min-height: 0;
   width: 100%;
   background-position: center;
   background-size: cover;
@@ -751,12 +1051,40 @@ body:not(.th-noanim) #thailand-zoom-viewport > #landing .landing__intro .subtitl
   padding-top: 0.5rem;
   gap: 0.3rem;
 }
+/* Short windows. The 2x2 is forced into equal rows to fit the band, and at
+   768 tall that band is 269px a row while a card's content needs ~297 --
+   measured: the bottom of three cards was being clipped by 9-28px, which the
+   cards' overflow:hidden was quietly hiding. The photo and the paddings give
+   up the difference; the type only loses a hair. */
+@media (max-height: 840px) {
+  #thailand-zoom-viewport > #landing .landing-preview__media { height: clamp(54px, 8vh, 84px); }
+}
+@media (max-height: 740px) {
+  #thailand-zoom-viewport > #landing .landing-preview__media { height: clamp(44px, 7vh, 72px); }
+  #thailand-zoom-viewport > #landing .landing-preview__body { padding: 0.5rem 0.7rem 0.52rem; }
+  #thailand-zoom-viewport > #landing .landing-preview__title { font-size: 0.9rem; margin-bottom: 0.25rem; }
+  #thailand-zoom-viewport > #landing .landing-preview__meta { margin-bottom: 0.3rem; }
+  #thailand-zoom-viewport > #landing .landing-preview__price { padding-top: 0.35rem; }
+}
+/* Narrow panels and short windows: one column is too tight for the subtitle
+   (three lines at 1024 wide, two at 1280x720), and every line it wraps to is
+   height the cards needed -- at 720 tall that was the 9px clipping the bottom
+   of the Tomorrowland card. Spanning the grid keeps both edges on grid lines
+   and the subtitle on one. */
+@media (max-width: 1120px), (max-height: 760px) {
+  body:not(.th-noanim) #thailand-zoom-viewport > #landing .landing__intro { width: 100%; }
+}
 #thailand-zoom-viewport > #landing .tour-cards-grid { gap: 0.75rem; }
-#thailand-zoom-viewport > #landing .landing__intro { margin-bottom: 0.7rem; }
+/* Same 0.75rem as the grid gap above: one spacing scale down the whole
+   column, so the heading label sits on the grid's own rhythm. */
+#thailand-zoom-viewport > #landing .landing__intro { margin-bottom: 0.75rem; }
 body.th-revealed #thailand-zoom-viewport > #landing.upcoming-tour-section,
 body.th-noanim #thailand-zoom-viewport > #landing.upcoming-tour-section {
   opacity: 1;
-  transform: translateY(-50%) translateX(0);
+  /* translateX only. This used to re-apply translateY(-50%), which was the
+     other half of the centring the panel no longer does -- leaving it in
+     yanked the whole column half its own height off the top of the screen. */
+  transform: translateX(0);
   pointer-events: auto;
 }
 }
@@ -771,6 +1099,8 @@ body.th-noanim #thailand-route-svg { display: none; }
   body.th-noanim #thailand-zoom-viewport > #landing.upcoming-tour-section {
     position: static;
     transform: none;
+    height: auto;
+    display: block;
     width: auto;
     max-width: 1100px;
     margin: 0 auto;
@@ -824,8 +1154,30 @@ body.th-noanim #thailand-route-svg { display: none; }
       z-index: 1;
       pointer-events: none;
       overflow: visible;
-      transition: opacity 0.4s ease, filter 0.5s ease;
+      /* no transition: opacity is written per frame by the master timeline */
+      will-change: transform, opacity;
     }
+    /* The two city names on the world view -- the origin and the destination
+       of every tour. They were 13px teal Inter straight on the dark ocean,
+       which read as debug labels left behind. Set as cartographic labels: small
+       caps in the map's cream, with a soft ink halo (paint-order draws the
+       stroke under the fill) so they hold on land and on sea alike. Positions
+       are untouched; this only changes how the text is drawn. */
+    #flight-path-svg text {
+      fill: #f2e8d4;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      paint-order: stroke fill;
+      stroke: rgba(5, 22, 32, 0.6);
+      stroke-width: 3px;
+      stroke-linejoin: round;
+      opacity: 0.88;
+    }
+    /* The other cities: identical in every respect but a step quieter, so
+       the origin and the destination of the journey still lead. */
+    #flight-path-svg text.city-label { opacity: 0.62; }
     #country-tooltip {
       position: fixed;
       background: rgba(26, 26, 26, 0.9);
@@ -965,6 +1317,71 @@ body.th-noanim #thailand-route-svg { display: none; }
       background: rgba(253, 252, 250, 0.95);
       box-shadow: var(--shadow-sm);
     }
+
+    /* --- Where the sky meets the map ------------------------------------
+       Over the map the header is not chrome sitting on a page, it is the top
+       of the sky -- and a flat fill with a 1px bottom border and a backdrop
+       blur draws exactly the three things that give that away: a rectangle,
+       a ruled edge, and a blur that stops dead at the element's boundary
+       (a backdrop-filter has a hard rectangular edge by definition; that IS
+       the mask edge). On the map views the fill becomes a gradient and keeps
+       fading for another ~130px past the header, so there is no edge left to
+       find. Scoped to the map views: on the tour, detail and contact pages
+       the header sits over content and keeps its proper hairline.
+       Dropping the backdrop-filter here also stops it re-sampling and
+       re-blurring a map that moves every frame. */
+    @media (min-width: 760px) {
+    body.view-home:not(.view-tour):not(.tour-detail-page) header.site-top {
+      /* Held strong across the top 55%, where the wordmark and the language
+         switch actually sit, then dropped hard. The band the reader reads
+         against is unchanged; everything below it gets out of the way. */
+      background: linear-gradient(180deg,
+        rgba(253, 252, 250, 0.94) 0%,
+        rgba(253, 252, 250, 0.9) 55%,
+        rgba(253, 252, 250, 0.6) 82%,
+        rgba(253, 252, 250, 0.32) 100%);
+      border-bottom-color: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      /* The hairline across the top of the map was here. The border-bottom is
+         transparent but still occupies 1px, and a background paints to the
+         BORDER box while an absolutely-positioned ::after resolves top:100%
+         against the PADDING box -- so the header's gradient and the fade tail
+         below both covered the same 1px row. Two coats of alpha 0.32 composite
+         to 0.54 against 0.32 either side: a 1px band 68% brighter than its
+         surroundings, the full width of the page. Clipping the background to
+         the padding box ends it exactly where the tail starts. */
+      background-clip: padding-box;
+      -webkit-background-clip: padding-box;
+    }
+    /* The tail. Many stops rather than two: a straight alpha ramp bands at
+       both ends, and the band is the edge coming back. */
+    body.view-home:not(.view-tour):not(.tour-detail-page) header.site-top::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      /* Was clamp(84px, 13vh, 140px) -- 117px on a 900-tall window, which put
+         the last of the haze 191px down the page and read as a white block
+         rather than as light. A third of that: the map is clear by ~110px. */
+      height: clamp(30px, 4.4vh, 52px);
+      background: linear-gradient(180deg,
+        rgba(253, 252, 250, 0.32) 0%,
+        rgba(253, 252, 250, 0.25) 13%,
+        rgba(253, 252, 250, 0.19) 26%,
+        rgba(253, 252, 250, 0.142) 39%,
+        rgba(253, 252, 250, 0.1) 52%,
+        rgba(253, 252, 250, 0.066) 64%,
+        rgba(253, 252, 250, 0.04) 75%,
+        rgba(253, 252, 250, 0.022) 84%,
+        rgba(253, 252, 250, 0.01) 91%,
+        rgba(253, 252, 250, 0.003) 96%,
+        rgba(253, 252, 250, 0) 100%);
+      pointer-events: none;
+    }
+    }   /* min-width: 760px -- phones keep the header exactly as it was */
     .site-top__inner {
       width: min(1220px, 94vw);
       margin-inline: auto;
@@ -5060,16 +5477,45 @@ body.th-noanim #thailand-route-svg { display: none; }
   <svg id="flight-path-svg" aria-hidden="true">
     <text id="origin-label" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Istanbul</text>
     <text id="destination-label" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Bangkok</text>
+    <!-- Quiet cartographic annotations: the same element and the same rule
+         as the two above, placed by the same projection. -->
+    <text class="city-label" data-city="london" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">London</text>
+    <text class="city-label" data-city="paris" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Paris</text>
+    <text class="city-label" data-city="berlin" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Berlin</text>
+    <text class="city-label" data-city="moscow" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Moscow</text>
+    <text class="city-label" data-city="barcelona" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Barcelona</text>
+    <text class="city-label" data-city="newyork" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">New York</text>
+    <text class="city-label" data-city="losangeles" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Los Angeles</text>
+    <text class="city-label" data-city="lima" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Lima</text>
+    <text class="city-label" data-city="saopaulo" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">São Paulo</text>
+    <text class="city-label" data-city="rio" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Rio de Janeiro</text>
+    <text class="city-label" data-city="buenosaires" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Buenos Aires</text>
+    <text class="city-label" data-city="cairo" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Cairo</text>
+    <text class="city-label" data-city="lagos" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Lagos</text>
+    <text class="city-label" data-city="nairobi" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Nairobi</text>
+    <text class="city-label" data-city="johannesburg" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Johannesburg</text>
+    <text class="city-label" data-city="capetown" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Cape Town</text>
+    <text class="city-label" data-city="dubai" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Dubai</text>
+    <text class="city-label" data-city="singapore" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Singapore</text>
+    <text class="city-label" data-city="tokyo" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Tokyo</text>
+    <text class="city-label" data-city="sydney" fill="#0F4C5C" font-size="13" font-weight="600" style="font-family: Inter, sans-serif;">Sydney</text>
   </svg>
   <svg id="thailand-route-svg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"></svg>
   <!-- Shown only while the reader is parked on the opening world view; its
        opacity comes off the same master progress as everything else. -->
+
   <div id="scroll-cue" aria-hidden="true">
-    <span class="scroll-cue__label">SCROLL</span>
-    <svg class="scroll-cue__arrow" viewBox="0 0 16 22" width="16" height="22">
-      <path d="M8 1 L8 15" />
-      <path d="M2.5 10.5 L8 16 L13.5 10.5" />
+    <svg class="scroll-cue__mouse" viewBox="0 0 24 42" width="24" height="42">
+      <rect x="1.2" y="1.2" width="21.6" height="39.6" rx="10.8" />
+      <circle class="scroll-cue__wheel" cx="12" cy="11.5" r="1.8" />
     </svg>
+    <span class="scroll-cue__stack">
+      <span class="scroll-cue__label" data-tr="Keşfetmeye devam et" data-en="Keep exploring">Keşfetmeye devam et</span>
+      <svg class="scroll-cue__arrow" viewBox="0 0 18 15" width="18" height="15">
+        <path d="M9 1.5 L9 9.5" />
+        <path d="M4.6 6 L9 10.6 L13.4 6" />
+      </svg>
+    </span>
   </div>
   <div class="page-layer">
   <header class="site-top">
@@ -5911,6 +6357,7 @@ body.th-noanim #thailand-route-svg { display: none; }
     document.addEventListener("DOMContentLoaded", function () {
     (function initWorldMapBackground() {
       const DATA_URL = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+      const BORDERS_URL = "thailand-borders.json";
       const ISO_COUNTRY = { 792: "Turkey", 196: "Cyprus", 764: "Thailand" };
       const COUNTRY_NAME_TR = {
         "Fiji": "Fiji", "Tanzania": "Tanzanya", "W. Sahara": "Batı Sahra", "Canada": "Kanada",
@@ -5973,6 +6420,28 @@ body.th-noanim #thailand-route-svg { display: none; }
       if (!mapSvg || !terrainCanvas || !window.d3 || !window.topojson) return;
 
       const TERRAIN_MAP_URL = "world-terrain-map.jpg?v=3";
+      // The close-up source. Cut from the same NASA imagery the world texture
+      // comes from (verified: it correlates 0.91 against the shipped texture
+      // at zero offset, falling off symmetrically either side), so it carries
+      // the same coastlines and the same land -- only far more detail. It is
+      // equirectangular like the world image, just over a window instead of
+      // the globe, which is what lets the same strip renderer draw it.
+      const TILE_URL = "thailand-terrain.jpg";
+      const TILE_LON0 = 60, TILE_LON1 = 128;   // the crop's geographic bounds
+      const TILE_LAT0 = -9, TILE_LAT1 = 34;
+      // The world texture is a brighter, bluer grade than raw NASA. Fitted per
+      // channel over land in this window so the tile arrives already wearing
+      // the map's own look -- without this the blend reads as a colour change
+      // rather than as detail arriving.
+      const TILE_TONE = [
+        { slope: 1.0852, intercept: 0.1712 },
+        { slope: 0.9984, intercept: 0.2024 },
+        { slope: 1.3473, intercept: 0.1054 }
+      ];
+      // Where the close-up takes over. Both ends sit inside the fastest part
+      // of the shot, which is where the travel blur is strongest.
+      const TILE_IN = 3.0, TILE_FULL = 7.0;
+      let tileImg = null, tileSrc = null, tileScratch = null;
       // The terrain is drawn from this 8192px source, stepped down through
       // buildTerrainMips for the wide shots that cannot resolve it anyway.
       // The close-up still draws from the full image, so pushing the camera
@@ -6030,6 +6499,9 @@ body.th-noanim #thailand-route-svg { display: none; }
             resolve();
             return;
           }
+          const tile = new Image();
+          tile.onload = function () { tileImg = tile; buildTileSource(); };
+          tile.src = TILE_URL;
           const img = new Image();
           img.onload = function () {
             terrainImg = img;
@@ -6061,6 +6533,49 @@ body.th-noanim #thailand-route-svg { display: none; }
       // working set to 32MB and 8MB.
       let terrainMips = [];
 
+      // Bake the tone fit in once, at load, rather than per frame: an SVG
+      // feComponentTransfer is the only thing that applies a per-channel
+      // slope/intercept on a canvas, and doing it here means every later draw
+      // is a plain drawImage.
+      function buildTileSource() {
+        if (!tileImg || !tileImg.naturalWidth) return;
+        const c = document.createElement("canvas");
+        c.width = tileImg.naturalWidth;
+        c.height = tileImg.naturalHeight;
+        const x = c.getContext("2d");
+        if (!x) return;
+        const NS = "http://www.w3.org/2000/svg";
+        let host = document.getElementById("th-tone-defs");
+        if (!host) {
+          host = document.createElementNS(NS, "svg");
+          host.setAttribute("id", "th-tone-defs");
+          host.setAttribute("width", "0");
+          host.setAttribute("height", "0");
+          host.style.position = "absolute";
+          host.innerHTML =
+            '<filter id="th-tile-tone" color-interpolation-filters="sRGB">' +
+              "<feComponentTransfer>" +
+                ["R", "G", "B"].map(function (ch, i) {
+                  return '<feFunc' + ch + ' type="linear" slope="' +
+                    TILE_TONE[i].slope + '" intercept="' +
+                    TILE_TONE[i].intercept + '"/>';
+                }).join("") +
+              "</feComponentTransfer></filter>";
+          document.body.appendChild(host);
+        }
+        x.filter = "url(#th-tile-tone)";
+        x.drawImage(tileImg, 0, 0);
+        x.filter = "none";
+        tileSrc = c;
+      }
+
+      // 0 while the close-up is irrelevant, 1 once it has taken over.
+      function tileBlend(z) {
+        const u = (z - TILE_IN) / (TILE_FULL - TILE_IN);
+        const t = u <= 0 ? 0 : u >= 1 ? 1 : u;
+        return t * t * (3 - 2 * t);
+      }
+
       function buildTerrainMips(img) {
         terrainMips = [{ w: img.naturalWidth, h: img.naturalHeight, src: img }];
         [4096, 2048].forEach(function (mw) {
@@ -6087,10 +6602,24 @@ body.th-noanim #thailand-route-svg { display: none; }
         for (let i = terrainMips.length - 1; i > 0; i--) {
           if (spanPx * terrainMips[i].w / full.w >= destPx) return terrainMips[i];
         }
-        return full;
+        // Never the 8192 source image itself. It decodes to 134MB, Chromium
+        // evicts that, and the next drawImage from it decodes the whole JPEG
+        // again -- measured at 537ms inside ONE frame, landing at the arrival,
+        // which is the freeze at the end of the flight. Level 1 is a canvas,
+        // so its pixels stay resident for the life of the page. The sharpness
+        // that costs is only ever on show between z=1.5 and z=3, in motion and
+        // under the travel blur: by the time the camera is deep enough to ask
+        // for the full image, the Thailand close-up has crossfaded over it.
+        return terrainMips[1] || full;
       }
 
-      function renderTerrainCanvas(w, h, bx, by) {
+      // The landmask, projected once and replayed under a transform. Dropped
+      // whenever the feature set itself changes; a change of viewport does NOT
+      // invalidate it, because window size only moves the projection's scale
+      // and translate, and both are absorbed by the affine below.
+      let clipCache = null;
+
+      function renderTerrainCanvas(w, h, bx, by, quick) {
         if (!(w > 1) || !(h > 1)) return;
         if (!terrainImg || !terrainImg.naturalWidth) return;
         bx = bx || 0; by = by || 0;
@@ -6099,14 +6628,24 @@ body.th-noanim #thailand-route-svg { display: none; }
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const cw = Math.max(1, Math.round(W * dpr));
         const ch = Math.max(1, Math.round(H * dpr));
-        terrainCanvas.width = cw;
-        terrainCanvas.height = ch;
-        // Deliberately NOT setting an inline CSS size: the stylesheet keeps it
-        // at 100% of the full-viewport backdrop. Pinning it to a px snapshot
-        // meant any viewport change (browser zoom!) left the map as a small
-        // box with the page showing around it.
-        terrainCanvas.style.removeProperty("width");
-        terrainCanvas.style.removeProperty("height");
+        // Only when the size actually changes. Assigning canvas.width or
+        // .height reallocates the backing store and clears it to transparent
+        // black even when the value is identical -- and cw/ch are derived from
+        // the viewport, so they are constant for the whole shot. This ran on
+        // every commit: 25 needless wipes of the visible map per trip in and
+        // out, each one exposing the dark navy ocean gradient underneath until
+        // the repaint landed. That is the black flicker. The two scratch
+        // canvases below were already guarded this way; this one was not.
+        if (terrainCanvas.width !== cw || terrainCanvas.height !== ch) {
+          terrainCanvas.width = cw;
+          terrainCanvas.height = ch;
+          // Deliberately NOT setting an inline CSS size: the stylesheet keeps
+          // it at 100% of the full-viewport backdrop. Pinning it to a px
+          // snapshot meant any viewport change (browser zoom!) left the map as
+          // a small box with the page showing around it.
+          terrainCanvas.style.removeProperty("width");
+          terrainCanvas.style.removeProperty("height");
+        }
 
         const ctx = terrainCanvas.getContext("2d");
         if (!ctx || !path || !features.length) return;
@@ -6123,7 +6662,15 @@ body.th-noanim #thailand-route-svg { display: none; }
         // source coordinate below is a fraction of them, so a smaller level
         // needs no other change. The view spans W/worldPx of the globe.
         if (!terrainMips.length) buildTerrainMips(terrainImg);
-        const mip = pickTerrainMip(terrainMips[0].w * Math.min(1, W / worldPx), cw);
+        // One level down while the camera is moving: a quarter of the bytes
+        // touched per commit, on frames that are blurred and 120ms long.
+        // (This used to stop at z=5.5 so the settle would find the 8192 image
+        // warm; pickTerrainMip no longer hands that image out at all, so the
+        // exception has nothing left to protect.)
+        let mip = pickTerrainMip(terrainMips[0].w * Math.min(1, W / worldPx), cw);
+        if (quick && terrainMips.length > 2 && mip === terrainMips[1]) {
+          mip = terrainMips[2];
+        }
         const terrainSrc = mip.src;
         const IW = mip.w, IH = mip.h;
         const sx0 = IW * ((0 - xOfLon0) / worldPx + 0.5);
@@ -6162,6 +6709,75 @@ body.th-noanim #thailand-route-svg { display: none; }
           tctx.drawImage(terrainSrc, cx0, syT, cx1 - cx0, syB - syT, dx0, dyT, dx1 - dx0, dyB - dyT);
         }
 
+        // --- the close-up source, laid over the world one ------------------
+        // Same strip algorithm and same projection, just a window of the same
+        // imagery instead of the whole globe, so the two are registered by
+        // construction. It goes through its own scratch canvas because the
+        // edges have to be feathered: a hard rectangle of sharper pixels reads
+        // as a seam even when the colour matches exactly.
+        const blend = tileSrc ? tileBlend(viewZ) : 0;
+        const tdx0 = (xOfLon0 + TILE_LON0 / 360 * worldPx) / W * cw;
+        const tdx1 = (xOfLon0 + TILE_LON1 / 360 * worldPx) / W * cw;
+        if (blend > 0.002 && tdx1 - tdx0 > 1 && tdx1 > 0 && tdx0 < cw) {
+          const TW = tileSrc.width, TH = tileSrc.height;
+          if (!tileScratch) tileScratch = document.createElement("canvas");
+          const t2 = tileScratch;
+          if (t2.width !== cw || t2.height !== ch) { t2.width = cw; t2.height = ch; }
+          const xc = t2.getContext("2d");
+          if (xc) {
+            xc.setTransform(1, 0, 0, 1, 0, 0);
+            xc.globalCompositeOperation = "source-over";
+            xc.globalAlpha = 1;
+            xc.clearRect(0, 0, cw, ch);
+            xc.imageSmoothingEnabled = true;
+            xc.imageSmoothingQuality = "high";
+            let tyMin = Infinity, tyMax = -Infinity;
+            for (let y = 0; y < ch; y += STRIP) {
+              const y1 = Math.min(ch, y + STRIP);
+              const lt = projection.invert([W / 2, y / dpr]);
+              const lb = projection.invert([W / 2, y1 / dpr]);
+              if (!lt || !lb || !isFinite(lt[1]) || !isFinite(lb[1])) continue;
+              let syT = (TILE_LAT1 - lt[1]) / (TILE_LAT1 - TILE_LAT0) * TH;
+              let syB = (TILE_LAT1 - lb[1]) / (TILE_LAT1 - TILE_LAT0) * TH;
+              if (syB <= 0 || syT >= TH) continue;
+              let dyT = y, dyB = y1;
+              if (syT < 0) { dyT = y + (0 - syT) / (syB - syT) * (y1 - y); syT = 0; }
+              if (syB > TH) { dyB = y + (TH - syT) / (syB - syT) * (y1 - y); syB = TH; }
+              if (!(syB > syT) || !(dyB > dyT)) continue;
+              if (dyT < tyMin) tyMin = dyT;
+              if (dyB > tyMax) tyMax = dyB;
+              xc.drawImage(tileSrc, 0, syT, TW, syB - syT, tdx0, dyT, tdx1 - tdx0, dyB - dyT);
+            }
+            if (tyMax > tyMin) {
+              // destination-in multiplies the alpha already there, so a
+              // horizontal pass followed by a vertical one softens every side
+              // instead of the second replacing the first.
+              const spanX = tdx1 - tdx0, spanY = tyMax - tyMin;
+              const feX = Math.min(0.45, Math.max(24, spanX * 0.05) / spanX);
+              const feY = Math.min(0.45, Math.max(24, spanY * 0.05) / spanY);
+              xc.globalCompositeOperation = "destination-in";
+              const gh = xc.createLinearGradient(tdx0, 0, tdx1, 0);
+              gh.addColorStop(0, "rgba(0,0,0,0)");
+              gh.addColorStop(feX, "rgba(0,0,0,1)");
+              gh.addColorStop(1 - feX, "rgba(0,0,0,1)");
+              gh.addColorStop(1, "rgba(0,0,0,0)");
+              xc.fillStyle = gh;
+              xc.fillRect(0, 0, cw, ch);
+              const gv = xc.createLinearGradient(0, tyMin, 0, tyMax);
+              gv.addColorStop(0, "rgba(0,0,0,0)");
+              gv.addColorStop(feY, "rgba(0,0,0,1)");
+              gv.addColorStop(1 - feY, "rgba(0,0,0,1)");
+              gv.addColorStop(1, "rgba(0,0,0,0)");
+              xc.fillStyle = gv;
+              xc.fillRect(0, 0, cw, ch);
+              xc.globalCompositeOperation = "source-over";
+              tctx.globalAlpha = blend;
+              tctx.drawImage(t2, 0, 0);
+              tctx.globalAlpha = 1;
+            }
+          }
+        }
+
         // Clip to the landmasses (path is in CSS px) then blit the terrain.
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, cw, ch);
@@ -6169,12 +6785,59 @@ body.th-noanim #thailand-route-svg { display: none; }
         ctx.imageSmoothingQuality = "high";
         ctx.save();
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.beginPath();
-        const canvasPath = d3.geoPath().projection(projection).context(ctx);
-        features.forEach(function (feature) {
-          canvasPath(feature);
-        });
-        ctx.clip();
+        // Where the projection puts longitude 0 / latitude 20 right now. This
+        // and pxPerRad are the whole projection: d3.geoMercator with a fixed
+        // .center() is p = translate + scale * raw(lonlat), so two views of the
+        // same geography differ by nothing but an affine map.
+        const tX = w / 2 + viewTx + bx, tY = h / 2 + viewTy + by;
+
+        if (quick && clipCache) {
+          // Streaming the 177 world features through d3 costs 40-63ms, which
+          // measured as the ENTIRE cost of a motion commit (44-111ms, of which
+          // only ~20ms was canvas calls) -- eight of those in a 2.3s shot is
+          // the stutter. Nothing about the geography changes between commits,
+          // so replay the path projected once and let the canvas apply the
+          // difference as a transform. Exact for this projection, and the
+          // settle redraw below still rebuilds from scratch, so the frame the
+          // reader actually stops on is unchanged.
+          const k = pxPerRad / clipCache.s;
+          ctx.transform(k, 0, 0, k, tX - k * clipCache.tx, tY - k * clipCache.ty);
+          ctx.clip(clipCache.p);
+        } else {
+          const p2 = new Path2D();
+          const canvasPath = d3.geoPath().projection(projection).context(p2);
+          // Visible window, straight from the projection: longitude is linear in
+          // x under Mercator, and the two latitude edges come from one invert
+          // each. Countries whose box misses it never touch the path builder.
+          const lonA = (0 - xOfLon0) / worldPx * 360;
+          const lonB = (W - xOfLon0) / worldPx * 360;
+          const wrapsWorld = (lonB - lonA) >= 359;
+          const north = projection.invert([W / 2, 0]);
+          const south = projection.invert([W / 2, H]);
+          const latHi = north && isFinite(north[1]) ? north[1] : 90;
+          const latLo = south && isFinite(south[1]) ? south[1] : -90;
+          for (let i = 0; i < features.length; i++) {
+            const f = features[i], bb = f.__bbox;
+            if (bb && !wrapsWorld) {
+              // latitude depends only on y under Mercator, so this window is exact
+              if (bb[3] < latLo || bb[1] > latHi) continue;
+              // longitude overlap modulo 360, so a view across the antimeridian
+              // still matches the countries either side of it
+              let hit = false;
+              for (let s = -360; s <= 360; s += 360) {
+                if (bb[2] + s >= lonA && bb[0] + s <= lonB) { hit = true; break; }
+              }
+              if (!hit) continue;
+            }
+            canvasPath(f);
+          }
+          ctx.clip(p2);
+          // Only a pass that culled nothing may be reused: one built at the
+          // Thailand view is missing every continent behind the camera, and
+          // replaying that on the way back out would eat the world. The wide
+          // view happens on load, so the cache is warm before the first shot.
+          if (wrapsWorld) clipCache = { p: p2, s: pxPerRad, tx: tX, ty: tY };
+        }
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.drawImage(tmp, 0, 0);
         ctx.restore();
@@ -6336,8 +6999,12 @@ body.th-noanim #thailand-route-svg { display: none; }
           refreshCountryPaths();
         }
         sizeSpotlight(W, H);
-        renderTerrainCanvas(w, h, b.bx, b.by);
+        renderTerrainCanvas(w, h, b.bx, b.by, quick);
         clearHover();
+        // first frame drawn: reveal the world (see #world-map-cam.is-drawn)
+        if (mapSvg.parentNode && !mapSvg.parentNode.classList.contains("is-drawn")) {
+          mapSvg.parentNode.classList.add("is-drawn");
+        }
         document.dispatchEvent(new CustomEvent("gezeceyik-map-ready"));
       }
 
@@ -6361,6 +7028,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         if (washSvg) d3.select(washSvg).selectAll("*").remove();
         features = [];
         countrySelection = null;
+        clipCache = null;
 
         projection = d3
           .geoMercator()
@@ -6374,12 +7042,60 @@ body.th-noanim #thailand-route-svg { display: none; }
           .attr("viewBox", "0 0 " + w + " " + h)
           .attr("preserveAspectRatio", "xMidYMid slice");
 
-        d3.json(DATA_URL)
-          .then(function (world) {
+        Promise.all([
+          d3.json(DATA_URL),
+          // Thailand and the five countries that share its coastline view, at
+          // Natural Earth 1:50m. The world file is 1:110m, the coarsest tier:
+          // all of Thailand is 64 points there, which is 3px per segment at
+          // the world view but about 25px per segment once the camera is in
+          // close -- straight chords across a coastline, which is what made
+          // the silhouette look like a flat polygon. These six carry 3153
+          // points instead of ~300. Only six, because the clip is a union of
+          // landmasses: borders between countries fall inside it and are never
+          // seen, so only the ones whose COASTLINE is on screen need the
+          // detail. Promoting the whole world to 1:50m costs 152ms a commit;
+          // these six cost nothing measurable.
+          d3.json(BORDERS_URL).catch(function () { return null; })
+        ])
+          .then(function (loaded) {
+            const world = loaded[0], fine = loaded[1];
             if (myGen !== loadGen) return;
             if (!world || !world.objects || !world.objects.countries) return;
 
             features = topojson.feature(world, world.objects.countries).features;
+            if (fine && fine.features) {
+              const hi = Object.create(null);
+              fine.features.forEach(function (f) { hi[String(f.id)] = f; });
+              features = features.map(function (f) {
+                const up = hi[String(f.id)];
+                if (!up) return f;
+                // keep the original object's identity fields, swap the shape
+                return { type: "Feature", id: f.id, properties: f.properties,
+                         geometry: up.geometry };
+              });
+            }
+            // One lon/lat box per country, computed once. The clip is rebuilt
+            // on every commit, and at close range most of the world is off
+            // screen -- but proving that with geoPath.bounds() costs more than
+            // the clip it saves (measured 5-13ms), because bounds() projects
+            // every vertex. A cached geographic box turns the same test into a
+            // handful of comparisons.
+            features.forEach(function (f) {
+              let x0 = 180, y0 = 90, x1 = -180, y1 = -90;
+              const walk = function (a) {
+                if (typeof a[0] === "number") {
+                  if (a[0] < x0) x0 = a[0];
+                  if (a[0] > x1) x1 = a[0];
+                  if (a[1] < y0) y0 = a[1];
+                  if (a[1] > y1) y1 = a[1];
+                  return;
+                }
+                for (let i = 0; i < a.length; i++) walk(a[i]);
+              };
+              walk(f.geometry.coordinates);
+              f.__bbox = [x0, y0, x1, y1];
+            });
+
             countrySelection = svg
               .selectAll("path.country")
               .data(features)
@@ -6484,7 +7200,18 @@ body.th-noanim #thailand-route-svg { display: none; }
         pointer-events: none;
         z-index: 5;
         overflow: visible;
-        transition: opacity 0.5s ease, filter 0.5s ease;
+        /* The shadow lives HERE, on the composited root, not on the 36 icons.
+           On an SVG child a CSS filter is applied at paint time, so every
+           repaint of this layer ran 36 drop-shadows; on this element it is one
+           GPU effect, and the picture is identical because nothing but the
+           icons has any alpha. No opacity transition: the cinematic writes
+           this layer's opacity every frame from the master timeline, and a
+           transition on top of that was a second animation smoothing the
+           first -- it kept the layer composited, and rastering at the
+           camera's full scale, for up to half a second after the timeline
+           had already faded it out. */
+        filter: drop-shadow(0 2px 3px rgba(40, 50, 60, 0.22));
+        will-change: transform, opacity;
       }
       body.view-tour .gfx-landmarks { opacity: 0; }
       body.view-home .gfx-landmarks { opacity: 1; }
@@ -6492,11 +7219,18 @@ body.th-noanim #thailand-route-svg { display: none; }
       .gfx-landmark {
         opacity: 0;
         animation: lmFadeIn 1.1s ease forwards;
-        filter: drop-shadow(0 2px 3px rgba(40, 50, 60, 0.22));
       }
       .gfx-landmark-bob {
         animation: lmBob 6.4s ease-in-out infinite;
       }
+      /* A transform animation on an SVG child is paint-time: while the bob
+         runs, this whole layer is repainted every frame, and during the flight
+         that repaint happens at the camera's scale -- on the way back out from
+         Thailand the layer reappears cold at ~2.6x and had to raster all 36
+         icons through their filters on that frame. Held still while the camera
+         moves (nobody can see a 2px float under a 4px travel blur); resumes
+         where it paused when the camera stops. */
+      body.th-zooming .gfx-landmark-bob { animation-play-state: paused; }
       @keyframes lmFadeIn {
         from { opacity: 0; }
         to   { opacity: 1; }
@@ -7268,6 +8002,44 @@ body.th-noanim #thailand-route-svg { display: none; }
 
       let resizeTimer = 0;
 
+      // [lon, lat] and the label's offset from the point, in px at zoom 1,
+      // with which side of the city it sits on. The 36 landmark icons draw
+      // ABOVE this layer at a fixed ~38px, so on a narrower window they cover
+      // more of the map: at 1280 wide a label to the right of Paris lands on
+      // Rome's Colosseum, and one to the left of Barcelona on Casablanca's
+      // mosque. The four in that band, and Singapore under Angkor, therefore
+      // hang BELOW their cities, over open sea, where nothing is drawn.
+      // Measured clean of every icon at 1024, 1280 and 1440.
+      const CITY_LABELS = [
+        // Europe -- the densest band; three of these hang below their city
+        { key: "london",       lonlat: [  -0.1278,  51.5074], dx: -12, dy: -6, side: "end"    },
+        { key: "paris",        lonlat: [   2.3522,  48.8566], dx:   0, dy: 15, side: "middle" },
+        { key: "berlin",       lonlat: [  13.4050,  52.5200], dx:  12, dy: -6, side: "start"  },
+        { key: "moscow",       lonlat: [  37.6173,  55.7558], dx:  20, dy:  4, side: "start"  },
+        { key: "barcelona",    lonlat: [   2.1734,  41.3851], dx:  -8, dy: 14, side: "start"  },
+        // North America
+        { key: "newyork",      lonlat: [ -74.0060,  40.7128], dx:  12, dy:  4, side: "start"  },
+        { key: "losangeles",   lonlat: [-118.2437,  34.0522], dx:   0, dy: 15, side: "middle" },
+        // South America -- Sao Paulo and Rio are 3.5 degrees apart, so one
+        // goes inland-left and the other out over the Atlantic
+        { key: "lima",         lonlat: [ -77.0428, -12.0464], dx: -12, dy:  4, side: "end"    },
+        { key: "saopaulo",     lonlat: [ -46.6333, -23.5505], dx: -12, dy: -2, side: "end"    },
+        { key: "rio",          lonlat: [ -43.1729, -22.9068], dx:  20, dy:  2, side: "start"  },
+        { key: "buenosaires",  lonlat: [ -58.3816, -34.6037], dx:  20, dy:  4, side: "start"  },
+        // Africa -- each label on the side away from the icon standing on or
+        // beside its city (pyramid, mask, table mountain)
+        { key: "cairo",        lonlat: [  31.2357,  30.0444], dx: -22, dy:  4, side: "end"    },
+        { key: "lagos",        lonlat: [   3.3792,   6.5244], dx: -14, dy:  4, side: "end"    },
+        { key: "nairobi",      lonlat: [  36.8219,  -1.2921], dx:  14, dy:  6, side: "start"  },
+        { key: "johannesburg", lonlat: [  28.0473, -26.2041], dx:  12, dy:  4, side: "start"  },
+        { key: "capetown",     lonlat: [  18.4241, -33.9249], dx: -14, dy: 10, side: "end"    },
+        // Middle East / Asia / Oceania
+        { key: "dubai",        lonlat: [  55.2708,  25.2048], dx:  20, dy:  4, side: "start"  },
+        { key: "singapore",    lonlat: [ 103.8198,   1.3521], dx: -12, dy:  4, side: "end"    },
+        { key: "tokyo",        lonlat: [ 139.6503,  35.6762], dx:  16, dy:  4, side: "start"  },
+        { key: "sydney",       lonlat: [ 151.2093, -33.8688], dx: -12, dy: 12, side: "end"    }
+      ];
+
       function setupCityMarkers() {
         const width = window.innerWidth;
         const height = window.innerHeight;
@@ -7294,6 +8066,20 @@ body.th-noanim #thailand-route-svg { display: none; }
           destinationLabel.setAttribute("x", bangkokCoords[0] + 12);
           destinationLabel.setAttribute("y", bangkokCoords[1] + 4);
         }
+
+        // The other cities go through the identical projection. Offsets are
+        // the two patterns the originals already use -- 12px clear of the
+        // point, so a landmark icon standing on the same coordinate is not
+        // overprinted -- with a side per city so that Europe, where four of
+        // them sit within 70px of each other, does not pile up.
+        CITY_LABELS.forEach(function (c) {
+          const el = flightSvg.querySelector('[data-city="' + c.key + '"]');
+          const at = projection(c.lonlat);
+          if (!el || !at) return;
+          el.setAttribute("x", at[0] + c.dx);
+          el.setAttribute("y", at[1] + c.dy);
+          el.setAttribute("text-anchor", c.side);
+        });
       }
 
       window.addEventListener(
@@ -7328,6 +8114,63 @@ body.th-noanim #thailand-route-svg { display: none; }
         worldMapWash.style.transformOrigin = "0 0";
         worldMapWash.style.transform = t;
       }
+
+      // Atmosphere rides the same camera as everything else, only damped:
+      // each layer takes a fraction of the camera's translation and a smaller
+      // fraction of its zoom, which is what separates them in depth. Driven
+      // from the master timeline like every other ramp here -- no clock of its
+      // own, so it reverses with the scroll for free and is perfectly still
+      // whenever the camera is.
+      // --- travel blur ---------------------------------------------------
+      // Read off how fast the master timeline is actually moving rather than
+      // from a curve of its own, so it needs no second animation and cannot
+      // disagree with the camera: it peaks wherever the camera is quickest,
+      // including a mid-flight turnaround, and is pinned to zero whenever no
+      // shot is running -- so both ends of the journey are always crisp.
+      // Quantised to 1/8px so the layer is not re-rasterised for a change
+      // nobody can see.
+      // Strong, and directional: a CSS blur() is isotropic, which reads as an
+      // out-of-focus lens rather than a camera crossing ground. feGaussianBlur
+      // takes a separate x and y deviation, so the smear can run along the
+      // travel -- the camera's dominant screen motion is the sideways sweep
+      // onto Thailand, hence the wider horizontal term.
+      const BLUR_MAX = 7.0, BLUR_GAIN = 3.6;
+      // The travel blur used to be an SVG reference filter, feGaussianBlur with
+      // a horizontal bias, on this 130vw x 130vh layer. Chromium cannot run a
+      // reference filter in the compositor: the whole layer is re-rasterised
+      // with the blur baked in every time stdDeviation changes -- ~24 times a
+      // flight, a multi-megapixel Gaussian on the raster thread -- while the
+      // layer's transform also changes every frame. Whenever that raster
+      // missed the frame deadline (any frame a terrain commit landed in, or
+      // whenever the GPU was busy), the compositor drew the frame with what it
+      // had: stale tiles scaled by the new transform (pixelation), and for
+      // tiles not yet done, nothing -- the ocean gradient beneath (black
+      // flash) or the page ground beyond it (white flash). Intermittent, by
+      // the nature of a race. filter: blur() is a compositor effect: the layer
+      // is rastered once, unfiltered, and the blur runs on the GPU from that
+      // surface, so a change of radius is no longer a re-raster. It is
+      // isotropic; BLUR_ISO is the factor that matched the old filter's
+      // apparent strength, so the pacing and the peak read the same.
+      const BLUR_ISO = 0.72;
+      let blurSpeed = 0, blurLastP = 0, blurLastT = 0, blurShown = -1;
+
+      function applyTravelBlur() {
+        const t = performance.now();
+        const dt = blurLastT ? Math.min(120, t - blurLastT) : 0;
+        blurLastT = t;
+        const inst = dt > 0 ? Math.abs(camP - blurLastP) / dt * 1000 : 0;
+        blurLastP = camP;
+        blurSpeed += (inst - blurSpeed) * 0.4;
+        // Quantised: a blur this large is a re-raster, and quarter-pixel steps
+        // are already finer than anyone can see at speed.
+        const px = shot
+          ? Math.round(Math.min(BLUR_MAX, blurSpeed * BLUR_GAIN) * 4) / 4
+          : 0;
+        if (px === blurShown) return;
+        blurShown = px;
+        worldMapCam.style.filter =
+          px > 0.2 ? "blur(" + (px * BLUR_ISO).toFixed(2) + "px)" : "none";
+      }
       let gfxLandmarksEl = null;   // landmark icons overlay (queried lazily)
       let flightSvg = null;        // Istanbul/Bangkok labels overlay
       if (!stage || !viewportEl || !routeSvg || !worldMapBg || !window.d3) return;
@@ -7349,7 +8192,16 @@ body.th-noanim #thailand-route-svg { display: none; }
       // the terrain is re-sampled from the full-resolution source.
       // Beyond ~3.2x the 8K source has to be upscaled on a retina screen and
       // the map goes soft compared with the first view; this keeps it crisp.
-      const ZOOM_MAX = 3.2;
+      // How close the camera gets to Thailand. This is capped by the terrain
+      // source, not by taste: the 8192px texture carries IW/(worldPx*dpr)
+      // source pixels per device pixel, so on a 2x display 1:1 runs out at
+      // z=2.94 and every step beyond upsamples. Measured at 1440x900/2x:
+      //   z=3.2 -> Thailand 21% of frame height, 0.92 source px per device px
+      //   z=4.0 -> 26%, 0.74      z=5.0 -> 33%, 0.59      z=9.0 -> 59%, 0.33
+      // 4.0 buys a visibly closer arrival while staying near native; going
+      // further needs a higher-resolution source for the region, not a
+      // bigger number here.
+      const ZOOM_MAX = 8.0;
       const PAN_END = 0.6;       // Thailand has reached centre-frame by here
       const REDRAW_MS = 120;     // real redraw at most this often *while* moving
       const SETTLE_MS = 110;     // …and one final exact redraw once it stops
@@ -7381,6 +8233,7 @@ body.th-noanim #thailand-route-svg { display: none; }
       const DESTS = [
         { key: "phuket", lonlat: [98.39, 7.88], n: "01",
           name: { tr: "Phuket", en: "Phuket" },
+          region: { tr: "Ada · Andaman Denizi", en: "Island · Andaman Sea" },
           meta: { tr: "Andaman kıyısı · 5 gece", en: "Andaman coast · 5 nights" },
           detail: [
             { tr: "2 – 7 Aralık 2026", en: "2 – 7 December 2026" },
@@ -7388,9 +8241,15 @@ body.th-noanim #thailand-route-svg { display: none; }
             { tr: "Phi Phi Adaları · James Bond Adası · Khao Sok",
               en: "Phi Phi Islands · James Bond Island · Khao Sok" }
           ],
-          dx: 118, dy: 104 },
+          // dy 82, not 104: the label grew 18px taller in the refinement pass
+          // and Phuket's is the lowest of the three, so expanded it ran 11px
+          // past the bottom of a 900-tall window. This is the label's offset
+          // from its coordinate, not the coordinate -- the anchor, the dot and
+          // the leader are untouched.
+          dx: 118, dy: 82 },
         { key: "bangkok", lonlat: [100.50, 13.75], n: "02",
           name: { tr: "Bangkok", en: "Bangkok" },
+          region: { tr: "Başkent · Chao Phraya", en: "Capital · Chao Phraya" },
           meta: { tr: "Chao Phraya · 4 gece", en: "Chao Phraya · 4 nights" },
           detail: [
             { tr: "7 – 11 Aralık 2026", en: "7 – 11 December 2026" },
@@ -7400,7 +8259,10 @@ body.th-noanim #thailand-route-svg { display: none; }
           dx: 138, dy: 8 },
         { key: "chiangmai", lonlat: [98.98, 18.79], n: "03",
           name: { tr: "Chiang Mai", en: "Chiang Mai" },
-          meta: { tr: "Kuzey Tayland", en: "Northern Thailand" },
+          region: { tr: "Kuzey Tayland · Dağlar", en: "Northern Thailand · Mountains" },
+          // The itinerary genuinely does not cover Chiang Mai yet, so this
+          // line says so rather than inventing a programme.
+          meta: { tr: "Program yakında", en: "Programme to be announced" },
           // Nothing in the site's itinerary covers Chiang Mai yet, so this
           // card says so rather than inventing a programme.
           detail: [
@@ -7409,13 +8271,499 @@ body.th-noanim #thailand-route-svg { display: none; }
           dx: 118, dy: -88 }
       ];
 
+      // --- The miniature dioramas ---------------------------------------
+      // Each stop carries a small layered scene standing on its own real
+      // coordinate. The depth is not geometry: the camera only ever
+      // translates and scales straight down onto Thailand, never orbits, so a
+      // mesh would be rendered from one fixed angle for the whole journey and
+      // would read as exactly this image -- for a WebGL context, an asset
+      // pipeline and a second render loop. What actually reads as depth is
+      // here instead: one light direction shared by all three scenes, cast
+      // contact shadows, aerial haze on the far plane, and three planes that
+      // separate as the camera closes in.
+      //
+      // Everything is drawn in a local box with the city's coordinate at the
+      // ORIGIN, bottom centre -- so the scene stands on its location. Placed
+      // by screenOf() like every other annotation, so it is correct at any
+      // scale and needs no hand-tuned offsets.
+      //
+      // One sun, upper left, for all three. Every lit face points up-left and
+      // every shaded face down-right; that consistency is most of what makes
+      // a flat drawing read as a solid object.
+      // --- One palette per stop -------------------------------------------
+      // All three scenes used to share a single set of gradients, which is
+      // why they read as the same pale beige object three times. Each stop now
+      // carries its own, and the art references them through dioTint() below,
+      // so not one path had to change. Same light direction, same structure,
+      // three temperatures: Andaman limestone and turquoise at Phuket, temple
+      // terracotta and muted gold at Bangkok, deeper forest and a richer gold
+      // in the north.
+      //   stone  [specular, lit, mid, shade]   the 4th stop is what gives the
+      //          faces a highlight roll-off instead of a flat wash
+      //   stoneD [lit, deep]                   shaded faces, cooled not greyed
+      const DIO_PALETTE = {
+        ph: {
+          stone:  ["#fdeecf", "#eed6ae", "#d2a071", "#94623f"],
+          stoneD: ["#8d6044", "#413f47"],
+          green:  ["#a3c477", "#5d9d6d", "#2e7256"],
+          gold:   ["#f8dfa2", "#dfb162", "#9c7029"],
+          water:  ["#a5e4da", "#3caeae", "#12666f"]
+        },
+        bk: {
+          stone:  ["#fff0d6", "#f2dcb8", "#d8a87c", "#9d6741"],
+          stoneD: ["#95643f", "#403c40"],
+          green:  ["#93b673", "#548c5f", "#276448"],
+          gold:   ["#ffe6a6", "#e2b45f", "#a1751f"],
+          water:  ["#8ed0cd", "#329099", "#145764"]
+        },
+        cm: {
+          stone:  ["#fdecca", "#eed5b1", "#cf9f77", "#8e5c3b"],
+          stoneD: ["#875a3d", "#3d3b3e"],
+          green:  ["#93b76b", "#4c8c5c", "#26654b"],
+          gold:   ["#ffe9ac", "#e8bb63", "#a97c26"],
+          water:  ["#93d5d0", "#33959a", "#155a64"]
+        }
+      };
+
+      function dioStops(list, offs, alpha) {
+        let out = "";
+        for (let i = 0; i < list.length; i++) {
+          out += '<stop offset="' + offs[i] + '" stop-color="' + list[i] + '"' +
+                 (alpha ? ' stop-opacity="' + alpha[i] + '"' : "") + "/>";
+        }
+        return out;
+      }
+
+      function dioGradients() {
+        let out = "";
+        for (const k in DIO_PALETTE) {
+          const p = DIO_PALETTE[k];
+          out +=
+            '<linearGradient id="dio-stone-' + k + '" x1="0" y1="0" x2="1" y2="0.85">' +
+              dioStops(p.stone, [0, 0.09, 0.42, 1]) +
+            "</linearGradient>" +
+            '<linearGradient id="dio-stone-d-' + k + '" x1="0" y1="0" x2="1" y2="0.7">' +
+              dioStops(p.stoneD, [0, 1]) +
+            "</linearGradient>" +
+            '<linearGradient id="dio-green-' + k + '" x1="0.1" y1="0" x2="0.9" y2="1">' +
+              dioStops(p.green, [0, 0.55, 1]) +
+            "</linearGradient>" +
+            '<linearGradient id="dio-gold-' + k + '" x1="0.05" y1="0" x2="0.95" y2="0.9">' +
+              dioStops(p.gold, [0, 0.5, 1]) +
+            "</linearGradient>" +
+            '<linearGradient id="dio-water-' + k + '" x1="0" y1="0" x2="0" y2="1">' +
+              dioStops(p.water, [0, 0.42, 1], [0.92, 0.8, 0]) +
+            "</linearGradient>";
+        }
+        return out;
+      }
+
+      // Which palette each stop draws from, plus the handful of colours the
+      // art names directly rather than through a gradient. Nothing here moves
+      // a vertex -- it is a swap of ids and flat fills at build time.
+      const DIO_TINT = {
+        phuket: { g: "ph", map: {
+          "#4d6b4c": "#488c60", "#46653f": "#3d7f52", "#8fadb9": "#7fadb0",
+          "#6d5c46": "#8a6249", "#4c3f2f": "#4a3630", "#f2e6cb": "#fdeed2",
+          "#cfeae5": "#d8f2ec", "#efe3c8": "#fdeed2" } },
+        bangkok: { g: "bk", map: {
+          "#8fadb9": "#7fa2ab", "#7d6a52": "#9a6d4c", "#d3a959": "#e0b45f",
+          "#e6c583": "#f2d391", "#cfeae5": "#d6f0ea" } },
+        chiangmai: { g: "cm", map: {
+          "#7396a6": "#6d9ba0", "#5f8494": "#517e86", "#3f5c46": "#3a6b4c",
+          "#2c4433": "#2a5138", "#6b8f5e": "#6ea56d", "#8a6a35": "#9a6b3a",
+          "#a37f43": "#b8874a", "#c19a55": "#d3a55c", "#a67c36": "#b0802f",
+          "#7d5c26": "#8a6224", "#6d5c46": "#8a6249", "#b08d4f": "#c2954f" } }
+      };
+
+      function dioTint(key, art) {
+        const t = DIO_TINT[key];
+        if (!t) return art;
+        // stone-d before stone, or the shorter id would match first and leave
+        // a stray "-d" behind
+        let out = art.replace(/url\(#dio-(stone-d|stone|green|gold|water)\)/g,
+                              "url(#dio-$1-" + t.g + ")");
+        for (const from in t.map) out = out.split(from).join(t.map[from]);
+        return out;
+      }
+
+      const DIO_DEFS =
+        '<defs>' +
+          dioGradients() +
+          // Aerial perspective, as a low band of mist rather than a shape:
+          // soft in every direction, so the far plane sits back without any
+          // edge of its own giving the trick away.
+          '<radialGradient id="dio-haze" cx="0.5" cy="0.58" r="0.5">' +
+            '<stop offset="0" stop-color="#cfe0e4" stop-opacity="0.32"/>' +
+            '<stop offset="0.55" stop-color="#cfe0e4" stop-opacity="0.15"/>' +
+            '<stop offset="1" stop-color="#cfe0e4" stop-opacity="0"/>' +
+          '</radialGradient>' +
+          // Elephant hide: warm grey with a brown undertone, matte. Three stops
+          // and a highlight, like the stone, but the range is narrower and the
+          // roll-off slower -- skin does not catch light the way masonry does.
+          '<linearGradient id="dio-hide" x1="0" y1="0" x2="1" y2="0.85">' +
+            '<stop offset="0" stop-color="#c2b4a7"/>' +
+            '<stop offset="0.14" stop-color="#a99a8d"/>' +
+            '<stop offset="0.5" stop-color="#877868"/>' +
+            '<stop offset="1" stop-color="#5a4d44"/>' +
+          '</linearGradient>' +
+          '<linearGradient id="dio-hide-d" x1="0" y1="0" x2="1" y2="0.7">' +
+            '<stop offset="0" stop-color="#6e6057"/>' +
+            '<stop offset="1" stop-color="#3a322d"/>' +
+          '</linearGradient>' +
+          '<radialGradient id="tz-head-glow" cx="0.5" cy="0.5" r="0.5">' +
+            '<stop offset="0" stop-color="#ffe9c0" stop-opacity="0.75"/>' +
+            '<stop offset="0.35" stop-color="#f6d29a" stop-opacity="0.3"/>' +
+            '<stop offset="1" stop-color="#f6d29a" stop-opacity="0"/>' +
+          '</radialGradient>' +
+          '<radialGradient id="dio-lamp" cx="0.5" cy="0.5" r="0.5">' +
+            '<stop offset="0" stop-color="#ffe0a6" stop-opacity="0.85"/>' +
+            '<stop offset="0.3" stop-color="#f2c987" stop-opacity="0.34"/>' +
+            '<stop offset="1" stop-color="#f2c987" stop-opacity="0"/>' +
+          '</radialGradient>' +
+          '<radialGradient id="dio-contact" cx="0.5" cy="0.5" r="0.5">' +
+            '<stop offset="0" stop-color="#08222c" stop-opacity="0.5"/>' +
+            '<stop offset="0.55" stop-color="#08222c" stop-opacity="0.22"/>' +
+            '<stop offset="1" stop-color="#08222c" stop-opacity="0"/>' +
+          '</radialGradient>' +
+          // The mark of a stop the route has reached: a warm bloom low behind
+          // the landmark, and nothing more. Kept weak on purpose -- at full
+          // strength it washed the whole scene out into a pale dome.
+          '<radialGradient id="dio-lit" cx="0.42" cy="0.62" r="0.55">' +
+            '<stop offset="0" stop-color="#ffd9a0" stop-opacity="0.6"/>' +
+            '<stop offset="0.5" stop-color="#ffd9a0" stop-opacity="0.24"/>' +
+            '<stop offset="1" stop-color="#ffd9a0" stop-opacity="0"/>' +
+          '</radialGradient>' +
+        '</defs>';
+
+      // An Asian elephant in profile, facing left, feet on y=0, shoulder ~44
+      // units. Drawn from the animal's actual landmarks rather than from
+      // rounded blocks -- the three previous passes were built from blobs and
+      // read as tapir, hippo and toy in turn. What carries "elephant" at a
+      // small size is the SILHOUETTE, so every one of these is in it:
+      //   - the twin-domed head, highest point of the animal (Asian, not
+      //     African: the back is convex, the ears are smaller and rounded)
+      //   - the trunk with its own base at the face and an S-hang to the
+      //     ground, wide at the root, clearly separate from the chest
+      //   - a heavy convex back sloping to a low rump and a short tail
+      //   - four stout columnar legs with splayed feet and toenails
+      // Material is skin, not stone: warm grey with a brown undertone, a
+      // matte roll-off, wrinkle rings on the trunk and knees, and occlusion
+      // under the belly and behind the ear. Same sun as the rest of the map.
+      //   s     scale
+      //   flip  mirror
+      //   sx    extra horizontal squash -- under 1 suggests a body turned a
+      //         little toward the viewer, which is how the second animal is
+      //         made to differ in pose rather than only in size
+      function dioElephant(x, y, s, flip, sx) {
+        const kx = (flip ? -s : s) * (sx || 1);
+        return '<g transform="translate(' + x + ',' + y + ') scale(' + kx + ',' + s + ')">' +
+          // ---- far side, in shade ------------------------------------------
+          '<path d="M-9.5-21 L-9-4.6 C-9.1-1.8 -8-1 -6.4-1 L-4-1 C-2.4-1 -1.4-1.8 -1.6-4.6 ' +
+            'L-2-21 Z" fill="url(#dio-hide-d)"/>' +
+          '<path d="M9.5-20 L10-4.6 C9.9-1.8 11-1 12.6-1 L15-1 C16.6-1 17.6-1.8 17.4-4.6 ' +
+            'L17-20 Z" fill="url(#dio-hide-d)"/>' +
+          // tail, short, with a tuft
+          '<path d="M28-33 C30.5-30 31-24 30-17" fill="none" stroke="url(#dio-hide-d)" ' +
+            'stroke-width="1.5" stroke-linecap="round"/>' +
+          '<ellipse cx="29.9" cy="-15.6" rx="1.1" ry="2" fill="#3d3531"/>' +
+          // ---- body ----------------------------------------------------------
+          '<path d="M-12-25 C-8-42 -2-48 8-47 C18-46 26-42 28-34 C29-28 27-22 24-20 ' +
+            'C18-18 8-16.5 -4-18 C-8-18.5 -11-21 -12-25 Z" fill="url(#dio-hide)"/>' +
+          // occlusion under the belly and up the flank behind the foreleg
+          '<path d="M-6-18 C6-16.5 16-18 24-20 C18-19.5 8-20.5 -4-20.6 Z" ' +
+            'fill="#2e2724" opacity="0.28"/>' +
+          '<ellipse cx="4" cy="-21" rx="12" ry="3" fill="#2e2724" opacity="0.14"/>' +
+          // skin folds along the belly and over the hip
+          '<path d="M-2-24 C4-25 12-25 20-27 M22-30 C25-33 27-36 27-40" fill="none" ' +
+            'stroke="#4a3f39" stroke-width="0.55" stroke-linecap="round" opacity="0.4"/>' +
+          // light along the top of the back
+          '<path d="M-6-43 C0-47 10-47 20-43" fill="none" stroke="#cbbdb0" ' +
+            'stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>' +
+          // ---- near legs, with feet and toenails --------------------------------
+          '<path d="M-14-22 L-13.5-4 C-13.6-1 -12.5 0 -10.5 0 L-7.5 0 C-5.6 0 -4.6-1 -4.8-4 ' +
+            'L-5-22 Z" fill="url(#dio-hide)"/>' +
+          '<path d="M14-21 L14.5-4 C14.4-1 15.5 0 17.5 0 L20.5 0 C22.4 0 23.4-1 23.2-4 ' +
+            'L23-21 Z" fill="url(#dio-hide)"/>' +
+          // the shaded rear edge of each near leg, so they are cylinders
+          '<path d="M-5-22 L-4.8-4 C-4.6-1 -5.6 0 -7.5 0 L-7.2 0 C-6.4-1.2 -6.6-3 -6.8-6 ' +
+            'L-7-22 Z" fill="url(#dio-hide-d)" opacity="0.55"/>' +
+          '<path d="M23-21 L23.2-4 C23.4-1 22.4 0 20.5 0 L20.8 0 C21.6-1.2 21.4-3 21.2-6 ' +
+            'L21-21 Z" fill="url(#dio-hide-d)" opacity="0.55"/>' +
+          // knee wrinkles
+          '<path d="M-13-13 C-11-12.4 -8-12.4 -6-13 M-12.8-10.6 C-11-10 -8-10 -6.2-10.6 ' +
+            'M15-12.6 C17-12 20-12 22-12.6 M15.2-10.2 C17-9.6 20-9.6 21.8-10.2" ' +
+            'fill="none" stroke="#4a3f39" stroke-width="0.5" stroke-linecap="round" opacity="0.42"/>' +
+          // toenails
+          '<path d="M-12.4-0.2 q1-1.2 2 0 M-9.6-0.2 q1-1.2 2 0 M-6.8-0.2 q1-1.2 2 0 ' +
+            'M15.6-0.2 q1-1.2 2 0 M18.4-0.2 q1-1.2 2 0 M21.2-0.2 q1-1.2 2 0" ' +
+            'fill="none" stroke="#d6cbbf" stroke-width="0.7" stroke-linecap="round" opacity="0.8"/>' +
+          // ---- head ---------------------------------------------------------------
+          '<path d="M-13-22 C-20-24 -26-28 -27-34 C-28-40 -24-45 -19-46 C-17-47 -15-46 ' +
+            '-14-45 C-12-47 -8-46 -7-42 C-6-36 -8-28 -13-22 Z" fill="url(#dio-hide)"/>' +
+          // the hollow between the two domes, and the temple
+          '<path d="M-15-45 C-14.6-43.6 -14.4-42.2 -14.6-41" fill="none" stroke="#5a4e46" ' +
+            'stroke-width="0.7" stroke-linecap="round" opacity="0.5"/>' +
+          '<path d="M-24-45 C-26-42 -27-38 -27-34" fill="none" stroke="#cbbdb0" ' +
+            'stroke-width="1" stroke-linecap="round" opacity="0.4"/>' +
+          // ---- trunk: its own base at the face, S-hang to the ground ---------------
+          '<g class="dio-trunk">' +
+            '<path d="M-24-34 C-30-33 -34-26 -34-18 C-34-11 -33-5 -33.5-1 C-33.6 0.4 ' +
+              '-31.6 0.6 -31-0.6 C-30.6-4 -31-9 -30.5-15 C-30-22 -28-28 -24-30 Z" ' +
+              'fill="url(#dio-hide)"/>' +
+            '<path d="M-24-34 C-30-33 -34-26 -34-18 C-34-11 -33-5 -33.5-1 C-33.4-2.6 ' +
+              '-32.8-5 -32.6-8 C-32.4-15 -31.4-24 -25.4-32.6 Z" fill="url(#dio-hide-d)" ' +
+              'opacity="0.5"/>' +
+            // rings
+            '<path d="M-32.6-24 C-31 -23.4 -29.4-23.6 -28-24.4 M-33.4-18 C-32-17.4 -30.4-17.6 ' +
+              '-29.4-18.4 M-33.6-12 C-32.4-11.4 -31-11.6 -30-12.4 M-33.4-6.6 C-32.4-6 -31.4-6.2 ' +
+              '-30.6-7" fill="none" stroke="#4a3f39" stroke-width="0.5" stroke-linecap="round" ' +
+              'opacity="0.45"/>' +
+          '</g>' +
+          // tusk: short, from under the trunk root
+          '<path d="M-25-27 C-28-26 -30-23.5 -30.5-21" fill="none" stroke="#efe6d6" ' +
+            'stroke-width="1.6" stroke-linecap="round"/>' +
+          // ---- ear: Asian, smaller and rounded, folded back at the top --------------
+          '<path d="M-14-41 C-8-42 -4-38 -5-31 C-5.6-26 -9-23 -13-24.5 C-16-25.6 -17-30 ' +
+            '-16-35 C-15.6-38 -15-40.4 -14-41 Z" fill="url(#dio-hide-d)" opacity="0.82"/>' +
+          '<path d="M-14-41 C-8-42 -4-38 -5-31" fill="none" stroke="#b7a89b" ' +
+            'stroke-width="0.9" stroke-linecap="round" opacity="0.55"/>' +
+          '<path d="M-13.4-40 C-9.6-40.4 -7-37.4 -7.6-32" fill="none" stroke="#2e2724" ' +
+            'stroke-width="0.6" stroke-linecap="round" opacity="0.3"/>' +
+          // occlusion where the ear meets the head
+          '<path d="M-16-35 C-17-30 -16-25.6 -13-24.5 C-15.4-25.4 -17.2-29 -17-35 Z" ' +
+            'fill="#2e2724" opacity="0.3"/>' +
+          // eye, in front of the ear and below the front dome
+          '<ellipse cx="-22" cy="-37" rx="0.9" ry="0.7" fill="#2a221e"/>' +
+          '<circle cx="-22.3" cy="-37.3" r="0.25" fill="#d6cbbf" opacity="0.8"/>' +
+        '</g>';
+      }
+
+      // A palm, drawn once and mirrored/scaled at each use. Trunk leans away
+      // from the sun so its own shadow falls on the shaded side.
+      function dioPalm(x, y, s, flip) {
+        return '<g transform="translate(' + x + ',' + y +
+                 ') scale(' + (flip ? -s : s) + ',' + s + ')">' +
+          // Inner group: a CSS transform would replace the attribute above if
+          // the animation lived on the same node.
+          '<g class="dio-sway">' +
+          '<path d="M0 0 q-1.1-5.6 1.4-10.6" fill="none" stroke="#6b5a3f" ' +
+            'stroke-width="1.15" stroke-linecap="round"/>' +
+          '<path d="M1.4-10.6 q-5-2.6 -7.8-0.7 M1.4-10.6 q-4.4-4.2 -2.6-7 ' +
+                  'M1.4-10.6 q1.8-4.6 5-4.6 M1.4-10.6 q5.2 0.4 6.4 3.2 ' +
+                  'M1.4-10.6 q1.6 3.2 -0.2 5" ' +
+            'fill="none" stroke="#4f6f4d" stroke-width="1.1" stroke-linecap="round"/>' +
+          '</g>' +
+        '</g>';
+      }
+
+      // The three scenes. Index 0 is the far plane, 1 the plane the landmark
+      // itself stands on, 2 the near plane -- they are pushed apart on
+      // approach by DIO_DEPTH below.
+      const DIOS = {
+        // PHUKET -- an Andaman limestone tower standing off a beach, with a
+        // long-tail boat working the shallows. The karst profile is the real
+        // one: pinched at the waterline where the sea has undercut it, heavy
+        // through the middle, broken at the top.
+        phuket: [
+          '<path d="M-27 2 L-28.6-5 L-27.6-12 L-25-16.6 L-21.4-18.4 L-18.8-15 L-17.8-9 ' +
+            'L-19-3 L-16.6 2 Z" fill="#8fadb9" opacity="0.28"/>' +
+          '<path d="M21 2 L19.2-3 L20-8.4 L21.8-11.8 L24.6-13.2 L26.8-10.6 L27.2-6 ' +
+            'L26.2-1.6 L28 2 Z" fill="#8fadb9" opacity="0.2"/>' +
+          '<ellipse cx="0" cy="-4" rx="28" ry="10" fill="url(#dio-haze)"/>',
+
+          '<ellipse cx="-1" cy="1.4" rx="33" ry="5.4" fill="url(#dio-contact)"/>' +
+          '<path d="M-30 1.4 Q-26-5.6 -14-8.2 Q0-10.8 12-7.8 Q23-5.2 28 1.4 Z" fill="url(#dio-green)"/>' +
+          '<path d="M-30 1.4 Q-26-5.6 -14-8.2 Q0-10.8 12-7.8 Q23-5.2 28 1.4" fill="none" ' +
+            'stroke="#f2e6cb" stroke-width="1.6" stroke-linecap="round" opacity="0.75"/>' +
+          // the landmark's own shadow, raked away from the sun across the sand
+          '<path d="M-4-4.4 Q10-2.6 21-0.4 Q11 1.8 -1-1 Z" fill="#0d3038" opacity="0.3"/>' +
+          // a second, smaller tower off the point, for depth
+          '<path d="M18.6-4.6 L16.8-10.6 L16-17 L18-21.8 L21.4-24 L24.6-21 L26.4-16 ' +
+            'L26-10.4 L27.4-4.6 Z" fill="url(#dio-stone)" opacity="0.94"/>' +
+          '<path d="M21.4-24 L24.6-21 L26.4-16 L26-10.4 L27.4-4.6 L22.2-4.6 L21.8-10.4 ' +
+            'L21.6-16 Z" fill="url(#dio-stone-d)" opacity="0.94"/>' +
+          '<path d="M18.6-4.6 L16.8-10.6 Q21.6-7.6 26.6-9.4 L27.4-4.6 Z" ' +
+            'fill="#4c3f2f" opacity="0.5"/>' +
+          // The tower. A Phang Nga karst is not an ovoid: the sides run close
+          // to vertical, they step irregularly, the widest point is near the
+          // TOP because the sea has undercut everything below it, and the
+          // crown is broken and asymmetric. A smooth taper reads as a leaf or
+          // a shell, which is what the first two passes drew.
+          '<path d="M-8-5 L-10.2-14 L-9-22.4 L-12.4-31 L-11.6-39.6 L-13.4-47 L-9-52 ' +
+            'L-4.4-55.2 L-2-52.4 L0.6-55.8 L3.2-51 L6.4-48 L7.6-39.8 L6.4-31 L8.2-23 ' +
+            'L6-14 L4-5 Z" fill="url(#dio-stone)"/>' +
+          '<path d="M0.6-55.8 L3.2-51 L6.4-48 L7.6-39.8 L6.4-31 L8.2-23 L6-14 L4-5 ' +
+            'L0.8-5 L2-14 L2.6-23 L1.6-31 L2.4-39.6 L1.6-48 Z" fill="url(#dio-stone-d)"/>' +
+          // a few short, uneven runs -- limestone weathers vertically, and
+          // regular full-height ribbing is what made this look like a shell
+          '<path d="M-8.6-16.4 L-7.6-25 M-10.6-33 L-9.8-41.4 M-3.4-19 L-4-27.6 ' +
+            'M-2.6-36 L-3.2-45" fill="none" stroke="#6d5c46" stroke-width="0.6" ' +
+            'opacity="0.28" stroke-linecap="round"/>' +
+          // the undercut, which is what makes an Andaman karst read as
+          // standing IN the water rather than on it
+          '<path d="M-8-5 L-10.2-14 Q-3-9.4 6-12.6 L4-5 Z" fill="#4c3f2f" opacity="0.62"/>' +
+          '<path d="M-10.2-14 Q-3-9.4 6-12.6" fill="none" stroke="#efe3c8" ' +
+            'stroke-width="0.55" opacity="0.32"/>' +
+          // forest in the cracks and on the broken top -- clumps, not a cap
+          '<path d="M-9-52 Q-6.6-55.4 -4-54.2 Q-2.6-56 -1.4-53.6 Q-4.6-54.4 -7-52.8 Z" ' +
+            'fill="#4d6b4c"/>' +
+          '<path d="M1.4-53.6 Q3-56.2 4.6-53.4 Q2.8-54.4 1.4-53.6 Z" fill="#44603f"/>' +
+          '<path d="M-12.8-44 q-3-2 -4.4 0.2 M7.2-42.6 q3-2 4.4 0.2 M-11.4-27 q-2.4-1.8 -3.6 0.2" ' +
+            'fill="none" stroke="#46653f" stroke-width="1.6" stroke-linecap="round"/>' +
+          // a lower rock shoulder at its foot, so the tower has something to
+          // stand on other than the beach line
+          '<path d="M-15-5 L-16.4-11 L-13-15.4 L-9.6-13.2 L-8.6-6 Z" ' +
+            'fill="url(#dio-stone-d)" opacity="0.85"/>' +
+          '' +
+          dioPalm(-23, 0.8, 1, false) +
+          dioPalm(19, -0.4, 0.78, true),
+
+          '<ellipse cx="18" cy="7" rx="19" ry="4.4" fill="url(#dio-water)" opacity="0.5"/>' +
+          '<path d="M4 8.2 q6-1.1 11 0 M22 9.6 q5.5-1 10 0" ' +
+            'fill="none" stroke="#cfeae5" stroke-width="0.8" stroke-linecap="round" opacity="0.42"/>' +
+          '<g class="dio-boat">' +
+            '<path d="M11 5.4 L28 5.4 Q29.6 5.4 29 7 L26.4 9.6 Q25.8 10.2 24.6 10.2 L14 10.2 ' +
+              'Q12.6 10.2 12 9 Z" fill="#7d5535"/>' +
+            '<path d="M11 5.4 L28 5.4 Q29.6 5.4 29 7 L12.6 7 Z" fill="#c08a56"/>' +
+            '<path d="M28.4 5.6 L34.6 -0.4" fill="none" stroke="#7d5535" stroke-width="1.3" ' +
+              'stroke-linecap="round"/>' +
+            '<path d="M33 0.8 q3-0.9 4.1 0.7" fill="none" stroke="#d96a4e" stroke-width="1" ' +
+              'stroke-linecap="round"/>' +
+            '<path d="M12.4 6.2 L5.4 10" fill="none" stroke="#5f4227" stroke-width="1" ' +
+              'stroke-linecap="round"/>' +
+          '</g>'
+        ],
+
+        // BANGKOK -- Wat Arun on the Chao Phraya. The central prang is built
+        // from stacked tiers rather than one cone, because the tiers are what
+        // make it Wat Arun and not a generic spire; the city behind it is held
+        // to a flat silhouette so it never competes.
+        bangkok: [
+          '<path d="M-28 2 V-10 h2.6 V-16 h2.2 V-10 h3.2 V-20 h2.6 V-10 h3 V-6 h3.2 V-13.4 ' +
+            'h2.2 V-6 h3.8 V-11 h2.2 V-6 h3.4 V-17 h2.4 V-6 h3.8 V2 Z" ' +
+            'fill="#8fadb9" opacity="0.3"/>' +
+          '<ellipse cx="0" cy="-5" rx="30" ry="11" fill="url(#dio-haze)"/>',
+
+          '<ellipse cx="0" cy="1.6" rx="32" ry="5.2" fill="url(#dio-contact)"/>' +
+          '<path d="M2-3.6 Q14-1.6 24 0.6 Q13 2.2 1-0.4 Z" fill="#0d3038" opacity="0.26"/>' +
+          '<path d="M-27-2 L-24.6-9 L-22.2-16.4 L-19.8-9 L-17.4-2 Z" fill="url(#dio-stone)"/>' +
+          '<path d="M-22.2-16.4 L-19.8-9 L-17.4-2 L-22.2-2 Z" fill="url(#dio-stone-d)"/>' +
+          '<path d="M17.4-2 L19.8-9 L22.2-16.4 L24.6-9 L27-2 Z" fill="url(#dio-stone)"/>' +
+          '<path d="M22.2-16.4 L24.6-9 L27-2 L22.2-2 Z" fill="url(#dio-stone-d)"/>' +
+          '<path d="M-23 1.4 L-19.6-5 L15.6-5 L19 1.4 Z" fill="url(#dio-stone)"/>' +
+          '<path d="M-1-5 L15.6-5 L19 1.4 L-1 1.4 Z" fill="url(#dio-stone-d)" opacity="0.5"/>' +
+          '<path d="M-19.6-5 L-16.4-10.4 L12.4-10.4 L15.6-5 Z" fill="url(#dio-stone)"/>' +
+          '<path d="M-1-10.4 L12.4-10.4 L15.6-5 L-1-5 Z" fill="url(#dio-stone-d)" opacity="0.45"/>' +
+          '<path d="M-16.4-10.4 L-13.6-15.2 L9.6-15.2 L12.4-10.4 Z" fill="url(#dio-stone)"/>' +
+          '<path d="M-1-15.2 L9.6-15.2 L12.4-10.4 L-1-10.4 Z" fill="url(#dio-stone-d)" opacity="0.4"/>' +
+          '<path d="M-13.6-15.2 L-11.4-23 L7.4-23 L9.6-15.2 Z" fill="url(#dio-stone)"/>' +
+          '<path d="M-1-23 L7.4-23 L9.6-15.2 L-1-15.2 Z" fill="url(#dio-stone-d)" opacity="0.42"/>' +
+          '<path d="M-11.4-23 L-9.6-31.6 L5.6-31.6 L7.4-23 Z" fill="url(#dio-stone)"/>' +
+          '<path d="M-1-31.6 L5.6-31.6 L7.4-23 L-1-23 Z" fill="url(#dio-stone-d)" opacity="0.44"/>' +
+          '<path d="M-9.6-31.6 L-7.8-40.6 L4-40.6 L5.6-31.6 Z" fill="url(#dio-stone)"/>' +
+          '<path d="M-1-40.6 L4-40.6 L5.6-31.6 L-1-31.6 Z" fill="url(#dio-stone-d)" opacity="0.46"/>' +
+          '<path d="M-7.8-40.6 L-5.6-50 L2-50 L4-40.6 Z" fill="url(#dio-stone)"/>' +
+          '<path d="M-1-50 L2-50 L4-40.6 L-1-40.6 Z" fill="url(#dio-stone-d)" opacity="0.48"/>' +
+          '<path d="M-5.6-50 L-1.2-63 L2-50 Z" fill="url(#dio-stone)"/>' +
+          '<path d="M-1.2-63 L2-50 L-1.2-50 Z" fill="url(#dio-stone-d)"/>' +
+          '<path d="M-13.6-15.2 H12.4 M-11.4-23 H9.6 M-9.6-31.6 H7.4 M-7.8-40.6 H5.6 M-5.6-50 H4" ' +
+            'stroke="#7d6a52" stroke-width="0.55" opacity="0.55" fill="none"/>' +
+          '<path d="M-1.2-63 v-6" stroke="#d3a959" stroke-width="1.15" stroke-linecap="round" fill="none"/>' +
+          '<path d="M-1.2-70.6 l1.8 3 -1.8 3 -1.8-3 Z" fill="#e6c583"/>' +
+          '',
+
+          '<ellipse cx="-20" cy="7" rx="19" ry="4.2" fill="url(#dio-water)" opacity="0.48"/>' +
+          '<path d="M-33 8.4 q6-1.1 11 0 M-16 9.6 q5.5-1 10 0" ' +
+            'fill="none" stroke="#cfeae5" stroke-width="0.8" stroke-linecap="round" opacity="0.4"/>' +
+          '<g class="dio-boat">' +
+            '<path d="M-31 5.4 L-15 5.4 Q-13.5 5.4 -14.1 6.9 L-16.4 9.2 Q-17 9.8 -18 9.8 L-28 9.8 ' +
+              'Q-29.2 9.8 -29.8 8.7 Z" fill="#7d5535"/>' +
+            '<path d="M-31 5.4 L-15 5.4 Q-13.5 5.4 -14.1 6.9 L-29.4 6.9 Z" fill="#c08a56"/>' +
+            '<path d="M-14.6 5.6 L-9 0.8" fill="none" stroke="#7d5535" stroke-width="1.2" ' +
+              'stroke-linecap="round"/>' +
+            '<path d="M-10.4 1.8 q2.7-0.8 3.7 0.6" fill="none" stroke="#d96a4e" stroke-width="0.95" ' +
+              'stroke-linecap="round"/>' +
+          '</g>'
+        ],
+
+        // CHIANG MAI -- Doi Suthep's golden chedi on its terrace, the northern
+        // ridges stacked behind it, pines and two lanterns in front.
+        chiangmai: [
+          '<path d="M-31 2 L-21-20 L-14.4-8.6 L-6.6-23.4 L1-7 L8.4-19 L16-5.6 L23.8-16.4 ' +
+            'L31 2 Z" fill="#7396a6" opacity="0.3"/>' +
+          '<path d="M-31 2 L-22-12 L-15-4 L-5.6-16 L3.4-3 L12.8-11 L21.4-3 L31 2 Z" ' +
+            'fill="#5f8494" opacity="0.38"/>' +
+          '<ellipse cx="0" cy="-4" rx="32" ry="10" fill="url(#dio-haze)"/>',
+
+          '<ellipse cx="0" cy="1.6" rx="33" ry="5.2" fill="url(#dio-contact)"/>' +
+          '<path d="M4-3 Q17-1.2 27 1 Q15 2.6 3 0 Z" fill="#0d3038" opacity="0.24"/>' +
+          // A low grassy rise for them to stand on -- not the stone terrace the
+          // chedi needed; elephants on architecture reads wrong.
+          '<path d="M-36 1.6 Q-26-3.6 -8-4.4 Q12-5.2 26-2.6 Q33-0.8 36 1.6 Z" ' +
+            'fill="url(#dio-green)"/>' +
+          '<path d="M-36 1.6 Q-26-3.6 -8-4.4 Q12-5.2 26-2.6 Q33-0.8 36 1.6" fill="none" ' +
+            'stroke="#8fb56e" stroke-width="0.9" stroke-linecap="round" opacity="0.4"/>' +
+          // ONE animal. A pair was tried -- the second turned the other way
+          // and standing behind -- and because the two faced each other their
+          // heads, trunks and ears all fell in the same 16-unit band, which at
+          // map scale read as one doubled, stacked object rather than as two
+          // elephants. A single figure is the unambiguous silhouette. Centred
+          // on the coordinate; its own contact shadow, cast by the same sun as
+          // everything else here. Grey on purpose -- the realism is meant to
+          // come from the anatomy and the light, not from colour.
+          '<ellipse cx="2" cy="-2.8" rx="22" ry="3.4" fill="#0d3038" opacity="0.26"/>' +
+          dioElephant(2, -2.8, 0.74, false, 1) +
+          '',
+
+          '<path d="M-34 3 l4.4-11.6 4.4 11.6 Z M-26 4.2 l3.6-9.4 3.6 9.4 Z ' +
+            'M25 3.4 l4-10.4 4 10.4 Z M33 4.4 l3.2-8.6 3.2 8.6 Z" fill="#3f5c46"/>' +
+          '<path d="M-29.6-8.6 v11.6 M-22.4-5.2 v9.4 M29-7 v10.4 M36.2-4.4 v8.8" ' +
+            'fill="none" stroke="#2c4433" stroke-width="0.7"/>' +
+          '<path d="M-34 3 l4.4-11.6 M-26 4.2 l3.6-9.4 M25 3.4 l4-10.4 M33 4.4 l3.2-8.6" ' +
+            'fill="none" stroke="#6b8f5e" stroke-width="0.8" stroke-linecap="round"/>' +
+          '<g class="dio-lantern">' +
+            '<ellipse cx="-17" cy="-34" rx="6.4" ry="7.4" fill="url(#dio-lamp)"/>' +
+            '<ellipse cx="-17" cy="-34" rx="1.5" ry="2" fill="#ffeec9"/>' +
+          '</g>' +
+          '<g class="dio-lantern dio-lantern--b">' +
+            '<ellipse cx="18" cy="-43" rx="5.2" ry="6" fill="url(#dio-lamp)" opacity="0.85"/>' +
+            '<ellipse cx="18" cy="-43" rx="1.2" ry="1.6" fill="#ffeec9"/>' +
+          '</g>'
+        ]
+      };
+
+      // How far apart the three planes are pushed at full approach. 1 is the
+      // ground the landmark stands on; the far plane shrinks behind it and the
+      // near plane grows in front. Three numbers, not a system.
+      const DIO_DEPTH = [0.93, 1, 1.08];
+      // Per-scene evening-out, in trip order. Gentle on purpose: a temple
+      // spire really is taller than a sea stack, so this closes the gap
+      // rather than flattening it.
+      const DIO_TRIM = [1.06, 0.93, 0.99];
+      // The scenes rise out of the terrain in trip order, each one finishing
+      // as the route reaches the next.
+      const DIO_FROM = 0.35, DIO_STAGGER = 0.05, DIO_SPAN = 0.16;
+      // …and grow with the camera rather than holding a fixed screen size,
+      // which is what stops them reading as stickers on the glass. Driven off
+      // the drawn zoom, so it is still a pure function of the timeline.
+      const DIO_PLANT_IN = 2.2, DIO_PLANT_FULL = 7.2;
+      // The comet that rides the head of each leg. Dash lengths are fractions
+      // of the leg (pathLength="1"), longest at the front, and the long gap
+      // comes FIRST so the train trails the head instead of running ahead of
+      // it -- which lets it share the base line's own reveal offset exactly.
+      const DIO_FLOW_DASH = "0.879 0.012 0.03 0.019 0.03 0.03";
+
       // Cards and leaders are built ONCE and then only re-positioned, never
       // scaled by the camera. Scaling chrome along with the map is what made
       // the old names swell during the zoom and snap back on every redraw.
       let scrollCue = null;
       let routeDom = null;
-      let routeLegs = null;
-      let routeHead = null;
+      // One route object, not a list of legs.
+      let routeLine = null;      // { lift, halo, core, comet, head }
+      // How far along the whole route each stop sits, as a 0..1 activation.
+      // Written by layoutRoute, read by the diorama block in the same pass.
+      let routeArrive = [0, 0, 0];
       let destLayer = null;
       // Progress ring state, scoped to this layer: which card is mid-sweep,
       // which is open, and the timer that turns one into the other.
@@ -7433,11 +8781,32 @@ body.th-noanim #thailand-route-svg { display: none; }
         const L = lang();
         // Route first so the nodes and their connectors draw over it.
         routeSvg.innerHTML =
+          DIO_DEFS +
+          // Scenes first: the route and the coordinate marks read over them.
+          DESTS.map(function (d) {
+            const planes = DIOS[d.key] || [];
+            return '<g class="tz-dio" style="visibility:hidden">' +
+              '<ellipse class="tz-dio__shadow" cx="0" cy="1.6" rx="38" ry="7" ' +
+                'fill="url(#dio-contact)"/>' +
+              planes.map(function (art, k) {
+                return '<g class="tz-dio__p" data-plane="' + k + '">' +
+                       dioTint(d.key, art) + '</g>';
+              }).join("") +
+              '<ellipse class="tz-dio__glow" cx="-2" cy="-22" rx="21" ry="19" ' +
+                'fill="url(#dio-lit)" opacity="0"/>' +
+            '</g>';
+          }).join("") +
           '<g class="tz-route-g">' +
-            DESTS.slice(1).map(function () {
-              return '<path class="tz-route" pathLength="1"/>';
-            }).join("") +
-            '<circle class="tz-route-head" r="2.1"/>' +
+            // One path, four strokes, one reveal offset. Not two connectors.
+            '<path class="tz-route tz-route__lift" pathLength="1"/>' +
+            '<path class="tz-route tz-route__halo" pathLength="1"/>' +
+            '<path class="tz-route tz-route__core" pathLength="1"/>' +
+            '<path class="tz-route tz-route__comet" pathLength="1"/>' +
+            '<g class="tz-route-head">' +
+              '<ellipse class="tz-route-head__glow" rx="8" ry="5"/>' +
+              '<path class="tz-route-head__trail" d="M-7.5 0 L-1.6 0"/>' +
+              '<circle class="tz-route-head__core" r="1.45"/>' +
+            '</g>' +
           '</g>' +
           DESTS.map(function () {
             return '<g class="tz-anchor">' +
@@ -7469,6 +8838,8 @@ body.th-noanim #thailand-route-svg { display: none; }
               '<span class="tz-card__n">' + d.n + '</span>' +
             '</span>' +
             '<h3 class="tz-card__name">' + d.name[L] + '</h3>' +
+            '<p class="tz-card__region" data-tr="' + d.region.tr + '" data-en="' + d.region.en + '">' +
+              d.region[L] + '</p>' +
             '<p class="tz-card__meta" data-tr="' + d.meta.tr + '" data-en="' + d.meta.en + '">' +
               d.meta[L] + '</p>' +
             '<div class="tz-card__detail"><div>' +
@@ -7479,9 +8850,17 @@ body.th-noanim #thailand-route-svg { display: none; }
 
         const groups = routeSvg.querySelectorAll(".tz-anchor");
         const cards = destLayer.querySelectorAll(".tz-card");
-        routeLegs = [].slice.call(routeSvg.querySelectorAll(".tz-route"));
-        routeHead = routeSvg.querySelector(".tz-route-head");
+        const dios = routeSvg.querySelectorAll(".tz-dio");
+        routeLine = {
+          lift: routeSvg.querySelector(".tz-route__lift"),
+          halo: routeSvg.querySelector(".tz-route__halo"),
+          core: routeSvg.querySelector(".tz-route__core"),
+          comet: routeSvg.querySelector(".tz-route__comet"),
+          head: routeSvg.querySelector(".tz-route-head"),
+          drift: false
+        };
         routeDom = DESTS.map(function (d, i) {
+          const dio = dios[i];
           return {
             leader: groups[i].querySelector(".tz-leader"),
             ring: groups[i].querySelector(".tz-dot-ring"),
@@ -7489,6 +8868,12 @@ body.th-noanim #thailand-route-svg { display: none; }
             dot: groups[i].querySelector(".tz-dot"),
             card: cards[i],
             bar: cards[i].querySelector(".tz-ring__bar"),
+            dio: dio ? {
+              g: dio,
+              planes: [].slice.call(dio.querySelectorAll(".tz-dio__p")),
+              glow: dio.querySelector(".tz-dio__glow"),
+              shown: -1
+            } : null,
             anim: null
           };
         });
@@ -7600,59 +8985,206 @@ body.th-noanim #thailand-route-svg { display: none; }
           y: h / 2 + want.ty + want.z * (b.y - h / 2)
         };
       }
+      // --- The route -----------------------------------------------------
+      // A Catmull-Rom spline through the three coordinates, converted to
+      // cubic Beziers, with the end points duplicated so the curve starts and
+      // stops where the journey does. Catmull-Rom is what buys the smooth
+      // pass THROUGH Bangkok: the outgoing control point of the first segment
+      // and the incoming control point of the second are p +/- the same
+      // vector, so they are collinear through the city and the join cannot
+      // show a corner. (Bowing the control points by hand would break exactly
+      // that, which is why the curvature comes from the tension instead.)
+      function routePath(pts) {
+        const P = [pts[0]].concat(pts, [pts[pts.length - 1]]);
+        let d = "M" + pts[0].x.toFixed(1) + "," + pts[0].y.toFixed(1);
+        const segs = [];
+        for (let i = 1; i < P.length - 2; i++) {
+          const p0 = P[i - 1], p1 = P[i], p2 = P[i + 1], p3 = P[i + 2];
+          const c1 = { x: p1.x + (p2.x - p0.x) / 6 * ROUTE_TENSION,
+                       y: p1.y + (p2.y - p0.y) / 6 * ROUTE_TENSION };
+          const c2 = { x: p2.x - (p3.x - p1.x) / 6 * ROUTE_TENSION,
+                       y: p2.y - (p3.y - p1.y) / 6 * ROUTE_TENSION };
+          d += " C" + c1.x.toFixed(1) + "," + c1.y.toFixed(1) +
+               " " + c2.x.toFixed(1) + "," + c2.y.toFixed(1) +
+               " " + p2.x.toFixed(1) + "," + p2.y.toFixed(1);
+          segs.push({ a: p1, c1: c1, c2: c2, b: p2 });
+        }
+        return { d: d, segs: segs };
+      }
 
-      // Lay the cards out beside their cities for a given camera and a given
-      // point on the master timeline. Pure function of (want, tv) — nothing
-      // accumulates, so reverse costs nothing.
-      // A gently bowed leg between two screen points. The bow arcs away from
-      // the side the cards sit on, so the route never tangles with a connector.
-      function legPath(a, b, bowSign) {
-        const dx = b.x - a.x, dy = b.y - a.y;
-        const len = Math.sqrt(dx * dx + dy * dy) || 1;
-        const bow = len * 0.16 * bowSign;
-        const mx = (a.x + b.x) / 2 + (dy / len) * bow;
-        const my = (a.y + b.y) / 2 - (dx / len) * bow;
-        return "M" + a.x.toFixed(1) + "," + a.y.toFixed(1) +
-               " Q" + mx.toFixed(1) + "," + my.toFixed(1) +
-               " " + b.x.toFixed(1) + "," + b.y.toFixed(1);
+      // Cheap arc length: the mean of the control polygon and the chord. Good
+      // to a fraction of a percent on curves this gentle, and it costs no
+      // layout -- getTotalLength() on a "d" written microseconds earlier
+      // flushes SVG layout, which measured 60-90ms a shot when the head used
+      // to be placed that way.
+      function segLength(s) {
+        const h = Math.hypot;
+        return (h(s.c1.x - s.a.x, s.c1.y - s.a.y) +
+                h(s.c2.x - s.c1.x, s.c2.y - s.c1.y) +
+                h(s.b.x - s.c2.x, s.b.y - s.c2.y) +
+                h(s.b.x - s.a.x, s.b.y - s.a.y)) / 2;
+      }
+
+      // Where the travelling light is, and which way it is pointing, at a
+      // fraction q of the whole route.
+      function routeAt(segs, lens, total, q) {
+        let want = clamp01(q) * total, i = 0;
+        while (i < segs.length - 1 && want > lens[i]) { want -= lens[i]; i++; }
+        const s = segs[i], t = clamp01(want / (lens[i] || 1)), u = 1 - t;
+        const x = u * u * u * s.a.x + 3 * u * u * t * s.c1.x +
+                  3 * u * t * t * s.c2.x + t * t * t * s.b.x;
+        const y = u * u * u * s.a.y + 3 * u * u * t * s.c1.y +
+                  3 * u * t * t * s.c2.y + t * t * t * s.b.y;
+        const dx = 3 * u * u * (s.c1.x - s.a.x) + 6 * u * t * (s.c2.x - s.c1.x) +
+                   3 * t * t * (s.b.x - s.c2.x);
+        const dy = 3 * u * u * (s.c1.y - s.a.y) + 6 * u * t * (s.c2.y - s.c1.y) +
+                   3 * t * t * (s.b.y - s.c2.y);
+        return { x: x, y: y, deg: Math.atan2(dy, dx) * 180 / Math.PI };
       }
 
       function layoutRoute(want, tv) {
         if (!routeDom) return;
 
         // --- the journey itself: Phuket -> Bangkok -> Chiang Mai ----------
-        // Each leg gets its own band on the master timeline, sitting between
-        // the cards it connects, so the route reads as travel rather than as
-        // decoration that appeared all at once.
-        let headSet = false;
-        if (routeLegs) {
-          routeLegs.forEach(function (leg, i) {
-            const from = DESTS[i], to = DESTS[i + 1];
-            if (!from.base || !to.base) { leg.style.opacity = "0"; return; }
-            const a = screenOf(want, from.base), b = screenOf(want, to.base);
-            leg.setAttribute("d", legPath(a, b, ROUTE_BOW[i]));
-            const r = smooth(clamp01((tv - (ROUTE_FROM + i * ROUTE_GAP)) / ROUTE_LEG));
-            leg.setAttribute("stroke-dashoffset", (1 - r).toFixed(4));
-            leg.style.opacity = (r > 0 ? 0.92 : 0).toFixed(3);
-            // the travelling mark rides the leg currently being drawn
-            if (!headSet && r > 0.02 && r < 0.99) {
-              try {
-                const p = leg.getPointAtLength(leg.getTotalLength() * r);
-                routeHead.setAttribute("cx", p.x.toFixed(1));
-                routeHead.setAttribute("cy", p.y.toFixed(1));
-                routeHead.style.opacity = "0.9";
-                headSet = true;
-              } catch (e) { /* path not measurable yet */ }
-            }
+        // One curve through all three, revealed once across a single band of
+        // the master timeline. q is the fraction of the WHOLE route drawn so
+        // far, so a stop lights up when the light actually reaches it rather
+        // than on a threshold typed out separately -- and because q is a pure
+        // function of tv, scrolling back out runs the identical curve in
+        // reverse with nothing to un-wind.
+        routeArrive = [0, 0, 0];
+        if (routeLine) {
+          const pts = DESTS.map(function (d) {
+            return d.base ? screenOf(want, d.base) : null;
           });
+          if (pts.every(Boolean)) {
+            const path = routePath(pts);
+            const lens = path.segs.map(segLength);
+            const total = lens.reduce(function (a, b) { return a + b; }, 0) || 1;
+            // Where Bangkok sits along the route, measured, not assumed: the
+            // camera changes the screen distances every frame.
+            const reach = [0, lens[0] / total, 1];
+            const q = smooth(clamp01((tv - ROUTE_FROM) / ROUTE_SPAN));
+            const off = (1 - q).toFixed(4);
+
+            routeLine.lift.setAttribute("d", path.d);
+            routeLine.halo.setAttribute("d", path.d);
+            routeLine.core.setAttribute("d", path.d);
+            routeLine.comet.setAttribute("d", path.d);
+
+            // Landed: hand the comet to CSS, which walks the same marks around
+            // the route for as long as the reader is parked here. A CSS
+            // animation beats the attribute this code writes, so the two can
+            // never run at once -- and the class flips twice a shot, not once
+            // a frame.
+            const landed = q >= 0.997;
+            if (landed !== routeLine.drift) {
+              routeLine.drift = landed;
+              routeLine.comet.classList.toggle("is-drifting", landed);
+            }
+            routeLine.lift.setAttribute("stroke-dashoffset", off);
+            routeLine.halo.setAttribute("stroke-dashoffset", off);
+            routeLine.core.setAttribute("stroke-dashoffset", off);
+            if (!landed) routeLine.comet.setAttribute("stroke-dashoffset", off);
+
+            const live = q > 0.004;
+            routeLine.lift.style.opacity = live ? "1" : "0";
+            routeLine.halo.style.opacity = live ? "1" : "0";
+            routeLine.core.style.opacity = live ? "1" : "0";
+            routeLine.comet.style.opacity = landed
+              ? "0.6"
+              : (Math.min(1, q * 9) * 0.95).toFixed(3);
+
+            // The travelling light, laid along the curve's own tangent so its
+            // trail always points back down the route it came from.
+            if (live && !landed) {
+              const at = routeAt(path.segs, lens, total, q);
+              routeLine.head.setAttribute(
+                "transform",
+                "translate(" + at.x.toFixed(1) + "," + at.y.toFixed(1) +
+                ") rotate(" + at.deg.toFixed(1) + ")");
+              // brightens as it sets off, eases away as it arrives
+              routeLine.head.style.opacity =
+                (Math.min(1, q * 12) * Math.min(1, (1 - q) * 14)).toFixed(3);
+            } else if (routeLine.head.style.opacity !== "0") {
+              routeLine.head.style.opacity = "0";
+            }
+
+            // Each stop activates as the light reaches it: Phuket the moment
+            // the route sets off, the other two on arrival. The ramp ENDS on
+            // the stop rather than starting there -- ending Chiang Mai's at
+            // reach 1 meant it could only begin lighting after the route had
+            // already finished, so it never lit at all.
+            for (let k = 0; k < 3; k++) {
+              routeArrive[k] = smooth(clamp01((q - reach[k] + ROUTE_LIGHT) / ROUTE_LIGHT));
+            }
+          }
         }
-        if (routeHead && !headSet) routeHead.style.opacity = "0";
+
+        // How planted the scenes are: 0 while the camera is still wide, 1 by
+        // the time it is deep. One value for all three.
+        const plant = clamp01(
+          (want.z - DIO_PLANT_IN) / (DIO_PLANT_FULL - DIO_PLANT_IN));
 
         DESTS.forEach(function (d, i) {
           const n = routeDom[i];
           if (!d.base) { n.card.style.opacity = "0"; return; }
           const at = screenOf(want, d.base);
-          const cx = at.x + d.dx, cy = at.y + d.dy;
+          // dx/dy are tuned for a wide window. Clamp the label to the viewport
+          // so a narrower one cannot push it off the right edge -- at 900 wide
+          // Bangkok's ran 21px past it. The leader uses the same cx, so it
+          // follows the label wherever it lands.
+          const cx = Math.min(at.x + d.dx, window.innerWidth - CARD_W - 16);
+          const cy = Math.min(at.y + d.dy, window.innerHeight - 40);
+
+          // --- the miniature scene standing on this coordinate ------------
+          const dio = n.dio;
+          if (dio) {
+            const e = smooth(clamp01((tv - (DIO_FROM + i * DIO_STAGGER)) / DIO_SPAN));
+            if (e <= 0.002) {
+              // Parked: no transform writes at all while it is not on screen,
+              // so the world view and the first half of the flight pay nothing
+              // for any of this.
+              if (dio.shown !== 0) {
+                dio.shown = 0;
+                dio.g.style.visibility = "hidden";
+                dio.g.style.opacity = "0";
+              }
+            } else {
+              if (dio.shown !== 1) {
+                dio.shown = 1;
+                dio.g.style.visibility = "visible";
+              }
+              dio.g.style.opacity = e.toFixed(3);
+              // Rises out of the terrain and settles -- no overshoot, so it
+              // reads as emerging rather than dropping in.
+              // Full size 1.6, down a fifth from 2.0: at 2.0 they read as
+              // objects sitting ON the frame rather than landmarks belonging
+              // to the geography. DIO_TRIM then evens the three out -- the
+              // drawings are not the same intrinsic height (Wat Arun's finial
+              // reaches -70, the karst's crown only -55), so at one shared
+              // scale Bangkok looked a size up from the other two.
+              const size = (0.8 + 0.8 * plant) * (0.86 + 0.14 * e) * DIO_TRIM[i];
+              dio.g.setAttribute(
+                "transform",
+                "translate(" + at.x.toFixed(1) + "," + (at.y + (1 - e) * 15).toFixed(1) +
+                ") scale(" + size.toFixed(4) + ")");
+              // The three planes pull apart as the camera closes in: the far
+              // one falls behind and sinks, the near one comes forward. This
+              // is the whole of the "3D" and it costs two numbers a plane.
+              for (let k = 0; k < dio.planes.length; k++) {
+                const dz = DIO_DEPTH[k] === undefined ? 1 : DIO_DEPTH[k];
+                const sep = 1 + (dz - 1) * plant;
+                dio.planes[k].setAttribute(
+                  "transform",
+                  "translate(0," + ((1 - dz) * plant * 7).toFixed(2) +
+                  ") scale(" + sep.toFixed(4) + ")");
+              }
+              // …and it lights up when the route reaches it.
+              dio.glow.style.opacity =
+                (routeArrive[i] * 0.38).toFixed(3);
+            }
+          }
 
           // Staggered in trip order, over the last third of the approach.
           const from = CARD_FROM + i * CARD_STAGGER;
@@ -7690,6 +9222,10 @@ body.th-noanim #thailand-route-svg { display: none; }
             (cy - 26).toFixed(1) + "px)";
           n.card.style.opacity = t.toFixed(3);
           n.card.style.pointerEvents = t > 0.92 ? "auto" : "none";
+          // These are <button>s. pointer-events does not take them out of the
+          // tab order, so at the world view they were three invisible focus
+          // stops; visibility does.
+          n.card.style.visibility = t > 0.01 ? "visible" : "hidden";
         });
         // Leaving Thailand closes whatever was open, so the cards never scroll
         // away mid-sweep and come back in a stale state.
@@ -7776,11 +9312,11 @@ body.th-noanim #thailand-route-svg { display: none; }
       // same input rules — the second leg simply moves a different thing.
       const SHOTS = [
         { key: "world",    p: 0, ms: 0 },
-        { key: "thailand", p: 1, ms: 2100 },
+        { key: "thailand", p: 1, ms: 2300 },
         { key: "contact",  p: 2, ms: 1700 }
       ];
-      const ANTICIPATION = 240;   // ms of held breath before the camera moves
-      const SHOT_MS = 2100;       // default leg length
+      const ANTICIPATION = 110;   // ms of held breath before the camera moves
+      const SHOT_MS = 2300;       // default leg length
       const COOLDOWN = 260;       // ms after arrival before another shot is taken
       const QUIET_MS = 140;       // wheel must go quiet this long before re-arming
       // The cards used to be triggered on arrival, so their 0.8s entrance only
@@ -7793,13 +9329,37 @@ body.th-noanim #thailand-route-svg { display: none; }
       // progress, so "from 70%" means what it says on the clock.
       // The two route legs, each with its own band between the cards it joins.
       // Bow signs arc the route away from the side the cards sit on.
-      const ROUTE_FROM = 0.72;
-      const ROUTE_LEG = 0.15;
-      const ROUTE_GAP = 0.07;
-      const ROUTE_BOW = [1, 1];
-      const CARD_FROM = 0.7;
-      const CARD_STAGGER = 0.06;
-      const CARD_SPAN = 0.18;   // last card lands exactly on arrival
+      // The choreography of the arrival, all on timeOf(camView) -- the share
+      // of the shot the camera has actually flown, so every threshold below
+      // reverses for free on the way back out.
+      //   0.35 - 0.61  the three scenes rise out of the terrain, in trip order
+      //   0.52 - 0.74  the route draws between them, lighting each as it lands
+      //   0.78 - 1.00  the editorial labels come in last
+      //
+      // These start later than a literal reading of a 0-20/20-40/40-70/70-100
+      // beat sheet, and deliberately. The camera eases power4, so at 22% of
+      // the SHOT it has covered 1.9% of the DISTANCE: z is 1.25 and Thailand
+      // is still a sliver. The order and the proportions are the ones asked
+      // for; the entry point is moved to where the scene is legible (z 2.5),
+      // and the scenes then grow with the terrain rather than arriving at
+      // full size on a country that is not there yet -- see plant() below.
+      // One band for the whole journey rather than a band per leg: the route
+      // is a single curve now, and q -- the fraction of it drawn -- is what
+      // every other route value is derived from, including which stop has
+      // been reached. Nothing here is typed out twice, so nothing can drift.
+      const ROUTE_FROM = 0.52;
+      const ROUTE_SPAN = 0.24;      // 0.52 -> 0.76 of the shot
+      // Catmull-Rom tension. 1 is the textbook value; a little over gives the
+      // curve a wider, more geographic swing without breaking the collinear
+      // control points that keep Bangkok corner-free.
+      const ROUTE_TENSION = 1.32;
+      // How far ahead of a stop its light starts coming up, as a fraction of
+      // the whole route. The ramp finishes exactly as the light arrives.
+      const ROUTE_LIGHT = 0.13;
+      const CARD_W = 208;       // .tz-card width, for the viewport clamp
+      const CARD_FROM = 0.78;
+      const CARD_STAGGER = 0.05;
+      const CARD_SPAN = 0.12;   // last card lands exactly on arrival
 
       let phase = 0;              // which stop we are parked on
       let cooldownUntil = 0;      // no new shot before this timestamp
@@ -7836,8 +9396,11 @@ body.th-noanim #thailand-route-svg { display: none; }
       }
       // Used only when a gesture reverses a shot in flight.
       function easeOutPower3(t) { return 1 - Math.pow(1 - t, 3); }
-      // Swap this for easeInOutPower4 / easeInOutExpo to firm up the curve.
-      const shotEase = easeInOutPower3;
+      // power4 rather than power3: the same arrival, but a firmer hold at each
+      // end and a markedly faster middle -- slow, accelerate, FAST, decelerate,
+      // settle. timeOf() below inverts THIS curve; the two must be changed
+      // together or every reveal threshold silently desyncs.
+      const shotEase = easeInOutPower4;
       // The point on the timeline that 78% of the world -> Thailand leg lands
       // on. Testing camP rather than the tween's own t is what makes the cards
       // reverse for free: it holds however the camera got there.
@@ -7850,8 +9413,8 @@ body.th-noanim #thailand-route-svg { display: none; }
         if (p <= 0) return 0;
         if (p >= 1) return 1;
         return p < 0.5
-          ? Math.cbrt(p / 4)
-          : 1 - Math.cbrt(2 * (1 - p)) / 2;
+          ? Math.pow(p / 8, 0.25)
+          : 1 - Math.pow(2 * (1 - p), 0.25) / 2;
       }
 
       let looping = false;
@@ -7930,7 +9493,6 @@ body.th-noanim #thailand-route-svg { display: none; }
       }
 
       function renderBody(settled) {
-
         // One value, folded. The camera runs 0 -> 1 -> 0 while the master
         // progress runs 0 -> 1 -> 2, so the journey out to Thailand is flown
         // in reverse on the way to contact: the camera pulls back, the
@@ -7957,6 +9519,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         // function of the scroll timeline; no pointer term is added to it.
         const dt = deltaTransform(want);
         setCamTransform(dt);
+        applyTravelBlur();
         worldMapBg.style.filter = "none";
         worldMapBg.style.opacity = "1";
 
@@ -7965,7 +9528,7 @@ body.th-noanim #thailand-route-svg { display: none; }
         // them reverse without a second animation.
         layoutRoute(want, timeOf(camView));
         routeOpacity = smooth(clamp01((camView - 0.5) / 0.22));
-        applyExitFade();
+        applyExitFade(lastPageY);
 
         // The tour panel keeps its own entrance, triggered 22% before arrival.
         const showCards = camView >= P_REVEAL;
@@ -8000,11 +9563,14 @@ body.th-noanim #thailand-route-svg { display: none; }
         if (!flightSvg) flightSvg = document.getElementById("flight-path-svg");
         const bt = baseTransform(want);
         const overlayFade = 1 - smooth(clamp01((camView - 0.08) / 0.22));
+        // Once these are hidden they stay hidden for the rest of the flight;
+        // re-transforming them every frame only dirties two more subtrees.
+        const overlayHidden = overlayFade < 0.01;
         [gfxLandmarksEl, flightSvg].forEach(function (el) {
           if (!el) return;
+          if (overlayHidden && el.style.visibility === "hidden") return;
           el.style.transformOrigin = "0 0";
           el.style.transform = bt;
-          el.style.filter = "none";
           el.style.opacity = String(overlayFade);
           el.style.visibility = overlayFade < 0.01 ? "hidden" : "visible";
         });
@@ -8148,6 +9714,11 @@ body.th-noanim #thailand-route-svg { display: none; }
       // only the overlay fade. It used to re-arm the previous shot from here,
       // which fired on the way down as well and yanked the camera backwards.
       function onScroll() {
+        // A scroll this code did not write means the page itself moved, so the
+        // cached edge may be stale. Our own scrollTo lands exactly on
+        // lastPageY, and that is the case that must stay free.
+        if (Math.round(window.scrollY) !== lastPageY) stageBottomDoc = -1;
+        exitFadeKey = NaN;
         applyExitFade();
       }
 
@@ -8155,9 +9726,34 @@ body.th-noanim #thailand-route-svg { display: none; }
       // the contact section once the stage has scrolled past. Fade it out with
       // the stage rather than pinning it to the camera.
       let routeOpacity = 0;
-      function applyExitFade() {
-        const r = stage.getBoundingClientRect();
-        const f = clamp01(r.bottom / (window.innerHeight * 0.55));
+      // stage.getBoundingClientRect() is a forced synchronous layout, and
+      // renderBody calls this AFTER writing the camera transform, three custom
+      // properties, the two overlay transforms and all four cards -- so every
+      // frame flushed the whole document. Measured over one world <-> Thailand
+      // leg with the panel revealed: 805-937ms of the ~1600-2000ms the shot
+      // spent in JS, median frame 7.4ms against a 16.7ms budget.
+      // The rect only moves when the page scrolls, and while a shot is flying
+      // the page scroll is a number we set ourselves (lastPageY). So measure
+      // once per distinct scroll offset and reuse it; the opacity below still
+      // updates every frame, because routeOpacity does.
+      // The stage sits in normal flow, so where its bottom edge falls in the
+      // DOCUMENT never changes while the cinematic runs -- only the scroll
+      // offset under it does, and on the contact leg that offset is a number
+      // this code writes. Keeping the document-space edge turns the whole
+      // thing into arithmetic: one rect for the life of the page instead of
+      // one per frame.
+      let exitFadeKey = NaN, exitFadeF = 1, stageBottomDoc = -1;
+      function applyExitFade(key) {
+        if (key === undefined || key !== exitFadeKey) {
+          exitFadeKey = key === undefined ? NaN : key;
+          if (stageBottomDoc < 0) {
+            stageBottomDoc = stage.getBoundingClientRect().bottom + window.scrollY;
+          }
+          const top = typeof key === "number" ? key : window.scrollY;
+          exitFadeF = clamp01(
+            (stageBottomDoc - top) / (window.innerHeight * 0.55));
+        }
+        const f = exitFadeF;
         const vis = f < 0.01 ? "hidden" : "visible";
         routeSvg.style.opacity = String(routeOpacity * f);
         routeSvg.style.visibility = vis;
@@ -8173,25 +9769,38 @@ body.th-noanim #thailand-route-svg { display: none; }
         if (document.body.classList.contains("view-tour")) return;
         const dz = Math.abs(want.z - drawn.z) / drawn.z;
         const dtx = Math.abs(want.tx - drawn.tx), dty = Math.abs(want.ty - drawn.ty);
-        if (mode === "motion" && dz < 0.06) return;
+        if (mode === "motion" && dz < 0.11) return;
         if (mode === "settle" && dz < 0.002 && dtx < 0.5 && dty < 0.5) {
           if (api.syncPaths) api.syncPaths();
           return;
         }
         drawn = { z: want.z, tx: want.tx, ty: want.ty };
         lastCommit = performance.now();
+        commitMode = mode;
         api.setView(want.z, want.tx, want.ty, mode === "motion");   // triggers gezeceyik-map-ready
       }
+
+      // Which kind of commit the map is currently answering. Set right before
+      // setView, read by onMapReady, which the event fires synchronously.
+      let commitMode = "settle";
 
       function onMapReady() {
         setCamTransform("none");
         measureCities();
-        measure();
+        // measure() takes a getBBox off the SVG whose 177 country paths setView
+        // has just rewritten, so it flushes a full SVG layout: 6-11ms a commit,
+        // 52-89ms over one leg. What it recovers -- Thailand's centre on the
+        // un-zoomed map -- is a geographic constant, and re-deriving it from a
+        // freshly re-simplified path also let viewFor()'s own target drift
+        // between commits mid-flight. Take it when the camera is parked.
+        if (commitMode !== "motion") measure();
         render(!looping);
       }
 
       function syncNow() {
         clearTimeout(settleTimer);
+        exitFadeKey = NaN;        // viewport height moved: re-measure the fade
+        stageBottomDoc = -1;
         measure(); measureCities();
         measureContact();
         if (geo) commitView(viewFor(camP < 1 ? camP : 1), "force");
@@ -15540,7 +17149,6 @@ body.th-noanim #thailand-route-svg { display: none; }
     </div>
   </div>
 
-  <script src="effects.js" defer></script>
   <script>
     // Bilingual chat flow — each text has both TR and EN values
     const chatFlow_tr = {
@@ -15816,6 +17424,7 @@ body.th-noanim #thailand-route-svg { display: none; }
 
         lastMouseX = mouseX;
         lastMouseY = mouseY;
+        wakePlane();
       });
 
       document.addEventListener('mouseleave', () => {
@@ -15835,16 +17444,29 @@ body.th-noanim #thailand-route-svg { display: none; }
         return diff;
       }
 
-      // Render loop: position INSTANT, rotation SMOOTH (snappy turning)
+      // Render loop: position INSTANT, rotation SMOOTH (snappy turning).
+      // Runs only while there is something to draw: a mousemove wakes it, and
+      // it sleeps once the turn has settled. It used to run unconditionally
+      // for the life of the page -- a style write every frame, forever,
+      // whether or not the mouse had moved, and one more thing contending for
+      // the frame while the cinematic was flying.
+      let planeAwake = false;
       function tick() {
         const diff = shortestAngleDiff(targetAngle, currentAngle);
         currentAngle += diff * 0.14;
         cursorPlane.style.transform =
           'translate(-50%, -50%) translate(' + mouseX + 'px, ' + mouseY +
           'px) rotate(' + currentAngle.toFixed(1) + 'deg)';
+        if (Math.abs(diff) > 0.05) requestAnimationFrame(tick);
+        else planeAwake = false;
+      }
+      function wakePlane() {
+        if (planeAwake) return;
+        planeAwake = true;
         requestAnimationFrame(tick);
       }
-      tick();
+      // No kick at load: the plane is not shown until the first mousemove,
+      // and that same event wakes the loop.
 
       function createTrail(x, y, angle) {
         const rad = angle * Math.PI / 180;
