@@ -136,6 +136,10 @@ The bootstrap script at the top of `<body>` picks the device tier:
   Komfor, Lüks, Özel Aile Turu — is the headline over a dark gradient, the
   itinerary the deck, dates/nights/stay one dotted line, availability and a
   40px "Tur sayfasını aç" pill below. Same markup, content and tour pages.
+  Cards snap to the left edge so ~15 % of the next one peeks in; under the
+  row a `.m-swipe` cue ("Daha fazla keşfet →", the arrow nudging twice
+  every 4 s) slides the row one card on tap and fades after the first real
+  swipe (one passive `scroll` listener on the row, removed once it fires).
 - **Cinematic page** for everything with a mouse or trackpad (MacBooks,
   Windows laptops, desktops). Unchanged.
 - `prefers-reduced-motion` on a desktop keeps the older static layout: the

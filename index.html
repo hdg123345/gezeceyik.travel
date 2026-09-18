@@ -5660,9 +5660,16 @@ html.gz-simple .tour-cards-grid .landing-preview__media {
    name the deck. Same markup, same content, same tour pages behind them.
    Tablets keep the two-column grid and the stops above.
    ===================================================================== */
-html.gz-phone .tour-cards-grid { gap: 12px; padding-bottom: 22px; }
+html.gz-phone .tour-cards-grid {
+  gap: 12px;
+  padding-bottom: 14px;
+  /* Cards land on the left edge, so the next one always peeks in on the right */
+  scroll-padding-inline-start: clamp(16px, 4vw, 40px);
+}
 html.gz-phone .tour-cards-grid .landing-preview.tour-card {
-  flex-basis: min(86vw, 400px);
+  /* ~15% of the next card shows at the right edge */
+  flex-basis: min(78vw, 400px);
+  scroll-snap-align: start;
   display: grid;
   grid-template-rows: minmax(0, 1fr);
   min-height: min(122vw, 560px);
@@ -5755,6 +5762,50 @@ html.gz-phone .tour-cards-grid .landing-preview__price .landing-preview__hint.to
 html.gz-phone .tour-cards-grid .tour-card--sold-out .landing-preview__hint.tour-link {
   border-color: rgba(246, 239, 226, 0.16);
   color: rgba(246, 239, 226, 0.55);
+}
+/* The swipe cue under the row, right-aligned: a small editorial label and an
+   arrow that nudges right now and then. Built by simpleDestinations() on
+   phones only; a tap slides the row one card; it fades once the row has
+   been swiped. */
+html.gz-phone .m-swipe {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  width: 100%;
+  min-height: 44px;
+  margin: -2px 0 0;
+  padding: 0 2px 0 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: rgba(246, 239, 226, 0.78);
+  cursor: pointer;
+  transition: opacity 0.7s ease;
+}
+html.gz-phone .m-swipe.is-used { opacity: 0; pointer-events: none; }
+html.gz-phone .m-swipe__label {
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+html.gz-phone .m-swipe__arrow {
+  flex: none;
+  color: #f6efe2;
+  animation: m-swipe-nudge 4s ease-in-out infinite;
+}
+/* Still most of the time; two small nudges to the right every four seconds. */
+@keyframes m-swipe-nudge {
+  0%, 58%, 100% { transform: translateX(0); }
+  68%           { transform: translateX(6px); }
+  78%           { transform: translateX(0); }
+  88%           { transform: translateX(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.gz-phone .m-swipe__arrow { animation: none; }
 }
 
 /* The three stops. Same type as the map annotations, on a plain surface. */
@@ -10387,12 +10438,39 @@ html.gz-simple #contactFormSection { margin-top: clamp(28px, 6vw, 48px); }
       }
       reserveHeader();
       window.addEventListener("resize", reserveHeader, { passive: true });
-      // Phones: no route, no stops -- the page is the tour cards and contact.
-      if (document.documentElement.classList.contains("gz-phone")) return;
       const landing = document.getElementById("landing");
       const grid = landing && landing.querySelector(".tour-cards-grid");
       if (!grid) return;
       const L = (document.documentElement.getAttribute("data-lang") || "tr") === "en" ? "en" : "tr";
+      // Phones: no route, no stops -- the page is the tour cards and contact.
+      // Under the swipe row, a cue that there is more to the right.
+      if (document.documentElement.classList.contains("gz-phone")) {
+        if (grid.children.length < 2) return;
+        const cue = document.createElement("button");
+        cue.type = "button";
+        cue.className = "m-swipe";
+        cue.setAttribute("aria-label", L === "en" ? "Next tour" : "Sonraki tur");
+        cue.setAttribute("data-tr-aria-label", "Sonraki tur");
+        cue.setAttribute("data-en-aria-label", "Next tour");
+        cue.innerHTML =
+          '<span class="m-swipe__label" data-tr="Daha fazla keşfet" data-en="Discover more">' +
+            (L === "en" ? "Discover more" : "Daha fazla keşfet") + '</span>' +
+          '<svg class="m-swipe__arrow" viewBox="0 0 24 12" width="24" height="12" aria-hidden="true">' +
+            '<path d="M1 6h20M16 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        grid.insertAdjacentElement("afterend", cue);
+        cue.addEventListener("click", function () {
+          const w = grid.children[0].getBoundingClientRect().width + 12;
+          grid.scrollBy({ left: w, behavior: "smooth" });
+        });
+        // One real swipe is enough: the cue has done its job.
+        const used = function () {
+          if (grid.scrollLeft < 40) return;
+          cue.classList.add("is-used");
+          grid.removeEventListener("scroll", used);
+        };
+        grid.addEventListener("scroll", used, { passive: true });
+        return;
+      }
       const sec = document.createElement("section");
       sec.className = "m-dests";
       sec.setAttribute("aria-labelledby", "m-dests-title");
