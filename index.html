@@ -5651,6 +5651,112 @@ html.gz-simple .tour-cards-grid .landing-preview__media {
   html.gz-simple .tour-cards-grid .landing-preview__media { height: clamp(170px, 24vw, 250px); }
 }
 
+/* =====================================================================
+   THE PHONE PAGE  (html.gz-phone, inside gz-simple)
+   wordmark -> tour cards -> contact, nothing about the route. The cards
+   are magazine covers you swipe through: the photograph fills the card,
+   the words sit on it over a dark gradient, the tier ("Gezgin Tarzı",
+   "Komfor", "Lüks", "Özel Aile Turu") is the headline and the itinerary
+   name the deck. Same markup, same content, same tour pages behind them.
+   Tablets keep the two-column grid and the stops above.
+   ===================================================================== */
+html.gz-phone .tour-cards-grid { gap: 12px; padding-bottom: 22px; }
+html.gz-phone .tour-cards-grid .landing-preview.tour-card {
+  flex-basis: min(86vw, 400px);
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  min-height: min(122vw, 560px);
+  border-radius: 24px;
+  overflow: hidden;
+  border: 0;
+  background: #0f2a3a;
+  box-shadow: 0 18px 40px rgba(2, 12, 20, 0.45);
+  color: #f6efe2;
+}
+html.gz-phone .tour-cards-grid .landing-preview.tour-card::before { display: none; }
+html.gz-phone .tour-cards-grid .landing-preview.tour-card:active { transform: scale(0.985); }
+html.gz-phone .tour-cards-grid .landing-preview__media {
+  grid-area: 1 / 1;
+  height: 100%;
+  min-height: 0;
+  border-radius: 0;
+}
+html.gz-phone .tour-cards-grid .landing-preview__body {
+  grid-area: 1 / 1;
+  align-self: end;
+  position: relative;
+  z-index: 1;
+  padding: 4rem 1.25rem 1.2rem;
+  background: linear-gradient(180deg, rgba(6, 20, 32, 0) 0%, rgba(6, 20, 32, 0.55) 34%, rgba(6, 20, 32, 0.92) 100%);
+}
+html.gz-phone .tour-cards-grid .landing-preview__badge {
+  width: max-content;
+  max-width: 100%;
+  padding: 0.32rem 0.62rem;
+  border-radius: 999px;
+  background: rgba(246, 239, 226, 0.16);
+  border: 1px solid rgba(246, 239, 226, 0.22);
+  color: #f6efe2;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.7rem;
+}
+html.gz-phone .tour-cards-grid .landing-preview__tier {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 8.6vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  color: #f6efe2;
+  margin: 0 0 0.3rem;
+}
+html.gz-phone .tour-cards-grid .landing-preview__title {
+  font-family: var(--font-body);
+  font-size: 0.94rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: rgba(246, 239, 226, 0.84);
+  margin: 0 0 0.7rem;
+}
+html.gz-phone .tour-cards-grid .landing-preview__meta {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.25rem 0;
+  font-size: 0.8rem;
+  color: rgba(246, 239, 226, 0.72);
+  margin-bottom: 0.85rem;
+}
+html.gz-phone .tour-cards-grid .landing-preview__meta-line { display: inline; width: auto; }
+html.gz-phone .tour-cards-grid .landing-preview__meta-line + .landing-preview__meta-line::before {
+  content: "\00b7";
+  margin: 0 0.5rem;
+  opacity: 0.6;
+}
+html.gz-phone .tour-cards-grid .landing-preview__price {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(246, 239, 226, 0.16);
+}
+html.gz-phone .tour-cards-grid .tour-card__availability { color: rgba(246, 239, 226, 0.86); }
+html.gz-phone .tour-cards-grid .tour-card__availability--sold-out { color: #ffb4a0; }
+html.gz-phone .tour-cards-grid .landing-preview__price .landing-preview__hint.tour-link {
+  align-self: auto;
+  min-height: 40px;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid rgba(246, 239, 226, 0.38);
+  border-radius: 999px;
+  color: #f6efe2;
+  font-size: 0.8rem;
+}
+html.gz-phone .tour-cards-grid .tour-card--sold-out .landing-preview__hint.tour-link {
+  border-color: rgba(246, 239, 226, 0.16);
+  color: rgba(246, 239, 226, 0.55);
+}
+
 /* The three stops. Same type as the map annotations, on a plain surface. */
 html.gz-simple .m-dests { margin: clamp(24px, 5vw, 40px) 0 0; }
 html.gz-simple .m-dests__head { max-width: 34rem; margin-bottom: clamp(12px, 2.6vw, 18px); }
@@ -5759,6 +5865,14 @@ html.gz-simple #contactFormSection { margin-top: clamp(28px, 6vw, 48px); }
         document.documentElement.classList.add("gz-simple");
         document.body.classList.add("th-noanim");
       }
+      // Phones within that tier (html.gz-phone): the route stops are never
+      // built and the tour cards are the page -- see THE PHONE PAGE in the
+      // stylesheet. A phone is a card-first device whose shorter screen
+      // side is under 600 CSS px whichever way it is held (iPhone 15 Pro
+      // Max 430, iPad mini 744); ?view=cards in a narrow window counts too.
+      var phone = simple && (Math.min(screen.width || innerWidth, screen.height || innerHeight) < 600 ||
+                             (forced === "cards" && innerWidth < 600));
+      if (phone) document.documentElement.classList.add("gz-phone");
       // The CRT tube (see VINTAGE FILM) is a backdrop pass through an SVG
       // displacement filter. Chromium runs those; WebKit does not, and it
       // must not be handed the declaration. --vf-curve (px at the corners)
@@ -10273,6 +10387,8 @@ html.gz-simple #contactFormSection { margin-top: clamp(28px, 6vw, 48px); }
       }
       reserveHeader();
       window.addEventListener("resize", reserveHeader, { passive: true });
+      // Phones: no route, no stops -- the page is the tour cards and contact.
+      if (document.documentElement.classList.contains("gz-phone")) return;
       const landing = document.getElementById("landing");
       const grid = landing && landing.querySelector(".tour-cards-grid");
       if (!grid) return;

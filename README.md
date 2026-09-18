@@ -122,9 +122,20 @@ The bootstrap script at the top of `<body>` picks the device tier:
   window under 760px. No map, no cinematic, and none of their assets: d3,
   topojson, the two terrain textures, the borders file and the world atlas
   are never requested; the 36 landmark icons and 25 labels are never built.
-  The page is wordmark → intro → tour cards (a swipe row on phones, a 2-column
-  grid on tablets) → the three stops as tap-to-open cards (`.m-dests`, built
-  from the same `DESTS` data the map uses) → contact.
+  On tablets the page is wordmark → intro → tour cards (2-column grid) →
+  the three stops as tap-to-open cards (`.m-dests`, built from the same
+  `DESTS` data the map uses) → contact.
+- **Phone page** (`html.gz-phone`, inside the tier above) for card-first
+  devices whose shorter screen side is under 600 CSS px whichever way they
+  are held (iPhones, Android phones; `?view=cards` in a narrow window too):
+  wordmark → tour cards → contact, and nothing about the route — the stops
+  section is never built (`simpleDestinations()` returns before it), no
+  route, markers, dioramas or labels exist on the page. The four existing
+  cards become magazine covers you swipe through (`THE PHONE PAGE` in the
+  stylesheet): the photograph fills the card, the tier — Gezgin Tarzı,
+  Komfor, Lüks, Özel Aile Turu — is the headline over a dark gradient, the
+  itinerary the deck, dates/nights/stay one dotted line, availability and a
+  40px "Tur sayfasını aç" pill below. Same markup, content and tour pages.
 - **Cinematic page** for everything with a mouse or trackpad (MacBooks,
   Windows laptops, desktops). Unchanged.
 - `prefers-reduced-motion` on a desktop keeps the older static layout: the
