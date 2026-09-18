@@ -136,10 +136,14 @@ The bootstrap script at the top of `<body>` picks the device tier:
   Komfor, Lüks, Özel Aile Turu — is the headline over a dark gradient, the
   itinerary the deck, dates/nights/stay one dotted line, availability and a
   40px "Tur sayfasını aç" pill below. Same markup, content and tour pages.
-  Cards snap to the left edge so ~15 % of the next one peeks in; under the
-  row a `.m-swipe` cue ("Daha fazla keşfet →", the arrow nudging twice
-  every 4 s) slides the row one card on tap and fades after the first real
-  swipe (one passive `scroll` listener on the row, removed once it fires).
+  Cards snap to the left edge so ~19 % of the next one peeks in, blurred
+  and faded: `simpleDestinations()` wraps the row in `.m-row`, adds the
+  `.m-next` arrow (cream, glowing, swaying 7 px, centred on the cards at
+  the right edge, above the row) and one IntersectionObserver that marks
+  the card at least half in view `.is-active` — every other card is
+  blurred/faded, the row's right 56 px fade under a mask. Tapping the arrow
+  slides one card; it goes quiet after the first swipe and disappears on
+  the last card. No scroll handler, no loop.
 - **Cinematic page** for everything with a mouse or trackpad (MacBooks,
   Windows laptops, desktops). Unchanged.
 - `prefers-reduced-motion` on a desktop keeps the older static layout: the

@@ -5763,49 +5763,58 @@ html.gz-phone .tour-cards-grid .tour-card--sold-out .landing-preview__hint.tour-
   border-color: rgba(246, 239, 226, 0.16);
   color: rgba(246, 239, 226, 0.55);
 }
-/* The swipe cue under the row, right-aligned: a small editorial label and an
-   arrow that nudges right now and then. Built by simpleDestinations() on
-   phones only; a tap slides the row one card; it fades once the row has
-   been swiped. */
-html.gz-phone .m-swipe {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.55rem;
-  width: 100%;
-  min-height: 44px;
-  margin: -2px 0 0;
-  padding: 0 2px 0 0;
+/* The row and its invitation. simpleDestinations() wraps the grid in .m-row
+   on phones and adds the arrow beside it: a cream arrow with a soft glow at
+   the right edge, vertically centred on the cards, swaying 7px, above the
+   row (the row's own painting never covers it). One IntersectionObserver
+   marks the card that is at least half in view .is-active; every other
+   card is blurred and faded, so the next card peeks in as a soft tease and
+   comes clear as it arrives. The row's right edge fades under a mask. */
+html.gz-phone .m-row { position: relative; }
+html.gz-phone .m-row .tour-cards-grid {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 56px), rgba(0, 0, 0, 0.42) 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 56px), rgba(0, 0, 0, 0.42) 100%);
+}
+html.gz-phone .tour-cards-grid .landing-preview.tour-card {
+  filter: blur(2.5px) saturate(0.85) brightness(0.82);
+  opacity: 0.6;
+  transition: filter 0.45s ease, opacity 0.45s ease;
+}
+html.gz-phone .tour-cards-grid .landing-preview.tour-card.is-active {
+  filter: none;
+  opacity: 1;
+}
+html.gz-phone .m-next {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  z-index: 20;
+  width: 44px;
+  height: 44px;
+  /* centred on the cards: the row's padding is 4px above them, 14px below */
+  margin: -27px 0 0;
+  padding: 0;
   border: 0;
   background: none;
-  font: inherit;
-  color: rgba(246, 239, 226, 0.78);
-  cursor: pointer;
-  transition: opacity 0.7s ease;
-}
-html.gz-phone .m-swipe.is-used { opacity: 0; pointer-events: none; }
-html.gz-phone .m-swipe__label {
-  font-family: var(--font-body);
-  font-size: 0.6rem;
-  font-weight: 500;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-html.gz-phone .m-swipe__arrow {
-  flex: none;
   color: #f6efe2;
-  animation: m-swipe-nudge 4s ease-in-out infinite;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 7px rgba(246, 239, 226, 0.7)) drop-shadow(0 0 2px rgba(246, 239, 226, 0.9));
+  animation: m-next-sway 2.6s ease-in-out infinite;
+  transition: opacity 0.5s ease;
 }
-/* Still most of the time; two small nudges to the right every four seconds. */
-@keyframes m-swipe-nudge {
-  0%, 58%, 100% { transform: translateX(0); }
-  68%           { transform: translateX(6px); }
-  78%           { transform: translateX(0); }
-  88%           { transform: translateX(4px); }
+html.gz-phone .m-next svg { display: block; width: 30px; height: 18px; }
+html.gz-phone .m-next.is-quiet { opacity: 0.6; }
+html.gz-phone .m-next.is-end { opacity: 0; pointer-events: none; }
+@keyframes m-next-sway {
+  0%, 100% { transform: translateX(-3px); }
+  50%      { transform: translateX(4px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  html.gz-phone .m-swipe__arrow { animation: none; }
+  html.gz-phone .m-next { animation: none; }
+  html.gz-phone .tour-cards-grid .landing-preview.tour-card { transition: none; }
 }
 
 /* The three stops. Same type as the map annotations, on a plain surface. */
@@ -10443,32 +10452,48 @@ html.gz-simple #contactFormSection { margin-top: clamp(28px, 6vw, 48px); }
       if (!grid) return;
       const L = (document.documentElement.getAttribute("data-lang") || "tr") === "en" ? "en" : "tr";
       // Phones: no route, no stops -- the page is the tour cards and contact.
-      // Under the swipe row, a cue that there is more to the right.
+      // The row gets a wrapper, an arrow at its right edge and an observer
+      // that keeps the card in view clear and the others blurred.
       if (document.documentElement.classList.contains("gz-phone")) {
-        if (grid.children.length < 2) return;
-        const cue = document.createElement("button");
-        cue.type = "button";
-        cue.className = "m-swipe";
-        cue.setAttribute("aria-label", L === "en" ? "Next tour" : "Sonraki tur");
-        cue.setAttribute("data-tr-aria-label", "Sonraki tur");
-        cue.setAttribute("data-en-aria-label", "Next tour");
-        cue.innerHTML =
-          '<span class="m-swipe__label" data-tr="Daha fazla keşfet" data-en="Discover more">' +
-            (L === "en" ? "Discover more" : "Daha fazla keşfet") + '</span>' +
-          '<svg class="m-swipe__arrow" viewBox="0 0 24 12" width="24" height="12" aria-hidden="true">' +
-            '<path d="M1 6h20M16 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-        grid.insertAdjacentElement("afterend", cue);
-        cue.addEventListener("click", function () {
-          const w = grid.children[0].getBoundingClientRect().width + 12;
-          grid.scrollBy({ left: w, behavior: "smooth" });
-        });
-        // One real swipe is enough: the cue has done its job.
-        const used = function () {
-          if (grid.scrollLeft < 40) return;
-          cue.classList.add("is-used");
-          grid.removeEventListener("scroll", used);
+        const cards = Array.prototype.slice.call(grid.children);
+        if (cards.length < 2) return;
+        const row = document.createElement("div");
+        row.className = "m-row";
+        grid.parentNode.insertBefore(row, grid);
+        row.appendChild(grid);
+        const next = document.createElement("button");
+        next.type = "button";
+        next.className = "m-next";
+        next.setAttribute("aria-label", L === "en" ? "Next tour" : "Sonraki tur");
+        next.setAttribute("data-tr-aria-label", "Sonraki tur");
+        next.setAttribute("data-en-aria-label", "Next tour");
+        next.innerHTML = '<svg viewBox="0 0 30 18" aria-hidden="true"><path d="M2 9h25M19 2l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        row.appendChild(next);
+        let active = cards[0];
+        active.classList.add("is-active");
+        const setActive = function (card) {
+          if (card === active) return;
+          active.classList.remove("is-active");
+          active = card;
+          active.classList.add("is-active");
+          next.classList.toggle("is-end", active === cards[cards.length - 1]);
+          next.classList.add("is-quiet");
         };
-        grid.addEventListener("scroll", used, { passive: true });
+        // The card at least half inside the row is the active one; a card
+        // leaving does not clear it, the arriving one takes over.
+        const io = new IntersectionObserver(function (entries) {
+          let best = null;
+          entries.forEach(function (en) {
+            if (en.intersectionRatio >= 0.5 && (!best || en.intersectionRatio > best.intersectionRatio)) best = en;
+          });
+          if (best) setActive(best.target);
+        }, { root: grid, threshold: [0.5, 0.75] });
+        cards.forEach(function (c) { io.observe(c); });
+        next.addEventListener("click", function () {
+          const i = cards.indexOf(active);
+          const to = cards[Math.min(cards.length - 1, i + 1)];
+          grid.scrollTo({ left: to.offsetLeft - grid.offsetLeft - parseFloat(getComputedStyle(grid).paddingLeft), behavior: "smooth" });
+        });
         return;
       }
       const sec = document.createElement("section");
