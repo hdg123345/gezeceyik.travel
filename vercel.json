@@ -1,23 +1,28 @@
 {
   "installCommand": "npm install",
-  "redirects": [
-    { "source": "/", "destination": "/coming-soon.html", "permanent": false },
-    { "source": "/:path((?!api/|coming-soon\\.html|robots\\.txt|sitemap\\.xml).*)", "destination": "/coming-soon.html", "permanent": false }
-  ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" }
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)\\.(webp|avif|jpg|jpeg|png|ico|woff2)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     },
     {
       "source": "/(robots\\.txt|sitemap\\.xml)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
       ]
     }
   ]
