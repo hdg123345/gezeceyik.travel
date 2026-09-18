@@ -136,14 +136,15 @@ The bootstrap script at the top of `<body>` picks the device tier:
   Komfor, Lüks, Özel Aile Turu — is the headline over a dark gradient, the
   itinerary the deck, dates/nights/stay one dotted line, availability and a
   40px "Tur sayfasını aç" pill below. Same markup, content and tour pages.
-  Cards snap to the left edge so ~19 % of the next one peeks in, blurred
-  and faded: `simpleDestinations()` wraps the row in `.m-row`, adds the
-  `.m-next` arrow (cream, glowing, swaying 7 px, centred on the cards at
-  the right edge, above the row) and one IntersectionObserver that marks
-  the card at least half in view `.is-active` — every other card is
-  blurred/faded, the row's right 56 px fade under a mask. Tapping the arrow
-  slides one card; it goes quiet after the first swipe and disappears on
-  the last card. No scroll handler, no loop.
+  Cards (76 vw, 30 px gap) snap to the left edge so ~16 % of the next one
+  peeks in, blurred and faded: `simpleDestinations()` wraps the row in
+  `.m-row`, sets the scroll cue's own chevron (`.scroll-cue__arrow`,
+  verbatim markup, class, stroke, glow and 3.2 s drift) in the gap between
+  the card in view and the next, turned to point right by a rotated
+  wrapper (`.m-next`, decorative, no tap), and one IntersectionObserver
+  that marks the card at least half in view `.is-active` — every other
+  card is blurred/faded, the row's right 56 px fade under a mask. The arrow
+  disappears on the last card. No scroll handler, no loop.
 - **Cinematic page** for everything with a mouse or trackpad (MacBooks,
   Windows laptops, desktops). Unchanged.
 - `prefers-reduced-motion` on a desktop keeps the older static layout: the

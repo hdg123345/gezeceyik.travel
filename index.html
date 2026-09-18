@@ -5661,14 +5661,15 @@ html.gz-simple .tour-cards-grid .landing-preview__media {
    Tablets keep the two-column grid and the stops above.
    ===================================================================== */
 html.gz-phone .tour-cards-grid {
-  gap: 12px;
+  /* room for the arrow between a card and the next */
+  gap: 30px;
   padding-bottom: 14px;
   /* Cards land on the left edge, so the next one always peeks in on the right */
   scroll-padding-inline-start: clamp(16px, 4vw, 40px);
 }
 html.gz-phone .tour-cards-grid .landing-preview.tour-card {
-  /* ~15% of the next card shows at the right edge */
-  flex-basis: min(78vw, 400px);
+  /* ~16% of the next card shows at the right edge, past the arrow */
+  flex-basis: min(76vw, 400px);
   scroll-snap-align: start;
   display: grid;
   grid-template-rows: minmax(0, 1fr);
@@ -5764,12 +5765,14 @@ html.gz-phone .tour-cards-grid .tour-card--sold-out .landing-preview__hint.tour-
   color: rgba(246, 239, 226, 0.55);
 }
 /* The row and its invitation. simpleDestinations() wraps the grid in .m-row
-   on phones and adds the arrow beside it: a cream arrow with a soft glow at
-   the right edge, vertically centred on the cards, swaying 7px, above the
-   row (the row's own painting never covers it). One IntersectionObserver
-   marks the card that is at least half in view .is-active; every other
-   card is blurred and faded, so the next card peeks in as a soft tease and
-   comes clear as it arrives. The row's right edge fades under a mask. */
+   on phones and sets the scroll cue's own arrow (the "Keşfetmeye devam et"
+   chevron: same markup, class, stroke, glow and 3.2s drift) in the gap
+   between the card in view and the next, turned to point right -- the
+   rotation is on a wrapper, so the arrow's downward drift becomes a
+   rightward one. One IntersectionObserver marks the card at least half in
+   view .is-active; every other card is blurred and faded, so the next card
+   peeks in as a soft tease and comes clear as it arrives. The row's right
+   edge fades under a mask. */
 html.gz-phone .m-row { position: relative; }
 html.gz-phone .m-row .tour-cards-grid {
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 56px), rgba(0, 0, 0, 0.42) 100%);
@@ -5786,36 +5789,22 @@ html.gz-phone .tour-cards-grid .landing-preview.tour-card.is-active {
 }
 html.gz-phone .m-next {
   position: absolute;
-  top: 50%;
-  right: 14px;
+  /* the middle of the 30px gap after the card in view (the card's left
+     edge is the row's own: the grid bleeds out by the page padding and
+     pads back in by the same); the cards sit 4px below the row's top
+     and 14px above its bottom */
+  left: calc(min(76vw, 400px) + 15px - 9px);
+  top: calc(50% - 5px);
+  width: 18px;
+  height: 15px;
+  margin-top: -8px;
   z-index: 20;
-  width: 44px;
-  height: 44px;
-  /* centred on the cards: the row's padding is 4px above them, 14px below */
-  margin: -27px 0 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: #f6efe2;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: drop-shadow(0 0 7px rgba(246, 239, 226, 0.7)) drop-shadow(0 0 2px rgba(246, 239, 226, 0.9));
-  animation: m-next-sway 2.6s ease-in-out infinite;
+  pointer-events: none;
+  transform: rotate(-90deg);
   transition: opacity 0.5s ease;
 }
-html.gz-phone .m-next svg { display: block; width: 30px; height: 18px; }
-html.gz-phone .m-next.is-quiet { opacity: 0.6; }
-html.gz-phone .m-next.is-end { opacity: 0; pointer-events: none; }
-@keyframes m-next-sway {
-  0%, 100% { transform: translateX(-3px); }
-  50%      { transform: translateX(4px); }
-}
-@media (prefers-reduced-motion: reduce) {
-  html.gz-phone .m-next { animation: none; }
-  html.gz-phone .tour-cards-grid .landing-preview.tour-card { transition: none; }
-}
+html.gz-phone .m-next.is-end { opacity: 0; }
+html.gz-phone .m-next .scroll-cue__arrow { display: block; }
 
 /* The three stops. Same type as the map annotations, on a plain surface. */
 html.gz-simple .m-dests { margin: clamp(24px, 5vw, 40px) 0 0; }
@@ -10461,13 +10450,11 @@ html.gz-simple #contactFormSection { margin-top: clamp(28px, 6vw, 48px); }
         row.className = "m-row";
         grid.parentNode.insertBefore(row, grid);
         row.appendChild(grid);
-        const next = document.createElement("button");
-        next.type = "button";
+        // The scroll cue's arrow, verbatim, turned to point right.
+        const next = document.createElement("span");
         next.className = "m-next";
-        next.setAttribute("aria-label", L === "en" ? "Next tour" : "Sonraki tur");
-        next.setAttribute("data-tr-aria-label", "Sonraki tur");
-        next.setAttribute("data-en-aria-label", "Next tour");
-        next.innerHTML = '<svg viewBox="0 0 30 18" aria-hidden="true"><path d="M2 9h25M19 2l8 7-8 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        next.setAttribute("aria-hidden", "true");
+        next.innerHTML = '<svg class="scroll-cue__arrow" viewBox="0 0 18 15" width="18" height="15"><path d="M9 1.5 L9 9.5" /><path d="M4.6 6 L9 10.6 L13.4 6" /></svg>';
         row.appendChild(next);
         let active = cards[0];
         active.classList.add("is-active");
@@ -10477,7 +10464,6 @@ html.gz-simple #contactFormSection { margin-top: clamp(28px, 6vw, 48px); }
           active = card;
           active.classList.add("is-active");
           next.classList.toggle("is-end", active === cards[cards.length - 1]);
-          next.classList.add("is-quiet");
         };
         // The card at least half inside the row is the active one; a card
         // leaving does not clear it, the arriving one takes over.
@@ -10489,11 +10475,6 @@ html.gz-simple #contactFormSection { margin-top: clamp(28px, 6vw, 48px); }
           if (best) setActive(best.target);
         }, { root: grid, threshold: [0.5, 0.75] });
         cards.forEach(function (c) { io.observe(c); });
-        next.addEventListener("click", function () {
-          const i = cards.indexOf(active);
-          const to = cards[Math.min(cards.length - 1, i + 1)];
-          grid.scrollTo({ left: to.offsetLeft - grid.offsetLeft - parseFloat(getComputedStyle(grid).paddingLeft), behavior: "smooth" });
-        });
         return;
       }
       const sec = document.createElement("section");
