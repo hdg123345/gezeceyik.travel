@@ -2,7 +2,11 @@
  * Local dev server: static site + POST /api/booking (same handler as Vercel).
  * Usage: copy .env.example → .env, fill Gmail or Web3Forms keys, then npm run dev
  */
-require("dotenv").config();
+// The project's own .env, wherever the process was started from: dotenv's
+// default is process.cwd()/.env, which silently reads nothing (or the wrong
+// file) when the server is launched from another directory.
+const ENV_FILE = require("path").join(__dirname, ".env");
+require("dotenv").config({ path: ENV_FILE });
 
 const http = require("http");
 const fs = require("fs");
@@ -68,7 +72,9 @@ function serveStatic(req, res) {
   let urlPath = decodeURIComponent(req.url.split("?")[0]);
   if (urlPath === "/") urlPath = "/index.html";
   const filePath = path.normalize(path.join(ROOT, urlPath));
-  if (!filePath.startsWith(ROOT)) {
+  // Stay inside the project, and never hand out dotfiles (.env, .git/...).
+  const rel = path.relative(ROOT, filePath);
+  if (rel.startsWith("..") || path.isAbsolute(rel) || rel.split(path.sep).some(function (seg) { return seg.startsWith("."); })) {
     res.writeHead(403);
     res.end("Forbidden");
     return;
@@ -104,6 +110,9 @@ const server = http.createServer(async function (req, res) {
 
   if (req.url === "/api/booking" && req.method === "POST") {
     try {
+      // Dev only: re-read .env on every submission, so a key pasted into it
+      // works on the next click without restarting the server.
+      require("dotenv").config({ path: ENV_FILE, override: true });
       const raw = await readBody(req);
       const vercelReq = { method: "POST", body: raw };
       await bookingHandler(vercelReq, createResAdapter(res));

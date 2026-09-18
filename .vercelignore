@@ -1,0 +1,8 @@
+# Not part of the deployed site: local tooling and docs.
+server.js
+EMAIL_SETUP.md
+README.md
+.env.example
+.claude
+test-email.js
+nav-debug.js
